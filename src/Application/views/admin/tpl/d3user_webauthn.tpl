@@ -10,7 +10,7 @@
     [{assign var="readonly" value=""}]
 [{/if}]
 
-<style type="text/css">
+<style>
     td.edittext {
         white-space: normal;
     }
@@ -153,12 +153,15 @@ console.log('96');
                             </tr>
                             [{foreach from=$oView->getCredentialList($userid) item="credential"}]
                                 <tr>
+[{***
                                     <td class="edittext">
                                         <label for="secret">[{$credential->d3GetName()}]</label>
                                     </td>
+***}]
                                     <td class="edittext">
                                         <a href="#" onclick="toggle('keydetails_[{$credential->getId()}]'); return false;" class="list-group-item">
-                                            [{$credential->d3GetName()}] (last used: XX)
+  [{**                                            [{$credential->d3GetName()}] (last used: XX) **}]
+                                              [{$credential->getId()}]
                                         </a>
                                         <div class="list-group-item" id="keydetails_[{$credential->getId()}]" style="display: none">
                                             <a onclick="deleteItem('[{$credential->getId()}]'); return false;"><span class="glyphicon glyphicon-pencil">delete</span></a>

@@ -19,8 +19,8 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Webauthn;
 
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredential;
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use Exception;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
@@ -42,7 +42,7 @@ class d3PublicKeyCredentialSourceRepository implements PublicKeyCredentialSource
             return null;
         }
 
-        $credential = oxNew(d3PublicKeyCredential::class);
+        $credential = oxNew(publicKeyCredential::class);
         $credential->loadByCredentialId($publicKeyCredentialId);
 
         return $credential->getId() ?
@@ -60,10 +60,10 @@ class d3PublicKeyCredentialSourceRepository implements PublicKeyCredentialSource
     {
         $sourceList = [];
 
-        $credentialList = oxNew(d3PublicKeyCredentialList::class);
+        $credentialList = oxNew(PublicKeyCredentialList::class);
         $credentialList->loadAllForUserEntity($publicKeyCredentialUserEntity);
 
-        /** @var d3PublicKeyCredential $credential */
+        /** @var publicKeyCredential $credential */
         foreach ($credentialList->getArray() as $credential) {
             $sourceList[$credential->getId()] = d3PublicKeyCredentialSource::createFromd3PublicKeyCredential($credential);
         };

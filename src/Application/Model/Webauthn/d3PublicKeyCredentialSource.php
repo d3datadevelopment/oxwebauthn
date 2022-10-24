@@ -17,7 +17,7 @@
 
 namespace D3\Webauthn\Application\Model\Webauthn;
 
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredential;
+use D3\Webauthn\Application\Model\Credential\publicKeyCredential;
 use Webauthn\PublicKeyCredentialSource;
 
 class d3PublicKeyCredentialSource  extends PublicKeyCredentialSource
@@ -27,7 +27,7 @@ class d3PublicKeyCredentialSource  extends PublicKeyCredentialSource
      */
     public function saveCredential()
     {
-        $credential = oxNew(d3PublicKeyCredential::class);
+        $credential = oxNew(publicKeyCredential::class);
         $credential->d3SetName(date('Y-m-d H:i:s'));
         $credential->d3SetCredentialId($this->getPublicKeyCredentialId());
         $credential->d3SetType($this->getType());
@@ -42,7 +42,7 @@ class d3PublicKeyCredentialSource  extends PublicKeyCredentialSource
         $credential->save();
     }
 
-    public static function createFromd3PublicKeyCredential(d3PublicKeyCredential $publicKeyCredential): self
+    public static function createFromd3PublicKeyCredential(publicKeyCredential $publicKeyCredential): self
     {
         return new self(
             $publicKeyCredential->d3GetCredentialId(),

@@ -15,9 +15,8 @@
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\Webauthn\d3PublicKeyCredentialUserEntity;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Exception;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminDetailsController;
@@ -59,7 +58,7 @@ class d3user_webauthn extends AdminDetailsController
             $this->addTplParam("sSaveError", $this->_sSaveError);
         }
 
-        $this->setAuthnRegister();
+//        $this->setAuthnRegister();
 
         return $this->_sThisTemplate;
     }
@@ -79,23 +78,15 @@ class d3user_webauthn extends AdminDetailsController
 
     /**
      * @param $userId
-     * @return d3PublicKeyCredentialList|object
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
+     * @return array
      */
     public function getCredentialList($userId)
     {
-        $credentialList = oxNew(d3PublicKeyCredentialList::class);
-
         $oUser = $this->getUserObject();
         $oUser->load($userId);
-        if ($oUser && $oUser->getId()) {
-            /** @var d3PublicKeyCredentialUserEntity $userEntity */
-            $userEntity = oxNew(d3PublicKeyCredentialUserEntity::class, $oUser);
-            $credentialList->loadAllForUserEntity($userEntity);
-        }
 
-        return $credentialList;
+        $publicKeyCrendetials = oxNew(PublicKeyCredentialList::class);
+        return $publicKeyCrendetials->getAllFromUser($oUser)->getArray();
     }
 
     /**

@@ -79,9 +79,9 @@ $aModule = array(
         'd3_account_webauthn'   => d3_account_webauthn::class
     ],
     'templates'     => [
-        'd3user_webauthn.tpl'       => 'd3/webauthn/Application/views/admin/tpl/d3user_webauthn.tpl',
-        'd3webauthnlogin.tpl'       => 'd3/webauthn/Application/views/tpl/d3webauthnlogin.tpl',
-        'd3_account_webauthn.tpl'   => 'd3/webauthn/Application/views/tpl/d3_account_webauthn.tpl',
+        'd3user_webauthn.tpl'       => 'd3/oxwebauthn/Application/views/admin/tpl/d3user_webauthn.tpl',
+        'd3webauthnlogin.tpl'       => 'd3/oxwebauthn/Application/views/tpl/d3webauthnlogin.tpl',
+        'd3_account_webauthn.tpl'   => 'd3/oxwebauthn/Application/views/tpl/d3_account_webauthn.tpl',
     ],
     'events'      => [
         'onActivate'    => '\D3\Webauthn\Setup\Events::onActivate',

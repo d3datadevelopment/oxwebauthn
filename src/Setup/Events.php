@@ -38,7 +38,7 @@ class Events
     public static function onActivate()
     {
         if (class_exists(d3install::class)) {
-            d3install::checkUpdateStart();
+            //d3install::checkUpdateStart();
         }
     }
 

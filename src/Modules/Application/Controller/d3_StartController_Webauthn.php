@@ -36,7 +36,7 @@ class d3_StartController_Webauthn extends d3_StartController_Webauthn_parent
      * @throws DatabaseConnectionException
      * @throws DatabaseErrorException
      */
-    public function render()
+    public function ___render()
     {
         if (!Registry::getRequest()->getRequestEscapedParameter('authn')) {
             /*** register ***/
@@ -49,12 +49,7 @@ class d3_StartController_Webauthn extends d3_StartController_Webauthn_parent
                 $publicKeyCredentialSourceRepository,
                 new d3MetadataStatementRepository()
             );
-/*
-            if (!($user = Registry::getSession()->getUser())) {
-                $e = oxNew(\Exception::class, 'no user loaded');
-                throw $e;
-            }
-*/
+
             $user = oxNew(User::class);
             //$user->load('oxdefaultadmin');
             $user->load('36944b76d6e583fe2.12734046');
@@ -110,7 +105,7 @@ class d3_StartController_Webauthn extends d3_StartController_Webauthn_parent
         return $return;
     }
 
-    public function checkregister()
+    public function ____checkregister()
     {
         // Retrieve the PublicKeyCredentialCreationOptions object created earlier
         /** @var PublicKeyCredentialCreationOptions $publicKeyCredentialCreationOptions */
@@ -157,7 +152,7 @@ class d3_StartController_Webauthn extends d3_StartController_Webauthn_parent
         dumpvar('registered');
     }
 
-    public function checklogin()
+    public function _____checklogin()
     {
         // Retrieve the Options passed to the device
         $publicKeyCredentialRequestOptions = Registry::getSession()->getVariable('authnloginobject');

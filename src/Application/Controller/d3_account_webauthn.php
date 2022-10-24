@@ -15,8 +15,8 @@
 
 namespace D3\Webauthn\Application\Controller;
 
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredential;
-use D3\Webauthn\Application\Model\Credential\d3PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\Webauthn\d3PublicKeyCredentialUserEntity;
 use OxidEsales\Eshop\Application\Controller\AccountController;
@@ -50,19 +50,19 @@ dumpvar(Registry::getRequest()->getRequestEscapedParameter('error'));
 
         $this->addTplParam('user', $this->getUser());
 
-        $this->setAuthnRegister();
+        // $this->setAuthnRegister();
 
         return $sRet;
     }
 
     /**
-     * @return d3PublicKeyCredentialList|object
+     * @return publicKeyCredentialList|object
      * @throws DatabaseConnectionException
      * @throws DatabaseErrorException
      */
     public function getCredentialList()
     {
-        $credentialList = oxNew(d3PublicKeyCredentialList::class);
+        $credentialList = oxNew(PublicKeyCredentialList::class);
 
         $oUser = $this->getUser();
         if ($oUser) {
@@ -98,7 +98,7 @@ dumpvar(Registry::getRequest()->getRequestEscapedParameter('error'));
     public function deleteKey()
     {
         if (Registry::getRequest()->getRequestEscapedParameter('oxid')) {
-            $credential = oxNew(d3PublicKeyCredential::class);
+            $credential = oxNew(publicKeyCredential::class);
             $credential->delete(Registry::getRequest()->getRequestEscapedParameter('oxid'));
         }
     }
