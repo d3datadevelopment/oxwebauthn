@@ -1,0 +1,46 @@
+{
+  "name": "d3/oxwebauthn",
+  "description": "Webauthn / FIDO2 module for OXID eShop.",
+  "type": "oxideshop-module",
+  "keywords": [
+    "oxid",
+    "modules",
+    "eShop",
+    "d3",
+    "webauthn",
+    "FIDO2",
+    "CTAP",
+    "public key"
+  ],
+  "authors": [
+    {
+      "name": "D3 Data Development (Inh. Thomas Dartsch)",
+      "email": "info@shopmodule.com",
+      "homepage": "https://www.d3data.de",
+      "role": "Owner"
+    }
+  ],
+  "homepage": "https://www.oxidmodule.com/",
+  "license": [
+    "GPL-3.0-or-later"
+  ],
+  "extra": {
+    "oxideshop": {
+      "source-directory": "/src",
+      "target-directory": "d3/oxwebauthn"
+    }
+  },
+  "require": {
+    "php": ">=5.6",
+    "oxid-esales/oxideshop-ce": "6.10 - 6.12",
+    "web-auth/webauthn-lib": "^3.3",
+    "ext-json": "*",
+    "ext-soap": "*",
+    "ext-PDO": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "D3\\Webauthn\\": "../../../source/modules/d3/oxwebauthn"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+.d3webauthn_icon {
+    background-color: transparent;
+    height: 175px;
+    width: 278px;
+}
+
+.d3webauthn_icon .svg-container {
+    position: relative;
+    height:0;
+    width: 100%;
+    padding: 0 0 50% 0;
+}
+
+.d3webauthn_icon .svg-container svg {
+    fill: darkgrey;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+}
+
+.d3webauthn_icon .message {
+    color: darkgrey;
+    margin-top: 12px;
+    text-align: center;
+    font-size: 105%;
+}

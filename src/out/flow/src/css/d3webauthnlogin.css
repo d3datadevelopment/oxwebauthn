@@ -1,0 +1,45 @@
+#login {
+    display: flex;
+    flex-flow: column;
+}
+#login .btn.btn_cancel {
+    background: silver;
+    color: black;
+}
+
+.d3webauthn_icon {
+    background-color: transparent;
+    height: 185px;
+    width: 100%;
+}
+
+.d3webauthn_icon .svg-container {
+    position: relative;
+    height:0;
+    width: 100%;
+    padding: 0 0 25% 0;
+}
+
+.d3webauthn_icon .svg-container svg {
+    fill: darkgrey;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+}
+
+.d3webauthn_icon .message {
+    color: darkgrey;
+    margin-top: 12px;
+    text-align: center;
+    font-size: 105%;
+}
+
+#webauthnlogout {
+    text-align: center;
+}
+
+body.cl-d3webauthnlogin .webauthncol {
+    margin-bottom: 20px;
+}
