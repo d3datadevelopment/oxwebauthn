@@ -131,12 +131,12 @@ console.log('96');
                         [{block name="user_d3user_totp_form1"}]
                             <tr>
                                 <td class="edittext">
-                                    <h4>[{oxmultilang ident="D3_TOTP_REGISTERNEW"}]</h4>
+                                    <h4>[{oxmultilang ident="D3_WEBAUTHN_REGISTERNEW"}]</h4>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="edittext">
-                                    <button onclick="authnregister();">Register</button>
+                                    <button onclick="authnregister();">[{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]</button>
                                 </td>
                             </tr>
                         [{/block}]
@@ -148,7 +148,7 @@ console.log('96');
                         [{block name="user_d3user_totp_form2"}]
                             <tr>
                                 <td class="edittext" colspan="2">
-                                    <h4>registered keys</h4>
+                                    <h4>[{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]</h4>
                                 </td>
                             </tr>
                             [{foreach from=$oView->getCredentialList($userid) item="credential"}]

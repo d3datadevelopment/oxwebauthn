@@ -24,10 +24,14 @@ $aLang = [
     'D3_WEBAUTHN_ERROR_MISSINGPKC'                    => 'Keine prüfbaren Anfrageoptionen gespeichert. Bitte führen Sie die Anmeldung noch einmal durch bzw. wenden sich an den Betreiber.',
     'WEBAUTHN_INPUT_HELP'                             => 'Bitte mit Hardwareschlüssel authentisieren.',
     'WEBAUTHN_CANCEL_LOGIN'                           => 'Anmeldung abbrechen',
-/*
-    'd3mxuser_totp'                                   => '2-Faktor-Authentisierung',
 
-    'D3_TOTP_REGISTERNEW'                             => 'neue Registrierung erstellen',
+    'd3mxuser_webauthn'                               => 'Hardwareschlüssel',
+
+    'D3_WEBAUTHN_REGISTERNEW'                         => 'neue Registrierung erstellen',
+    'D3_WEBAUTHN_ADDKEY'                              => 'Sicherheitsschlüssel hinzufügen',
+
+    'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registrierte Schlüssel',
+/*
     'D3_TOTP_QRCODE'                                  => 'QR-Code',
     'D3_TOTP_QRCODE_HELP'                             => 'Scannen Sie diesen QR-Code mit Ihrer Authentisierungs-App, um dieses Benutzerkonto dort zu hinterlegen.',
     'D3_TOTP_SECRET'                                  => 'QR-Code kann nicht gescannt werden?',

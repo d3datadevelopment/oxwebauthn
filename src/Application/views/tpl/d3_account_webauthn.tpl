@@ -126,14 +126,14 @@
     </div>
 
     <div class="panel panel-default">
-        <div class="panel-heading">registration</div>
+        <div class="panel-heading">[{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTERNEW"}]</div>
         <div class="panel-body">
-            <button onclick="authnregister();">Register</button>
+            <button onclick="authnregister();">[{oxmultilang ident="D3_WEBAUTHN_ACC_ADDKEY"}]</button>
         </div>
     </div>
 
     <div class="panel panel-default">
-        <div class="panel-heading">registered keys</div>
+        <div class="panel-heading">[{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTEREDKEYS"}]</div>
         <div class="panel-body">
             <div class="list-group">
                 [{foreach from=$oView->getCredentialList() item="credential"}]

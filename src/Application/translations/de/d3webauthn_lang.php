@@ -7,7 +7,12 @@ $sLangName = 'Deutsch';
 // -------------------------------
 $aLang = array(
     'charset'                              => 'UTF-8',
-    'D3_WEBAUTHN_ACCOUNT'                  => 'd3 Webauthn',
+    
+    'D3_WEBAUTHN_ACCOUNT'                  => 'Sicherheitsschlüssel',
+    'D3_WEBAUTHN_ACC_REGISTERNEW'          => 'neue Registrierung erstellen',
+    'D3_WEBAUTHN_ACC_ADDKEY'               => 'Sicherheitsschlüssel hinzufügen',
+    
+    'D3_WEBAUTHN_ACC_REGISTEREDKEYS'       => 'registrierte Schlüssel',
 
     'WEBAUTHN_INPUT_HELP'                  => 'Bitte mit Hardwareschlüssel authentisieren.',
     'WEBAUTHN_CANCEL_LOGIN'                => 'Anmeldung abbrechen',

@@ -20,14 +20,18 @@ $sLangName = "English";
 $aLang = [
     'charset'                                         => 'UTF-8',
 
-    'D3_WEBAUTHN_ERROR_UNVALID'                       => 'Der verwendete Schlüssel ist ungültig oder kann nicht geprüft werden.',
-    'D3_WEBAUTHN_ERROR_MISSINGPKC'                    => 'Keine prüfbaren Anfrageoptionen gespeichert. Bitte führen Sie die Anmeldung noch einmal durch bzw. wenden sich an den Betreiber.',
+    'D3_WEBAUTHN_ERROR_UNVALID'                       => 'The key used is invalid or cannot be checked.',
+    'D3_WEBAUTHN_ERROR_MISSINGPKC'                    => 'No verifiable request options saved. Please perform the registration again or contact the operator.',
     'WEBAUTHN_INPUT_HELP'                             => 'Please authenticate with hardware key.',
-    'WEBAUTHN_CANCEL_LOGIN'                           => 'Anmeldung abbrechen',
-/*
-    'd3mxuser_totp'                                   => '2-Faktor-Authentisierung',
+    'WEBAUTHN_CANCEL_LOGIN'                           => 'Cancel login',
 
-    'D3_TOTP_REGISTERNEW'                             => 'neue Registrierung erstellen',
+    'd3mxuser_webauthn'                               => 'hardware key',
+
+    'D3_WEBAUTHN_REGISTERNEW'                         => 'create new registration',
+    'D3_WEBAUTHN_ADDKEY'                              => 'add security key',
+
+    'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registered keys',
+/*
     'D3_TOTP_QRCODE'                                  => 'QR-Code',
     'D3_TOTP_QRCODE_HELP'                             => 'Scannen Sie diesen QR-Code mit Ihrer Authentisierungs-App, um dieses Benutzerkonto dort zu hinterlegen.',
     'D3_TOTP_SECRET'                                  => 'QR-Code kann nicht gescannt werden?',
