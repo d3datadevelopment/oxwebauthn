@@ -35,6 +35,10 @@ use Webauthn\PublicKeyCredentialCreationOptions;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\Server;
 
+/**
+ * @deprecated
+ */
+
 class d3webauthn extends BaseModel
 {
     public $tableName = 'd3PublicKeyCredential';

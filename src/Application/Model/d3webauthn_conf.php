@@ -15,6 +15,10 @@
 
 namespace D3\Webauthn\Application\Model;
 
+/**
+ * @deprecated
+ */
+
 class d3webauthn_conf
 {
     const WEBAUTHN_SESSION_AUTH          = 'webauthn_auth';

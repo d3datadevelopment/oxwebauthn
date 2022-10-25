@@ -15,8 +15,11 @@
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\d3webauthn;
+use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Exception;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminDetailsController;
@@ -58,22 +61,53 @@ class d3user_webauthn extends AdminDetailsController
             $this->addTplParam("sSaveError", $this->_sSaveError);
         }
 
-//        $this->setAuthnRegister();
-
         return $this->_sThisTemplate;
     }
 
-    /**
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
+    public function requestNewCredential()
+    {
+        $this->setPageType('requestnew');
+        $this->setAuthnRegister();
+    }
+
+    public function saveAuthn()
+    {
+        if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
+            $errors = oxNew(WebauthnErrors::class);
+            Registry::getUtilsView()->addErrorToDisplay(
+                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+            );
+        }
+
+        if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
+            /** @var Webauthn $webauthn */
+            $webauthn = oxNew(Webauthn::class);
+            $webauthn->saveAuthn(
+                Registry::getRequest()->getRequestEscapedParameter('credential'),
+                Registry::getRequest()->getRequestEscapedParameter('keyname')
+            );
+        }
+    }
+
+    public function setPageType($pageType)
+    {
+        $this->addTplParam('pageType', $pageType);
+    }
+
     public function setAuthnRegister()
     {
-        $publicKeyCredentialCreationOptions = $this->getWebauthnObject()->setAuthnRegister($this->getEditObjectId());
+        $authn = oxNew(Webauthn::class);
+
+        $user = $this->getUserObject();
+        $user->load($this->getEditObjectId());
+        $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
+
         $this->addTplParam(
-            'webauthn_publickey_register',
-            json_encode($publicKeyCredentialCreationOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            'webauthn_publickey_create',
+            $publicKeyCredentialCreationOptions
         );
+        $this->addTplParam('isAdmin', isAdmin());
+        $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
     }
 
     /**
@@ -103,6 +137,13 @@ class d3user_webauthn extends AdminDetailsController
     public function getWebauthnObject()
     {
         return oxNew(d3webauthn::class);
+    }
+
+    public function deleteKey()
+    {
+        /** @var PublicKeyCredential $credential */
+        $credential = oxNew(PublicKeyCredential::class);
+        $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
     }
 
     public function registerNewKey()

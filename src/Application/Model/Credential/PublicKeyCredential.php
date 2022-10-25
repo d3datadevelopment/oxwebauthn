@@ -35,7 +35,6 @@ class PublicKeyCredential extends BaseModel
         parent::__construct();
     }
 
-/*
     public function setName($name)
     {
         $this->assign(['name' => $name]);
@@ -45,7 +44,7 @@ class PublicKeyCredential extends BaseModel
     {
         return $this->getFieldData('name');
     }
-*/
+
     public function setCredentialId($credentialId)
     {
         $this->assign([
@@ -97,7 +96,7 @@ class PublicKeyCredential extends BaseModel
      * @return void
      * @throws \Exception
      */
-    public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
+    public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
         // will save on every successfully assertion, set id to prevent duplicated database entries
         $id = $this->getIdByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId());
@@ -107,6 +106,7 @@ class PublicKeyCredential extends BaseModel
         $this->setUserId($publicKeyCredentialSource->getUserHandle());
         $this->setCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId());
         $this->setCredential($publicKeyCredentialSource);
+        $this->setName($keyName ?: $this->getName());
 
 // ToDo: required??
         $this->assign([
@@ -124,7 +124,7 @@ class PublicKeyCredential extends BaseModel
             ->where(
                 $qb->expr()->and(
                     $qb->expr()->eq(
-                        'credid_hex',
+                        'credentialid',
                         $qb->createNamedParameter(bin2hex($publicKeyCredentialId))
                     ),
                     $qb->expr()->eq(

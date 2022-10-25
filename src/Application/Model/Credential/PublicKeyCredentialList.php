@@ -46,7 +46,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
             ->where(
                 $qb->expr()->and(
                     $qb->expr()->eq(
-                        'credid_hex',
+                        'credentialid',
                         $qb->createNamedParameter(bin2hex($publicKeyCredentialId))
                     ),
                     $qb->expr()->eq(
