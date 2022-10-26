@@ -17,32 +17,121 @@
 
 namespace D3\Webauthn\Setup;
 
-use D3\ModCfg\Application\Model\Exception\d3ShopCompatibilityAdapterException;
-use D3\ModCfg\Application\Model\Install\d3install;
-use Doctrine\DBAL\DBALException;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
-use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
-use OxidEsales\Eshop\Core\Exception\StandardException;
-use OxidEsales\Eshop\Core\Exception\SystemComponentException;
+use OxidEsales\Eshop\Core\DatabaseProvider;
+use OxidEsales\Eshop\Core\DbMetaDataHandler;
+use OxidEsales\Eshop\Core\Registry;
 
 class Events
 {
     /**
-     * @throws d3ShopCompatibilityAdapterException
-     * @throws DBALException
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     * @throws StandardException
-     * @throws SystemComponentException
+     * SQL statement, that will be executed only at the first time of module installation.
+     *
+     * @var array
+     */
+    private static $_createCredentialSql =
+        "CREATE TABLE `d3wa_usercredentials` (
+            `OXID` char(32) NOT NULL,
+            `OXUSERID` char(32) NOT NULL,
+            `OXSHOPID` int(11) NOT NULL,
+            `NAME` varchar(100) NOT NULL,
+            `CREDENTIALID` char(100) NOT NULL,
+            `PUBKEY_HEX` char(150) NOT NULL,
+            `CREDENTIAL` varchar(2000) NOT NULL,
+            `OXTIMESTAMP` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            PRIMARY KEY (`OXID`),
+            KEY `CREDENTIALID_IDX` (`CREDENTIALID`),
+            KEY `SHOPUSER_IDX` (`OXUSERID`,`OXSHOPID`) USING BTREE
+        ) ENGINE=InnoDB COMMENT='WebAuthn Credentials';";
+
+    /**
+     * Execute action on activate event
      */
     public static function onActivate()
     {
-        if (class_exists(d3install::class)) {
-            //d3install::checkUpdateStart();
-        }
+        self::setupModule();
+
+        self::regenerateViews();
+
+        self::clearCache();
     }
 
     public static function onDeactivate()
     {
+    }
+
+    /**
+     * Execute the sql at the first time of the module installation.
+     */
+    private static function setupModule()
+    {
+        if (!self::tableExists('d3wa_usercredentials')) {
+            self::executeSQL(self::$_createCredentialSql);
+        }
+    }
+
+    /**
+     * Check if table exists
+     *
+     * @param string $sTableName table name
+     *
+     * @return bool
+     */
+    protected static function tableExists($sTableName)
+    {
+        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
+
+        return $oDbMetaDataHandler->tableExists($sTableName);
+    }
+
+    /**
+     * Executes given sql statement.
+     *
+     * @param string $sSQL Sql to execute.
+     */
+    private static function executeSQL($sSQL)
+    {
+        DatabaseProvider::getDb()->execute($sSQL);
+    }
+
+    /**
+     * Check if field exists in table
+     *
+     * @param string $sFieldName field name
+     * @param string $sTableName table name
+     *
+     * @return bool
+     */
+    protected static function fieldExists($sFieldName, $sTableName)
+    {
+        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
+
+        return $oDbMetaDataHandler->fieldExists($sFieldName, $sTableName);
+    }
+
+    /**
+     * Regenerate views for changed tables
+     */
+    protected static function regenerateViews()
+    {
+        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
+        $oDbMetaDataHandler->updateViews();
+    }
+
+    /**
+     * Empty cache
+     */
+    private static function clearCache()
+    {
+        /** @var \OxidEsales\Eshop\Core\UtilsView $oUtilsView */
+        $oUtilsView = Registry::getUtilsView();
+        $sSmartyDir = $oUtilsView->getSmartyDir();
+
+        if ($sSmartyDir && is_readable($sSmartyDir)) {
+            foreach (glob($sSmartyDir . '*') as $sFile) {
+                if (!is_dir($sFile)) {
+                    @unlink($sFile);
+                }
+            }
+        }
     }
 }
