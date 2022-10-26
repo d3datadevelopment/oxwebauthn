@@ -44,24 +44,26 @@
             document.getElementById('myedit').submit();
         }
     }
-
-    function toggle(elementId) {
-        document.getElementById(elementId).classList.toggle("hidden-delete");
-    }
 [{/capture}]
 [{oxscript add=$smarty.capture.javascripts}]
 
 [{if $oxid && $oxid != '-1'}]
     [{if $pageType === 'requestnew'}]
         <div class="container-fluid">
-            <div class="row">
-                [{include file="js_create.tpl"}]
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    [{include file="js_create.tpl"}]
 
-                <div>
-                    Bitte die Anfrage Ihres Browsers bestätigen.
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">
+                                Bitte die Anfrage Ihres Browsers bestätigen.
+                            </p>
+                            <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
+                        </div>
+
+                    </div>
                 </div>
-
-                <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
             </div>
         </div>
     [{else}]
@@ -122,9 +124,10 @@
                                 [{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]
                             </div>
                             <div class="card-body">
-                                [{if $oView->getCredentialList($userid)}]
+                                [{assign var="list" value=$oView->getCredentialList($oxid)}]
+                                [{if $list|@count}]
                                     <ul class="list-group list-group-flush">
-                                        [{foreach from=$oView->getCredentialList($userid) item="credential"}]
+                                        [{foreach from=$list item="credential"}]
                                             <li class="list-group-item">
                                                 [{$credential->getName()}]
                                                 <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">

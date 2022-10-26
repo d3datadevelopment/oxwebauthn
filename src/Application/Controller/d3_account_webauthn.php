@@ -17,8 +17,8 @@ namespace D3\Webauthn\Application\Controller;
 
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
-use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\Webauthn\d3PublicKeyCredentialUserEntity;
+use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnErrors;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
@@ -35,11 +35,6 @@ class d3_account_webauthn extends AccountController
      */
     public function render()
     {
-        if (Registry::getRequest()->getRequestEscapedParameter('error')) {
-dumpvar(Registry::getRequest()->getRequestEscapedParameter('error'));
-            Registry::getUtilsView()->addErrorToDisplay('error occured');
-        }
-
         $sRet = parent::render();
 
         // is logged in ?
@@ -50,56 +45,68 @@ dumpvar(Registry::getRequest()->getRequestEscapedParameter('error'));
 
         $this->addTplParam('user', $this->getUser());
 
-        // $this->setAuthnRegister();
-
         return $sRet;
     }
 
     /**
-     * @return publicKeyCredentialList|object
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
+     * @return publicKeyCredentialList
      */
     public function getCredentialList()
     {
-        $credentialList = oxNew(PublicKeyCredentialList::class);
-
         $oUser = $this->getUser();
-        if ($oUser) {
-            /** @var d3PublicKeyCredentialUserEntity $userEntity */
-            $userEntity = oxNew(d3PublicKeyCredentialUserEntity::class, $oUser);
-            $credentialList->loadAllForUserEntity($userEntity);
-        }
-
-        return $credentialList;
+        $credentialList = oxNew(PublicKeyCredentialList::class);
+        return $credentialList->getAllFromUser($oUser);
     }
 
-    /**
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
+    public function requestNewCredential()
+    {
+        $this->setPageType('requestnew');
+        $this->setAuthnRegister();
+    }
+
+    public function setPageType($pageType)
+    {
+        $this->addTplParam('pageType', $pageType);
+    }
+
     public function setAuthnRegister()
     {
-        $webauthn = oxNew(d3webauthn::class);
-        $publicKeyCredentialCreationOptions = $webauthn->setAuthnRegister('36944b76d6e583fe2.12734046');
+        $authn = oxNew(Webauthn::class);
+        $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
 
         $this->addTplParam(
-            'webauthn_publickey_register',
-            json_encode($publicKeyCredentialCreationOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            'webauthn_publickey_create',
+            $publicKeyCredentialCreationOptions
         );
+        $this->addTplParam('isAdmin', isAdmin());
+        $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
     }
 
-    public function registerNewKey()
+    public function saveAuthn()
     {
-        $webauthn = oxNew(d3webauthn::class);
-        $webauthn->registerNewKey(Registry::getRequest()->getRequestParameter('authn'));
+        if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
+            $errors = oxNew(WebauthnErrors::class);
+            Registry::getUtilsView()->addErrorToDisplay(
+                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+            );
+        }
+
+        if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
+            /** @var Webauthn $webauthn */
+            $webauthn = oxNew(Webauthn::class);
+            $webauthn->saveAuthn(
+                Registry::getRequest()->getRequestEscapedParameter('credential'),
+                Registry::getRequest()->getRequestEscapedParameter('keyname')
+            );
+        }
     }
 
     public function deleteKey()
     {
-        if (Registry::getRequest()->getRequestEscapedParameter('oxid')) {
-            $credential = oxNew(publicKeyCredential::class);
-            $credential->delete(Registry::getRequest()->getRequestEscapedParameter('oxid'));
+        if (Registry::getRequest()->getRequestEscapedParameter('deleteoxid')) {
+            /** @var PublicKeyCredential $credential */
+            $credential = oxNew(PublicKeyCredential::class);
+            $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
         }
     }
 }

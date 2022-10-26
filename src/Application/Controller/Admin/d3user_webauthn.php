@@ -27,7 +27,6 @@ use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\Eshop\Core\UtilsView;
 
 class d3user_webauthn extends AdminDetailsController
 {
@@ -146,63 +145,5 @@ class d3user_webauthn extends AdminDetailsController
         /** @var PublicKeyCredential $credential */
         $credential = oxNew(PublicKeyCredential::class);
         $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
-    }
-
-    public function registerNewKey()
-    {
-        $this->getWebauthnObject()->registerNewKey(Registry::getRequest()->getRequestParameter('authn'));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function save()
-    {
-        parent::save();
-
-        $aParams = Registry::getRequest()->getRequestEscapedParameter("editval");
-
-        try {
-            /** @var d3webauthn $oWebauthn */
-            $oWebauthn = $this->getWebauthnObject();
-/*
-            if ($oWebauthn->checkIfAlreadyExist($this->getEditObjectId())) {
-                $oException = oxNew(StandardException::class, 'D3_TOTP_ALREADY_EXIST');
-                throw $oException;
-            };
-
-            if ($aParams['d3totp__oxid']) {
-                $oWebauthn->load($aParams['d3totp__oxid']);
-            } else {
-                $aParams['d3totp__usetotp'] = 1;
-                $seed = Registry::getRequest()->getRequestEscapedParameter("secret");
-                $otp = Registry::getRequest()->getRequestEscapedParameter("otp");
-
-                $oWebauthn->saveSecret($seed);
-                $oWebauthn->assign($aParams);
-                $oWebauthn->verify($otp, $seed);
-                $oWebauthn->setId();
-            }
-            $oWebauthn->save();
-*/
-        } catch (Exception $oExcp) {
-            $this->_sSaveError = $oExcp->getMessage();
-        }
-    }
-
-    /**
-     * @throws DatabaseConnectionException
-     */
-    public function delete()
-    {
-        $aParams = Registry::getRequest()->getRequestEscapedParameter("editval");
-
-        /** @var d3webauthn $oWebauthn */
-        $oWebauthn = $this->getWebauthnObject();
-        if ($aParams['d3totp__oxid']) {
-            $oWebauthn->load($aParams['d3totp__oxid']);
-            $oWebauthn->delete();
-            Registry::get(UtilsView::class)->addErrorToDisplay('D3_TOTP_REGISTERDELETED');
-        }
     }
 }

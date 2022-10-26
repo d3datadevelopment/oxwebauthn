@@ -1,84 +1,121 @@
 [{capture append="oxidBlock_content"}]
 
     [{capture name="javascripts"}]
-        function arrayToBase64String(a) {
-            return btoa(String.fromCharCode(...a));
-        }
-
-        function base64url2base64(input) {
-            input = input
-            .replace(/=/g, "")
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
-
-            const pad = input.length % 4;
-            if(pad) {
-                if(pad === 1) {
-                    throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
-                }
-                input += new Array(5-pad).join('=');
-            }
-
-            return input;
-        }
-
-        function authnregister() {
-            let publicKey = [{$webauthn_publickey_register}];
-
-            publicKey.challenge = Uint8Array.from(window.atob(base64url2base64(publicKey.challenge)), function(c){return c.charCodeAt(0);});
-            publicKey.user.id = Uint8Array.from(window.atob(publicKey.user.id), function(c){return c.charCodeAt(0);});
-            if (publicKey.excludeCredentials) {
-                publicKey.excludeCredentials = publicKey.excludeCredentials.map(function(data) {
-                    data.id = Uint8Array.from(window.atob(base64url2base64(data.id)), function(c){return c.charCodeAt(0);});
-                    return data;
-                });
-            }
-
-            navigator.credentials.create({ 'publicKey': publicKey }).then(function(data){
-                let publicKeyCredential = {
-                    id: data.id,
-                    type: data.type,
-                    rawId: arrayToBase64String(new Uint8Array(data.rawId)),
-                    response: {
-                        clientDataJSON: arrayToBase64String(new Uint8Array(data.response.clientDataJSON)),
-                        attestationObject: arrayToBase64String(new Uint8Array(data.response.attestationObject))
-                    }
-                };
-                document.getElementById('fncname').value = 'registerNewKey';
-                document.getElementById('authnvalue').value = btoa(JSON.stringify(publicKeyCredential));
-                document.getElementById('actionform').submit();
-            }).catch(function(error){
-                document.getElementById('errorvalue').value = btoa(JSON.stringify(error));
-                document.getElementById('actionform').submit();
-            });
-        }
-
         function deleteItem(id) {
-            document.getElementById('fncname').value = 'deleteKey';
-            document.getElementById('oxidvalue').value = id;
-            document.getElementById('actionform').submit();
-        }
-
-        function toggle(elementId) {
-            $("#" + elementId).toggle();
+            if (confirm('wirklich loeschen?') === true) {
+                document.getElementById('fncname').value = 'deleteKey';
+                document.getElementById('oxidvalue').value = id;
+                document.getElementById('actionform').submit();
+            }
         }
     [{/capture}]
     [{oxscript add=$smarty.capture.javascripts}]
 
     <h1 class="page-header">[{oxmultilang ident="D3_WEBAUTHN_ACCOUNT"}]</h1>
 
-    <form action="[{$oViewConf->getSelfActionLink()}]" id="actionform" name="d3webauthnform" class="form-horizontal" method="post">
-        <div class="hidden">
-            [{$oViewConf->getHiddenSid()}]
-            [{$oViewConf->getNavFormParams()}]
-            <input type="hidden" id="fncname" name="fnc" value="">
-            <input type="hidden" name="cl" value="[{$oViewConf->getActiveClassName()}]">
-            <input type="hidden" id="oxidvalue" name="oxid" value="">
-            <input type="hidden" id="authnvalue" name="authn" value="">
-            <input type="hidden" id="errorvalue" name="error" value="">
-        </div>
-    </form>
+    <style>
+        .contentbox {
+            padding-bottom: 15px;
+        }
+    </style>
 
+    [{if $pageType === 'requestnew'}]
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    [{include file="js_create.tpl"}]
+
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">
+                                Bitte die Anfrage Ihres Browsers bestätigen.
+                            </p>
+                            <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    [{else}]
+        <form action="[{$oViewConf->getSelfActionLink()}]" id="actionform" name="d3webauthnform" class="form-horizontal" method="post">
+            <div class="hidden">
+                [{$oViewConf->getHiddenSid()}]
+                [{$oViewConf->getNavFormParams()}]
+                <input type="hidden" id="fncname" name="fnc" value="">
+                <input type="hidden" name="cl" value="[{$oViewConf->getActiveClassName()}]">
+                <input type="hidden" id="authnvalue" name="authn" value="">
+                <input type="hidden" id="errorvalue" name="error" value="">
+                <input type="hidden" name="deleteoxid" id="oxidvalue" value="">
+                <button type="submit" style="display: none;"></button>
+            </div>
+        </form>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-lg-6 contentbox">
+                    <div class="card">
+                        [{block name="user_d3user_totp_registernew"}]
+                            <div class="card-header">
+                                [{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTERNEW"}]
+                            </div>
+                            <div class="card-body">
+                                <form name="newcred" id="newcred" action="[{$oViewConf->getSelfLink()}]" method="post">
+                                    [{$oViewConf->getHiddenSid()}]
+                                    <input type="hidden" name="cl" value="[{$oView->getClassName()}]">
+                                    <input type="hidden" name="fnc" value="requestNewCredential">
+                                    <input type="hidden" name="oxid" value="[{$oxid}]">
+                                    [{block name="user_d3user_totp_registerform"}]
+                                        <label for="credentialname">Name des Schlüssels</label>
+                                        <p class="card-text">
+                                            <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
+                                        </p>
+                                        <p class="card-text">
+                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success">
+                                                [{oxmultilang ident="D3_WEBAUTHN_ACC_ADDKEY"}]
+                                            </button>
+                                        </p>
+                                    [{/block}]
+                                </form>
+                            </div>
+                        [{/block}]
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 contentbox">
+                    <div class="card">
+                        [{block name="user_d3user_totp_form2"}]
+                            <div class="card-header">
+                                [{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTEREDKEYS"}]
+                            </div>
+                            <div class="card-body">
+                                [{assign var="list" value=$oView->getCredentialList()}]
+                                [{if $list|@count}]
+                                    <ul class="list-group list-group-flush">
+                                        [{foreach from=$list item="credential"}]
+                                            <li class="list-group-item">
+                                                [{$credential->getName()}]
+                                                <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                    delete
+                                                </a>
+                                            </li>
+                                        [{/foreach}]
+                                    </ul>
+                                [{else}]
+                                    <div class="card-text">
+                                        kein Schluessel registriert
+                                    </div>
+                                [{/if}]
+                            </div>
+                        [{/block}]
+                    </div>
+                </div>
+            </div>
+        </div>
+    [{/if}]
+
+
+[{*
     <div class="panel panel-default">
         <div class="panel-heading">settings</div>
         <div class="panel-body">
@@ -124,130 +161,8 @@
             </div>
         </div>
     </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">[{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTERNEW"}]</div>
-        <div class="panel-body">
-            <button onclick="authnregister();">[{oxmultilang ident="D3_WEBAUTHN_ACC_ADDKEY"}]</button>
-        </div>
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">[{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTEREDKEYS"}]</div>
-        <div class="panel-body">
-            <div class="list-group">
-                [{foreach from=$oView->getCredentialList() item="credential"}]
-                    <a href="#" onclick="toggle('keydetails_[{$credential->getId()}]'); return false;" class="list-group-item">
-                        [{$credential->d3GetName()}] (last used: XX)
-                    </a>
-                    <div class="list-group-item" id="keydetails_[{$credential->getId()}]" style="display: none">
-                        <a onclick="deleteItem('[{$credential->getId()}]'); return false;"><span class="glyphicon glyphicon-pencil">delete</span></a>
-                    </div>
-                [{/foreach}]
-            </div>
-        </div>
-    </div>
-
-            [{if 1 == 0 && false == $totp->getId()}]
-                <div class="registerNew [{* flow *}] panel panel-default [{* wave *}] card">
-                    <div class="[{* flow *}] panel-heading [{* wave *}] card-header">
-                        [{oxmultilang ident="D3_TOTP_REGISTERNEW"}]
-                    </div>
-                    <div class="[{* flow *}] panel-body [{* wave *}] card-body">
-                        <dl>
-                            <dt>
-                                [{oxmultilang ident="D3_TOTP_QRCODE"}]&nbsp;
-                            </dt>
-                            <dd>
-                                [{$totp->getQrCodeElement()}]
-                            </dd>
-                        </dl>
-                        <p>
-                            [{oxmultilang ident="D3_TOTP_QRCODE_HELP"}]
-                        </p>
-
-                        <hr>
-
-                        <dl>
-                            <dt>
-                                <label for="secret">[{oxmultilang ident="D3_TOTP_SECRET"}]</label>
-                            </dt>
-                            <dd>
-                                <textarea rows="3" cols="50" id="secret" name="secret" class="editinput" readonly="readonly">[{$totp->getSecret()}]</textarea>
-                            </dd>
-                        </dl>
-                        <p>
-                            [{oxmultilang ident="D3_TOTP_SECRET_HELP"}]
-                        </p>
-
-                        <hr>
-
-                        <dl>
-                            <dt>
-                                <label for="otp">[{oxmultilang ident="D3_TOTP_CURROTP"}]</label>
-                            </dt>
-                            <dd>
-                                <input type="text" class="editinput" size="6" maxlength="6" id="otp" name="otp" value="" [{$readonly}]>
-                            </dd>
-                        </dl>
-                        <p>
-                            [{oxmultilang ident="D3_TOTP_CURROTP_HELP"}]
-                        </p>
-                    </div>
-                </div>
-            [{/if}]
-
-            [{if 1 == 0 && $totp->getId()}]
-                [{block name="d3_account_totp_deletenotes"}]
-                    <div class="[{* flow *}] panel panel-default [{* wave *}] card">
-                        <div class="[{* flow *}] panel-heading [{* wave *}] card-header">
-                            [{oxmultilang ident="D3_TOTP_REGISTEREXIST"}]
-                        </div>
-                        <div class="[{* flow *}] panel-body [{* wave *}] card-body">
-                            [{oxmultilang ident="D3_TOTP_REGISTERDELETE_DESC"}]
-                        </div>
-                    </div>
-                [{/block}]
-
-                [{block name="d3_account_totp_backupcodes"}]
-                    <div class="[{* flow *}] panel panel-default [{* wave *}] card">
-                        <div class="[{* flow *}] panel-heading [{* wave *}] card-header">
-                            [{oxmultilang ident="D3_TOTP_BACKUPCODES"}]
-                        </div>
-                        <div class="[{* flow *}] panel-body [{* wave *}] card-body">
-                            [{if $oView->getBackupCodes()}]
-                                [{block name="d3_account_totp_backupcodes_list"}]
-                                    <label for="backupcodes">[{oxmultilang ident="D3_TOTP_BACKUPCODES_DESC"}]</label>
-                                    <textarea id="backupcodes" rows="10" cols="20">[{$oView->getBackupCodes()}]</textarea>
-                                [{/block}]
-                            [{else}]
-                                [{block name="d3_account_totp_backupcodes_info"}]
-                                    [{oxmultilang ident="D3_TOTP_AVAILBACKUPCODECOUNT" args=$oView->getAvailableBackupCodeCount()}]<br>
-                                    [{oxmultilang ident="D3_TOTP_AVAILBACKUPCODECOUNT_DESC"}]
-                                [{/block}]
-                            [{/if}]
-                        </div>
-                    </div>
-                [{/block}]
-            [{/if}]
-[{*
-            <p class="submitBtn">
-                <button type="submit" class="btn btn-primary"
-                    [{if $totp->getId()}]
-                        onclick="
-                            if(false === document.getElementById('totp_use').checked && false === confirm('[{oxmultilang ident="D3_TOTP_REGISTERDELETE_CONFIRM"}]')) {return false;}
-                            document.getElementById('fncname').value = 'delete';
-                        "
-                    [{else}]
-                        onclick="document.getElementById('fncname').value = 'create';"
-                    [{/if}]
-                >
-                    [{oxmultilang ident="D3_TOTP_ACCOUNT_SAVE"}]
-                </button>
-            </p>
-        </form>
-    [{/block}]
 *}]
+
 [{/capture}]
 
 [{capture append="oxidBlock_sidebar"}]
