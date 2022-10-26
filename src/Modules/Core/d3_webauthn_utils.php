@@ -16,7 +16,7 @@
 namespace D3\Webauthn\Modules\Core;
 
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\d3webauthn_conf;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\DBALException;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Registry;
@@ -34,7 +34,7 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
         $blAuth = parent::checkAccessRights();
 
         $userID = $this->d3GetSessionObject()->getVariable("auth");
-        $webauthnAuth = (bool) $this->d3GetSessionObject()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH);
+        $webauthnAuth = (bool) $this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
         /** @var d3webauthn $webauthn */
         $webauthn = $this->d3GetWebauthnObject();
         $webauthn->loadByUserId($userID);

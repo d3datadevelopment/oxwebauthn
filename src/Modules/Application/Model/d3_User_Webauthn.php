@@ -16,7 +16,7 @@
 namespace D3\Webauthn\Modules\Application\Model;
 
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\d3webauthn_conf;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use Webauthn\PublicKeyCredentialUserEntity;
@@ -27,30 +27,30 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
     {
         $return = parent::logout();
 
-        Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH);
-        Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT);
-        Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTUSER);
-        Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTCLASS);
-        Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
 
         return $return;
     }
 
     public function d3templogout()
     {
-        $varname = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH);
-        $object = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT);
-        $currentUser = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTUSER);
-        $currentClass = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTCLASS);
-        $navFormParams = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        $varname = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
+        $object = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
+        $currentUser = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $currentClass = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $navFormParams = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
 
         $return = $this->logout();
 
-        Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH,  $varname);
-        Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT, $object);
-        Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTUSER, $currentUser);
-        Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTCLASS, $currentClass);
-        Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_SESSION_NAVFORMPARAMS, $navFormParams);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH,  $varname);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $object);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $currentUser);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS, $currentClass);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS, $navFormParams);
 
         return $return;
     }

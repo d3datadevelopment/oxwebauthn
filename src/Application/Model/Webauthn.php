@@ -7,6 +7,7 @@ namespace D3\Webauthn\Application\Model;
 use D3\Totp\Modules\Application\Model\d3_totp_user;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
+use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OxidEsales\Eshop\Application\Model\User;
@@ -174,5 +175,31 @@ class Webauthn
 
             die();
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isActive($userId): bool
+    {
+        return false == Registry::getConfig()->getConfigParam('blDisableWebauthnGlobally')
+            && $this->UserUseWebauthn($userId);
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    public function UserUseWebauthn($userId): bool
+    {
+        /** @var d3_User_Webauthn $user */
+        $user = oxNew(User::class);
+        $user->load($userId);
+        $entity = $user->d3GetWebauthnUserEntity();
+
+        $credentionList = oxNew(PublicKeyCredentialList::class);
+        $list = $credentionList->findAllForUserEntity($entity);
+
+        return is_array($list) && count($list);
     }
 }

@@ -16,7 +16,7 @@
 namespace D3\Webauthn\Application\Controller;
 
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\d3webauthn_conf;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
@@ -34,9 +34,10 @@ class d3webauthnlogin extends FrontendController
      */
     public function render()
     {
-
-        if (Registry::getSession()->hasVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH) ||
-            false == Registry::getSession()->hasVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTUSER)
+dumpvar(__METHOD__.__LINE__);
+die();
+        if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
+            false == Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
             $this->getUtils()->redirect('index.php?cl=start', true, 302);
             if (false == defined('OXID_PHP_UNIT')) {
@@ -48,7 +49,7 @@ class d3webauthnlogin extends FrontendController
 
         $this->generateCredentialRequest();
 
-        $this->addTplParam('navFormParams', Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+        $this->addTplParam('navFormParams', Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
         return parent::render();
     }
@@ -59,7 +60,7 @@ class d3webauthnlogin extends FrontendController
      */
     public function generateCredentialRequest()
     {
-        $auth = Registry::getSession()->getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTUSER);
+        $auth = Registry::getSession()->getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         $webauthn = oxNew(d3webauthn::class);
         $publicKeyCredentialRequestOptions = $webauthn->getCredentialRequestOptions($auth);
 
@@ -79,12 +80,12 @@ class d3webauthnlogin extends FrontendController
 
     public function getPreviousClass()
     {
-        return Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTCLASS);
+        return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
     public function previousClassIsOrderStep()
     {
-        $sClassKey = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $resolvedClass = Registry::getControllerClassNameResolver()->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ? $resolvedClass : 'start';
 

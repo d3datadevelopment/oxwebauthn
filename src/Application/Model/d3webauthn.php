@@ -131,7 +131,7 @@ class d3webauthn extends BaseModel
 
         if ($auth
             && $this->isActive()
-            && false == Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH)
+            && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
         ) {
             /** @var d3PublicKeyCredentialRpEntity $rpEntity */
             $rpEntity = oxNew(d3PublicKeyCredentialRpEntity::class, Registry::getConfig()->getActiveShop());
@@ -162,7 +162,7 @@ dumpvar($userEntity);
 dumpvar($publicKeyCredentialRequestOptions);
             $requestOptions = json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-            Registry::getSession()->setVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
+            Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
 
             // set auth as secured parameter;
             Registry::getSession()->setVariable("auth", $auth);
@@ -181,7 +181,7 @@ dumpvar($publicKeyCredentialRequestOptions);
     {
         $blVerify = false;
         // Retrieve the Options passed to the device
-        $publicKeyCredentialRequestOptions = Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT);
+        $publicKeyCredentialRequestOptions = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
 
         if (!$publicKeyCredentialRequestOptions) {
             $oException = oxNew(d3webauthnMissingPublicKeyCredentialRequestOptions::class);
@@ -218,7 +218,7 @@ dumpvar($publicKeyCredentialRequestOptions);
             );
             $blVerify = true;
 
-            Registry::getSession()->deleteVariable(d3webauthn_conf::WEBAUTHN_LOGIN_OBJECT);
+            Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
             //If everything is fine, this means the user has correctly been authenticated using the
             // authenticator defined in $publicKeyCredentialSource
         } catch(InvalidArgumentException $exception) {

@@ -16,7 +16,7 @@
 namespace D3\Webauthn\Modules\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\d3webauthn_conf;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\d3WebauthnExceptionAbstract;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnMissingPublicKeyCredentialRequestOptions;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
@@ -97,7 +97,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             if ($this->isNoWebauthnOrNoLogin($webauthn)) {
                 $return = parent::checklogin();
             } elseif ($this->hasValidWebauthn($sWebauth, $webauthn)) {
-                $this->d3GetSession()->setVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH, $sWebauth);
+                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauth);
                 $return = "admin_start";
             }
         } catch (d3webauthnExceptionAbstract $oEx) {
@@ -126,7 +126,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function hasValidWebauthn($sWebauth, $webauthn)
     {
-        return Registry::getSession()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH) ||
+        return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
         (
             $sWebauth && $webauthn->verify($sWebauth)
         );

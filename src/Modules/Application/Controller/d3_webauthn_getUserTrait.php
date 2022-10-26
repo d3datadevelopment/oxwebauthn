@@ -16,7 +16,7 @@
 namespace D3\Webauthn\Modules\Application\Controller;
 
 use D3\Webauthn\Application\Model\d3webauthn;
-use D3\Webauthn\Application\Model\d3webauthn_conf;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\DBALException;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -39,7 +39,7 @@ trait d3_webauthn_getUserTrait
             $webauthn->loadByUserId($oUser->getId());
 
             if ($webauthn->isActive()
-                && false == $this->d3GetSessionObject()->getVariable(d3webauthn_conf::WEBAUTHN_SESSION_AUTH)
+                && false == $this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 return false;
             }
