@@ -22,6 +22,21 @@ class Webauthn
     public const SESSION_CREATIONS_OPTIONS = 'd3WebAuthnCreationOptions';
     public const SESSION_ASSERTION_OPTIONS = 'd3WebAuthnAssertionOptions';
 
+    public function isAvailable()
+    {
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            return true;
+        }
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ||
+            !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on'
+        ) {
+            return true;
+        }
+
+        Registry::getUtilsView()->addErrorToDisplay('WebAuthn is available on secure connections only.');
+        return false;
+    }
+
     /**
      * @return false|string
      */

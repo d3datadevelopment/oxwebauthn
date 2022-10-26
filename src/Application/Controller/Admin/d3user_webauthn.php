@@ -42,6 +42,8 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function render()
     {
+        $this->addTplParam('readonly', (bool) !(oxNew(Webauthn::class)->isAvailable()));
+
         parent::render();
 
         $soxId = $this->getEditObjectId();

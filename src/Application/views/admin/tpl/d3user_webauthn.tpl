@@ -93,12 +93,12 @@
                                 <tr>
                                     <td class="edittext">
                                         <label for="credentialname">Name des Schlüssels</label>
-                                        <input id="credentialname" type="text" name="credenialname">
+                                        <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="edittext">
-                                        <button type="submit">[{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]</button>
+                                        <button type="submit" [{$readonly}]>[{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]</button>
                                     </td>
                                 </tr>
                             [{/block}]
