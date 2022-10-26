@@ -1,8 +1,11 @@
 [{include file="headitem.tpl" title="GENERAL_ADMIN_TITLE"|oxmultilangassign}]
 
-[{*assign var="webauthn" value=$edit->d3GetWebauthn()}]*}]
-[{assign var="userid" value=$edit->getId()}]
-[{*$webauthn->loadByUserId($userid)*}]
+[{oxstyle include="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"}]
+[{oxscript include="https://code.jquery.com/jquery-3.2.1.slim.min.js"}]
+[{oxscript include="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"}]
+[{oxscript include="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"}]
+[{oxstyle include="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css"}]
+[{oxstyle}]
 
 [{if $readonly}]
     [{assign var="readonly" value="readonly disabled"}]
@@ -16,6 +19,14 @@
     }
     .hidden-delete {
         display: none;
+    }
+
+    .container-fluid,
+    .errorbox {
+        font-size: 13px;
+    }
+    .errorbox p {
+        margin: 0.5rem;
     }
 </style>
 
@@ -40,18 +51,20 @@
 [{/capture}]
 [{oxscript add=$smarty.capture.javascripts}]
 
-
 [{if $oxid && $oxid != '-1'}]
     [{if $pageType === 'requestnew'}]
-        [{include file="js_create.tpl"}]
+        <div class="container-fluid">
+            <div class="row">
+                [{include file="js_create.tpl"}]
 
-        <div>
-            Bitte die Anfrage Ihres Browsers bestätigen.
+                <div>
+                    Bitte die Anfrage Ihres Browsers bestätigen.
+                </div>
+
+                <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
+            </div>
         </div>
-
-        <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
     [{else}]
-
         <form name="myedit" id="myedit" action="[{$oViewConf->getSelfLink()}]" method="post" style="padding: 0;margin: 0;height:0;">
             [{$oViewConf->getHiddenSid()}]
             <input type="hidden" name="cl" value="[{$oViewConf->getActiveClassName()}]">
@@ -61,9 +74,6 @@
             <input type="hidden" name="oxid" value="[{$oxid}]">
             <input type="hidden" name="deleteoxid" id="oxidvalue" value="">
             <button type="submit" style="display: none;"></button>
-            [{*    <input type="hidden" name="editval[d3totp__oxid]" value="[{$webauthn->getId()}]">
-                <input type="hidden" name="editval[d3totp__oxuserid]" value="[{$oxid}]">
-                *}]
         </form>
 
         [{if $sSaveError}]
@@ -75,71 +85,70 @@
             </table>
         [{/if}]
 
-        <table style="padding:0; border:0; width:98%;">
-            <tr>
-                <td class="edittext" style="vertical-align: top; padding-top:10px;padding-left:10px; width: 50%;">
-                    <form name="newcred" id="newcred" action="[{$oViewConf->getSelfLink()}]" method="post">
-                        [{$oViewConf->getHiddenSid()}]
-                        <input type="hidden" name="cl" value="[{$oView->getClassName()}]">
-                        <input type="hidden" name="fnc" value="requestNewCredential">
-                        <input type="hidden" name="oxid" value="[{$oxid}]">
-                        <table style="padding:0; border:0">
-                            [{block name="user_d3user_totp_form1"}]
-                                <tr>
-                                    <td class="edittext">
-                                        <h4>[{oxmultilang ident="D3_WEBAUTHN_REGISTERNEW"}]</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="edittext">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        [{block name="user_d3user_totp_registernew"}]
+                            <div class="card-header">
+                                [{oxmultilang ident="D3_WEBAUTHN_REGISTERNEW"}]
+                            </div>
+                            <div class="card-body">
+                                <form name="newcred" id="newcred" action="[{$oViewConf->getSelfLink()}]" method="post">
+                                    [{$oViewConf->getHiddenSid()}]
+                                    <input type="hidden" name="cl" value="[{$oView->getClassName()}]">
+                                    <input type="hidden" name="fnc" value="requestNewCredential">
+                                    <input type="hidden" name="oxid" value="[{$oxid}]">
+                                    [{block name="user_d3user_totp_registerform"}]
                                         <label for="credentialname">Name des Schlüssels</label>
-                                        <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="edittext">
-                                        <button type="submit" [{$readonly}]>[{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]</button>
-                                    </td>
-                                </tr>
-                            [{/block}]
-                        </table>
-                    </form>
-                </td>
-                <!-- Anfang rechte Seite -->
-                <td class="edittext" style="text-align: left; vertical-align: top; height:99%;padding-left:5px;padding-bottom:30px;padding-top:10px; width: 50%;">
-                    <table style="padding:0; border:0">
-                        [{block name="user_d3user_totp_form2"}]
-                            <tr>
-                                <td class="edittext" colspan="2">
-                                    <h4>[{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]</h4>
-                                </td>
-                            </tr>
-                            [{foreach from=$oView->getCredentialList($userid) item="credential"}]
-                                <tr>
-[{***
-                                    <td class="edittext">
-                                        <label for="secret">[{$credential->d3GetName()}]</label>
-                                    </td>
-***}]
-                                    <td class="edittext">
-                                        <a href="#" onclick="toggle('keydetails_[{$credential->getId()}]'); return false;" class="list-group-item">
-                                              [{$credential->getName()}]
-                                        </a>
-                                        <div class="list-group-item hidden-delete" id="keydetails_[{$credential->getId()}]">
-                                            <a onclick="deleteItem('[{$credential->getId()}]'); return false;"><span class="glyphicon glyphicon-pencil">delete</span></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            [{/foreach}]
+                                        <p class="card-text">
+                                            <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
+                                        </p>
+                                        <p class="card-text">
+                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success">
+                                                [{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]
+                                            </button>
+                                        </p>
+                                    [{/block}]
+                                </form>
+                            </div>
                         [{/block}]
-                    </table>
-                </td>
-                <!-- Ende rechte Seite -->
-            </tr>
-        </table>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        [{block name="user_d3user_totp_form2"}]
+                            <div class="card-header">
+                                [{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]
+                            </div>
+                            <div class="card-body">
+                                [{if $oView->getCredentialList($userid)}]
+                                    <ul class="list-group list-group-flush">
+                                        [{foreach from=$oView->getCredentialList($userid) item="credential"}]
+                                            <li class="list-group-item">
+                                                [{$credential->getName()}]
+                                                <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                    delete
+                                                </a>
+                                            </li>
+                                        [{/foreach}]
+                                    </ul>
+                                [{else}]
+                                    <div class="card-text">
+                                        kein Schluessel registriert
+                                    </div>
+                                [{/if}]
+                            </div>
+                        [{/block}]
+                    </div>
+                </div>
+            </div>
+        </div>
+
     [{/if}]
 [{/if}]
 
-
+[{oxscript}]
 [{include file="bottomnaviitem.tpl"}]
 [{include file="bottomitem.tpl"}]
