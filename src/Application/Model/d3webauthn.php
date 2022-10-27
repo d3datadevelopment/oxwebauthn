@@ -146,7 +146,7 @@ class d3webauthn extends BaseModel
 
             $user = $this->getUser();
             $userEntity = new d3PublicKeyCredentialUserEntity($user);
-dumpvar($userEntity);
+
             $allowedCredentials = [];
             $credentialSourceRepository = oxNew(d3PublicKeyCredentialSourceRepository::class);
             /** @var d3PublicKeyCredentialSource $credentialSource */
@@ -159,7 +159,7 @@ dumpvar($userEntity);
                 PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_PREFERRED, // Default value
                 $allowedCredentials
             );
-dumpvar($publicKeyCredentialRequestOptions);
+
             $requestOptions = json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
             Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);

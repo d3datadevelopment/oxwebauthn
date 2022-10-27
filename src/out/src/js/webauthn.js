@@ -1,5 +1,6 @@
 if (!window.PublicKeyCredential) {
-    console.error('no window pubkeycred available');
+    document.getElementById('webauthn').error.value = 'd3NoPublicKeyCredentialSupportedError: aborting';
+    document.getElementById('webauthn').submit();
 }
 
 const base64UrlDecode = (input) => {
@@ -152,13 +153,11 @@ const createCredentials = (publicKey) => {
 
 const requestCredentials = (publicKey) => {
     "use strict";
-console.log('--AB--');
 
     prepareOptions(publicKey);
 
     navigator.credentials.get({publicKey: publicKey})
         .then(function (authenticateInfo) {
-console.log(authenticateInfo);
             // Send authenticate info to server for verification.
             var cred = {
                 id: authenticateInfo.id,
@@ -171,14 +170,11 @@ console.log(authenticateInfo);
                 },
                 type: authenticateInfo.type
             };
-console.log(cred);
             document.getElementById('webauthn').credential.value = JSON.stringify(cred);
             document.getElementById('webauthn').submit();
         }).catch(function (err) {
-            console.log('--2--');
-            console.log('WebAuthn auth: ' + err);
-            // No acceptable authenticator or user refused consent. Handle appropriately.
+            document.getElementById('webauthn').error.value = err;
+            document.getElementById('webauthn').submit();
         });
-
 }
 

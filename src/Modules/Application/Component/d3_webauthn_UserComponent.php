@@ -45,7 +45,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
         /** @var QueryBuilder $qb */
         $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
-        $qb->select('*')
+        $qb->select('oxid')
             ->from($user->getViewName())
             ->where(
                 $qb->expr()->and(
@@ -62,15 +62,16 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
         $userId = $qb->execute()->fetchOne();
 
-        if ($lgn_user) {
+        if ($lgn_user && $userId) {
             $webauthn = $this->d3GetWebauthnObject();
+
             if ($webauthn->isActive($userId)
                 && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 Registry::getSession()->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
                     $this->getParent()->getClassKey() != 'd3webauthnlogin' ? $this->getParent()->getClassKey() : 'start');
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $user->getId());
+                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userId);
                 Registry::getSession()->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
                     $this->getParent()->getViewConfig()->getNavFormParams()

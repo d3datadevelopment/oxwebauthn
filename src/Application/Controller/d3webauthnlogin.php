@@ -15,11 +15,17 @@
 
 namespace D3\Webauthn\Application\Controller;
 
-use D3\Webauthn\Application\Model\d3webauthn;
+use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
+use D3\Webauthn\Application\Model\WebauthnErrors;
+use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
+use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use Exception;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
+use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
+use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Utils;
 
@@ -34,8 +40,6 @@ class d3webauthnlogin extends FrontendController
      */
     public function render()
     {
-dumpvar(__METHOD__.__LINE__);
-die();
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
             false == Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
@@ -61,13 +65,44 @@ die();
     public function generateCredentialRequest()
     {
         $auth = Registry::getSession()->getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-        $webauthn = oxNew(d3webauthn::class);
-        $publicKeyCredentialRequestOptions = $webauthn->getCredentialRequestOptions($auth);
+        /** @var Webauthn $webauthn */
+        $webauthn = oxNew(Webauthn::class);
+        $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions();
+        $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
+        $this->addTplParam('isAdmin', isAdmin());
+    }
 
-        $this->addTplParam(
-        'webauthn_publickey_login',
-            $publicKeyCredentialRequestOptions
-        );
+    public function assertAuthn()
+    {
+        /** @var d3_User_Webauthn $user */
+        $user = oxNew(User::class);
+
+        try {
+            if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
+                $errors = oxNew(WebauthnErrors::class);
+                throw oxNew(
+                    StandardException::class,
+                    $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+                );
+            }
+
+            if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
+                $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+                $webAuthn = oxNew(Webauthn::class);
+                $webAuthn->assertAuthn($credential);
+                $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+
+                /** @var d3_webauthn_UserComponent $userCmp */
+                $userCmp = $this->getComponent('oxcmp_user');
+                $userCmp->d3WebauthnRelogin($user, $credential);
+            }
+
+        } catch (Exception $e) {
+            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
+
+            $user->logout();
+            $this->getUtils()->redirect('index.php?cl=start');
+        }
     }
 
     /**

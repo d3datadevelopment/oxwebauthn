@@ -17,9 +17,9 @@ namespace D3\Webauthn\Application\Model;
 
 class WebauthnConf
 {
-    const WEBAUTHN_SESSION_AUTH          = 'webauthn_auth';
-    const WEBAUTHN_LOGIN_OBJECT          = 'authnloginobject';
-    const WEBAUTHN_SESSION_CURRENTUSER   = 'd3webauthnCurrentUser';
-    const WEBAUTHN_SESSION_CURRENTCLASS  = 'd3webauthnCurrentClass';
-    const WEBAUTHN_SESSION_NAVFORMPARAMS = 'd3webauthnNavFormParams';
+    const WEBAUTHN_SESSION_AUTH          = 'webauthn_auth';     // has valid webauthn, user is logged in completly
+    const WEBAUTHN_LOGIN_OBJECT          = 'authnloginobject';  // webauthn register options, required for credential check
+    const WEBAUTHN_SESSION_CURRENTUSER   = 'd3webauthnCurrentUser'; // oxid assigned to user from entered username
+    const WEBAUTHN_SESSION_CURRENTCLASS  = 'd3webauthnCurrentClass';    // no usage
+    const WEBAUTHN_SESSION_NAVFORMPARAMS = 'd3webauthnNavFormParams';   // no usage
 }

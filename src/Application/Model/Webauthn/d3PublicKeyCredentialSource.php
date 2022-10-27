@@ -20,6 +20,8 @@ namespace D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\Credential\publicKeyCredential;
 use Webauthn\PublicKeyCredentialSource;
 
+/** @deprecated  */
+
 class d3PublicKeyCredentialSource  extends PublicKeyCredentialSource
 {
     /**

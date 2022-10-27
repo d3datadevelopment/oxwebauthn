@@ -84,6 +84,7 @@ $aModule = array(
         'd3_account_webauthn.tpl'   => 'd3/oxwebauthn/Application/views/tpl/d3_account_webauthn.tpl',
 
         'js_create.tpl'             => 'd3/oxwebauthn/Application/views/tpl/inc/js_create.tpl',
+        'js_login.tpl'              => 'd3/oxwebauthn/Application/views/tpl/inc/js_login.tpl',
     ],
     'events'      => [
         'onActivate'    => '\D3\Webauthn\Setup\Events::onActivate',

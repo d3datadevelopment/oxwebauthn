@@ -75,8 +75,8 @@ class Webauthn
         $userEntity = $user->d3GetWebauthnUserEntity();
 
         // Get the list of authenticators associated to the user
-        $credentialSourceRepository = oxNew(PublicKeyCredentials::class);
-        $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
+        $credentialList = oxNew(PublicKeyCredentialList::class);
+        $credentialSources = $credentialList->findAllForUserEntity($userEntity);
 
         // Convert the Credential Sources into Public Key Credential Descriptors
         $allowedCredentials = array_map(function (PublicKeyCredentialSource $credential) {
@@ -139,47 +139,30 @@ class Webauthn
 
     public function assertAuthn(string $response)
     {
-        try {
-            $psr17Factory = new Psr17Factory();
-            $creator = new ServerRequestCreator(
-                $psr17Factory,
-                $psr17Factory,
-                $psr17Factory,
-                $psr17Factory
-            );
-            $serverRequest = $creator->fromGlobals();
+        $psr17Factory = new Psr17Factory();
+        $creator = new ServerRequestCreator(
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory
+        );
+        $serverRequest = $creator->fromGlobals();
 
-            /** @var d3_User_Webauthn $user */
-            $user = oxNew(User::class);
-            $user->load('oxdefaultadmin');
-            $userEntity = $user->d3GetWebauthnUserEntity();
+        /** @var d3_User_Webauthn $user */
+        $user = oxNew(User::class);
+        $user->load('oxdefaultadmin');
+        $userEntity = $user->d3GetWebauthnUserEntity();
 
-            $publicKeySource = $this->getServer()->loadAndCheckAssertionResponse(
-                html_entity_decode($response),
-                Registry::getSession()->getVariable(self::SESSION_ASSERTION_OPTIONS),
-                $userEntity,
-                $serverRequest
-            );
-/*
-            dumpvar($publicKeySource);
-            dumpvar(serialize($publicKeySource));
-            dumpvar(unserialize(serialize($publicKeySource)));
-            echo "<hr>";
-            dumpvar(bin2hex(serialize($publicKeySource)));
-            dumpvar(unserialize(hex2bin(bin2hex(serialize($publicKeySource)))));
-*/
-
-            dumpvar('successfully');
-
-        } catch (\Exception $e) {
-            dumpvar($e->getMessage());
-            dumpvar($e);
-
-            die();
-        }
+        $this->getServer()->loadAndCheckAssertionResponse(
+            html_entity_decode($response),
+            Registry::getSession()->getVariable(self::SESSION_ASSERTION_OPTIONS),
+            $userEntity,
+            $serverRequest
+        );
     }
 
     /**
+     * @param $userId
      * @return bool
      */
     public function isActive($userId): bool
@@ -198,7 +181,6 @@ class Webauthn
         $user = oxNew(User::class);
         $user->load($userId);
         $entity = $user->d3GetWebauthnUserEntity();
-
         $credentionList = oxNew(PublicKeyCredentialList::class);
         $list = $credentionList->findAllForUserEntity($entity);
 

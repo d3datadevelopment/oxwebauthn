@@ -17,6 +17,7 @@
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use DateTime;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Core\Model\BaseModel;
 use OxidEsales\Eshop\Core\Registry;
@@ -80,16 +81,6 @@ class PublicKeyCredential extends BaseModel
     {
         return unserialize(hex2bin($this->__get($this->_getFieldLongName('credential'))->rawValue));
     }
-/*
-    public function setPublicKey($publicKey)
-    {
-        $this->assign(['PublicKey' => $publicKey]);
-    }
-
-    public function getPublicKey()
-    {
-        return $this->__get($this->_getFieldLongName('PublicKey'))->rawValue;
-    }
 
     /**
      * @param PublicKeyCredentialSource $publicKeyCredentialSource
@@ -100,18 +91,16 @@ class PublicKeyCredential extends BaseModel
     {
         // will save on every successfully assertion, set id to prevent duplicated database entries
         $id = $this->getIdByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId());
-        $this->setId($id);
+
+        if ($this->exists($id)) {
+            $this->load($id);
+        }
 
         $this->setShopId(Registry::getConfig()->getShopId());
         $this->setUserId($publicKeyCredentialSource->getUserHandle());
         $this->setCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId());
         $this->setCredential($publicKeyCredentialSource);
-        $this->setName($keyName ?: $this->getName());
-
-// ToDo: required??
-        $this->assign([
-            'pubkey_hex' => bin2hex($publicKeyCredentialSource->getCredentialPublicKey()),
-        ]);
+        $this->setName($keyName ?: $this->getName() ?: (new DateTime())->format('Y-m-d H:i:s'));
         $this->save();
     }
 
