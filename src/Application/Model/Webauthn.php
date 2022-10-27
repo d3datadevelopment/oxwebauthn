@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
-use D3\Totp\Modules\Application\Model\d3_totp_user;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
@@ -46,7 +45,7 @@ class Webauthn
      */
     public function getCreationOptions(User $user)
     {
-        /** @var d3_totp_user $user */
+        /** @var d3_User_Webauthn $user */
         $userEntity = $user->d3GetWebauthnUserEntity();
 
         /** @var PublicKeyCredentialList $credentialSourceRepository */
@@ -70,7 +69,7 @@ class Webauthn
 
     public function getRequestOptions()
     {
-        /** @var d3_totp_user $user */
+        /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
         $user->load('oxdefaultadmin');
         $userEntity = $user->d3GetWebauthnUserEntity();
@@ -150,7 +149,7 @@ class Webauthn
             );
             $serverRequest = $creator->fromGlobals();
 
-            /** @var d3_totp_user $user */
+            /** @var d3_User_Webauthn $user */
             $user = oxNew(User::class);
             $user->load('oxdefaultadmin');
             $userEntity = $user->d3GetWebauthnUserEntity();
