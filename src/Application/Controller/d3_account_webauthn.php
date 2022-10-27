@@ -45,6 +45,8 @@ class d3_account_webauthn extends AccountController
 
         $this->addTplParam('user', $this->getUser());
 
+        $this->addTplParam('readonly',  (bool) !(oxNew(Webauthn::class)->isAvailable()));
+
         return $sRet;
     }
 

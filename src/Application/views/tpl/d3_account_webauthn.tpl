@@ -11,6 +11,12 @@
     [{/capture}]
     [{oxscript add=$smarty.capture.javascripts}]
 
+    [{if $readonly}]
+        [{assign var="readonly" value="readonly disabled"}]
+    [{else}]
+        [{assign var="readonly" value=""}]
+    [{/if}]
+
     <h1 class="page-header">[{oxmultilang ident="D3_WEBAUTHN_ACCOUNT"}]</h1>
 
     <style>

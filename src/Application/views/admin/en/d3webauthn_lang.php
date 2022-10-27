@@ -31,6 +31,8 @@ $aLang = [
     'D3_WEBAUTHN_ADDKEY'                              => 'add security key',
 
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registered keys',
+
+    'D3_WEBAUTHN_ERR_UNSECURECONNECTION'              => 'The use of security keys is only possible with secured connections (https).',
 /*
     'D3_TOTP_QRCODE'                                  => 'QR-Code',
     'D3_TOTP_QRCODE_HELP'                             => 'Scannen Sie diesen QR-Code mit Ihrer Authentisierungs-App, um dieses Benutzerkonto dort zu hinterlegen.',

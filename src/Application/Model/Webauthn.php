@@ -34,7 +34,10 @@ class Webauthn
             return true;
         }
 
-        Registry::getUtilsView()->addErrorToDisplay('WebAuthn is available on secure connections only.');
+        Registry::getUtilsView()->addErrorToDisplay(
+            Registry::getLang()->translateString('D3_WEBAUTHN_ERR_UNSECURECONNECTION', null, true)
+        );
+
         return false;
     }
 
