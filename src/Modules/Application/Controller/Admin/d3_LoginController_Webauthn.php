@@ -15,12 +15,8 @@
 
 namespace D3\Webauthn\Modules\Application\Controller\Admin;
 
-use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
-use D3\Webauthn\Application\Model\Exceptions\d3WebauthnExceptionAbstract;
-use D3\Webauthn\Application\Model\Exceptions\d3webauthnMissingPublicKeyCredentialRequestOptions;
-use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
 use Doctrine\DBAL\Driver\Exception as DoctrineException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -37,31 +33,7 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 {
-    /**
-     * @return string
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
-    public function render()
-    {
-        $auth = $this->d3GetSession()->getVariable("auth");
 
-        $return = parent::render();
-
-        if ($auth) {
-            $webauthn = $this->d3GetWebauthnObject();
-            $publicKeyCredentialRequestOptions = $webauthn->getCredentialRequestOptions($auth);
-
-            $this->addTplParam(
-                'webauthn_publickey_login',
-                $publicKeyCredentialRequestOptions
-            );
-
-            $this->addTplParam('request_webauthn', true);
-        }
-
-        return $return;
-    }
 
     /**
      * @return Webauthn
@@ -69,22 +41,6 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     public function d3GetWebauthnObject(): Webauthn
     {
         return oxNew(Webauthn::class);
-    }
-
-    /**
-     * @return UtilsView
-     */
-    public function d3GetUtilsView()
-    {
-        return Registry::getUtilsView();
-    }
-
-    /**
-     * @return Session
-     */
-    public function d3GetSession()
-    {
-        return Registry::getSession();
     }
 
     /**
@@ -161,31 +117,6 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             )->setMaxResults(1);
 
         return $qb->execute()->fetchOne();
-    }
-
-    /**
-     * @param d3webauthn $webauthn
-     * @return bool
-     */
-    public function d3IsNoWebauthnOrNoLogin($webauthn)
-    {
-        return false == $this->d3GetSession()->getVariable("auth")
-        || false == $webauthn->isActive();
-    }
-
-    /**
-     * @param string $sWebauth
-     * @param d3webauthn $webauthn
-     * @return bool
-     * @throws d3webauthnMissingPublicKeyCredentialRequestOptions
-     * @throws d3webauthnWrongAuthException
-     */
-    public function hasValidWebauthn($sWebauth, $webauthn)
-    {
-        return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-        (
-            $sWebauth && $webauthn->verify($sWebauth)
-        );
     }
 
     public function d3WebauthnCancelLogin()

@@ -103,8 +103,6 @@ class d3webauthnadminlogin extends AdminController
                 /** @var d3_webauthn_UserComponent $userCmp */
                 $loginController = oxNew(LoginController::class);
                 return $loginController->checklogin();
-
-                //Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
             }
 
         } catch (Exception $e) {

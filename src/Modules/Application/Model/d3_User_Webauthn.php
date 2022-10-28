@@ -15,7 +15,6 @@
 
 namespace D3\Webauthn\Modules\Application\Model;
 
-use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
@@ -31,6 +30,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
 
@@ -44,6 +44,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         $currentUser = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         $currentClass = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $navFormParams = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        $loginUser = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
 
         $return = $this->logout();
 
@@ -52,16 +53,9 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $currentUser);
         Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS, $currentClass);
         Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS, $navFormParams);
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $loginUser);
 
         return $return;
-    }
-
-    /**
-     * @return d3webauthn
-     */
-    public function d3getWebauthn()
-    {
-        return oxNew(d3webauthn::class);
     }
 
     /**

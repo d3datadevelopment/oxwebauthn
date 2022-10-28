@@ -17,7 +17,6 @@ namespace D3\Webauthn\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
-use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
@@ -130,14 +129,6 @@ class d3user_webauthn extends AdminDetailsController
     public function getUserObject()
     {
         return oxNew(User::class);
-    }
-
-    /**
-     * @return d3webauthn
-     */
-    public function getWebauthnObject()
-    {
-        return oxNew(d3webauthn::class);
     }
 
     public function deleteKey()
