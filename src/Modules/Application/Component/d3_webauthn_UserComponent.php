@@ -22,6 +22,7 @@ use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -30,6 +31,8 @@ use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsView;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 {
@@ -41,26 +44,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function login_noredirect()
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('lgn_usr');
-        $user = oxNew(User::class);
-
-        /** @var QueryBuilder $qb */
-        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
-        $qb->select('oxid')
-            ->from($user->getViewName())
-            ->where(
-                $qb->expr()->and(
-                    $qb->expr()->eq(
-                        'oxusername',
-                        $qb->createNamedParameter($lgn_user)
-                    ),
-                    $qb->expr()->eq(
-                        'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
-                    )
-                )
-            )->setMaxResults(1);
-
-        $userId = $qb->execute()->fetchOne();
+        $userId = $this->d3GetLoginUserId($lgn_user);
 
         if ($lgn_user && $userId) {
             $webauthn = $this->d3GetWebauthnObject();
@@ -217,5 +201,40 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function d3GetSession()
     {
         return Registry::getSession();
+    }
+
+    /**
+     * @return string|null
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function d3GetLoginUserId($username): ?string
+    {
+        if (empty($username)) {
+            return null;
+        }
+
+        $user = oxNew(User::class);
+
+        /** @var QueryBuilder $qb */
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->select('oxid')
+            ->from($user->getViewName())
+            ->where(
+                $qb->expr()->and(
+                    $qb->expr()->eq(
+                        'oxusername',
+                        $qb->createNamedParameter($username)
+                    ),
+                    $qb->expr()->eq(
+                        'oxshopid',
+                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                    )
+                )
+            )->setMaxResults(1);
+
+        return $qb->execute()->fetchOne();
     }
 }

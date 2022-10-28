@@ -13,7 +13,7 @@
  * @link      http://www.oxidmodule.com
  */
 
-namespace D3\Webauthn\Application\Controller;
+namespace D3\Webauthn\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
@@ -21,6 +21,8 @@ use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Exception;
+use OxidEsales\Eshop\Application\Controller\Admin\AdminController;
+use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -29,9 +31,14 @@ use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Utils;
 
-class d3webauthnlogin extends FrontendController
+class d3webauthnadminlogin extends AdminController
 {
-    protected $_sThisTemplate = 'd3webauthnlogin.tpl';
+    protected $_sThisTemplate = 'd3webauthnadminlogin.tpl';
+
+    protected function _authorize() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    {
+        return true;
+    }
 
     /**
      * @return null
@@ -43,7 +50,7 @@ class d3webauthnlogin extends FrontendController
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
             false == Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
-            $this->getUtils()->redirect('index.php?cl=start', true, 302);
+            $this->getUtils()->redirect('index.php?cl=admin_start');
             if (false == defined('OXID_PHP_UNIT')) {
                 // @codeCoverageIgnoreStart
                 exit;
@@ -53,7 +60,7 @@ class d3webauthnlogin extends FrontendController
 
         $this->generateCredentialRequest();
 
-        $this->addTplParam('navFormParams', Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+        //$this->addTplParam('navFormParams', Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
         return parent::render();
     }
@@ -67,6 +74,7 @@ class d3webauthnlogin extends FrontendController
         /** @var Webauthn $webauthn */
         $webauthn = oxNew(Webauthn::class);
         $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions();
+        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
         $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
         $this->addTplParam('isAdmin', isAdmin());
     }
@@ -90,17 +98,20 @@ class d3webauthnlogin extends FrontendController
                 $webAuthn = oxNew(Webauthn::class);
                 $webAuthn->assertAuthn($credential);
                 $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
 
                 /** @var d3_webauthn_UserComponent $userCmp */
-                $userCmp = $this->getComponent('oxcmp_user');
-                $userCmp->d3WebauthnRelogin($user, $credential);
+                $loginController = oxNew(LoginController::class);
+                return $loginController->checklogin();
+
+                //Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
             }
 
         } catch (Exception $e) {
             Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
 
             $user->logout();
-            $this->getUtils()->redirect('index.php?cl=start');
+            $this->getUtils()->redirect('index.php?cl=login');
         }
     }
 

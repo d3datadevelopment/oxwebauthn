@@ -19,6 +19,7 @@ use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
+use ReflectionClass;
 use Webauthn\PublicKeyCredentialUserEntity;
 
 class d3_User_Webauthn extends d3_User_Webauthn_parent
@@ -77,5 +78,28 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         }
 
         throw oxNew(StandardException::class, 'can not create webauthn user entity from not loaded user');
+    }
+
+    public function login($userName, $password, $setSessionCookie = false)
+    {
+        if (Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
+            $userName = $userName ?: Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
+            $config = Registry::getConfig();
+            $shopId = $config->getShopId();
+
+            /** private method is out of scope */
+            $class = new ReflectionClass($this);
+            $method = $class->getMethod('loadAuthenticatedUser');
+            $method->setAccessible(true);
+            $method->invokeArgs(
+                $this,
+                [
+                    Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER),
+                    $shopId
+                ]
+            );
+        }
+
+        return parent::login($userName, $password, $setSessionCookie);
     }
 }

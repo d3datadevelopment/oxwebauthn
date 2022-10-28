@@ -20,6 +20,7 @@
 // https://docs.solokeys.io/solo/
 
 use D3\Webauthn\Application\Controller\Admin\d3user_webauthn;
+use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Controller\d3_account_webauthn;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
@@ -66,7 +67,7 @@ $aModule = array(
     'extend'      => [
         UserController::class  => d3_webauthn_UserController::class,
         PaymentController::class  => d3_webauthn_PaymentController::class,
-        OrderController::class  => d3_webauthn_OrderController::class,
+        OrderController::class => d3_webauthn_OrderController::class,
         OxidModel\User::class  => d3_User_Webauthn::class,
         StartController::class => d3_StartController_Webauthn::class,
         LoginController::class => d3_LoginController_Webauthn::class,
@@ -76,11 +77,13 @@ $aModule = array(
     'controllers'   => [
         'd3user_webauthn'       => d3user_webauthn::class,
         'd3webauthnlogin'       => d3webauthnlogin::class,
+        'd3webauthnadminlogin'  => d3webauthnadminlogin::class,
         'd3_account_webauthn'   => d3_account_webauthn::class
     ],
     'templates'     => [
         'd3user_webauthn.tpl'       => 'd3/oxwebauthn/Application/views/admin/tpl/d3user_webauthn.tpl',
         'd3webauthnlogin.tpl'       => 'd3/oxwebauthn/Application/views/tpl/d3webauthnlogin.tpl',
+        'd3webauthnadminlogin.tpl'  => 'd3/oxwebauthn/Application/views/admin/tpl/d3webauthnlogin.tpl',
         'd3_account_webauthn.tpl'   => 'd3/oxwebauthn/Application/views/tpl/d3_account_webauthn.tpl',
 
         'js_create.tpl'             => 'd3/oxwebauthn/Application/views/tpl/inc/js_create.tpl',

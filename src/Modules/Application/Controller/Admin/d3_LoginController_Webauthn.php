@@ -16,16 +16,24 @@
 namespace D3\Webauthn\Modules\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\d3webauthn;
+use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\d3WebauthnExceptionAbstract;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnMissingPublicKeyCredentialRequestOptions;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
+use Doctrine\DBAL\Driver\Exception as DoctrineException;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsView;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 {
@@ -56,11 +64,11 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     }
 
     /**
-     * @return d3webauthn
+     * @return Webauthn
      */
-    public function d3GetWebauthnObject()
+    public function d3GetWebauthnObject(): Webauthn
     {
-        return oxNew(d3webauthn::class);
+        return oxNew(Webauthn::class);
     }
 
     /**
@@ -85,33 +93,81 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function checklogin()
     {
-        //$sWebauth = Registry::getRequest()->getRequestEscapedParameter('keyauth');
-        $sWebauth = base64_decode(Registry::getRequest()->getRequestParameter('keyauth'));
+        $lgn_user = Registry::getRequest()->getRequestParameter('user');
+        $userId = $this->d3GetLoginUserId($lgn_user);
 
-        $webauthn = $this->d3GetWebauthnObject();
-        $webauthn->loadByUserId(Registry::getSession()->getVariable("auth"));
+        if ($lgn_user && $userId && false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
+            $webauthn = $this->d3GetWebauthnObject();
 
-        $return = 'login';
+            if ($webauthn->isActive($userId)
+                && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+            ) {
+                Registry::getSession()->setVariable(
+                    WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
+                    $this->getClassKey() != 'd3webauthnadminlogin' ? $this->getClassKey() : 'admin_start');
+                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userId);
+                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $lgn_user);
 
-        try {
-            if ($this->isNoWebauthnOrNoLogin($webauthn)) {
-                $return = parent::checklogin();
-            } elseif ($this->hasValidWebauthn($sWebauth, $webauthn)) {
-                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauth);
-                $return = "admin_start";
+/*
+                Registry::getSession()->setVariable(
+                    WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
+                    $this->getViewConfig()->getNavFormParams()
+                );
+*/
+                //$oUser->d3templogout();
+
+                return "d3webauthnadminlogin";
             }
-        } catch (d3webauthnExceptionAbstract $oEx) {
-            $this->d3GetUtilsView()->addErrorToDisplay($oEx);
         }
 
-        return $return;
+        return parent::checklogin();
+    }
+
+    /**
+     * @param $username
+     * @return string|null
+     * @throws DoctrineException
+     * @throws Exception
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    protected function d3GetLoginUserId($username): ?string
+    {
+        if (empty($username)) {
+            return null;
+        }
+
+        $user = oxNew(User::class);
+
+        /** @var QueryBuilder $qb */
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->select('oxid')
+            ->from($user->getViewName())
+            ->where(
+                $qb->expr()->and(
+                    $qb->expr()->eq(
+                        'oxusername',
+                        $qb->createNamedParameter($username)
+                    ),
+                    $qb->expr()->eq(
+                        'oxshopid',
+                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                    ),
+                    $qb->expr()->eq(
+                        'oxrights',
+                        $qb->createNamedParameter('malladmin')
+                    )
+                )
+            )->setMaxResults(1);
+
+        return $qb->execute()->fetchOne();
     }
 
     /**
      * @param d3webauthn $webauthn
      * @return bool
      */
-    public function isNoWebauthnOrNoLogin($webauthn)
+    public function d3IsNoWebauthnOrNoLogin($webauthn)
     {
         return false == $this->d3GetSession()->getVariable("auth")
         || false == $webauthn->isActive();

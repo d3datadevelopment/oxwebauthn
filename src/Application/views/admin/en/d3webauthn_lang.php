@@ -32,7 +32,7 @@ $aLang = [
 
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registered keys',
 
-    'D3_WEBAUTHN_ERR_UNSECURECONNECTION'              => 'The use of security keys is only possible with secured connections (https).',
+    'D3_WEBAUTHN_ERR_UNSECURECONNECTION'              => 'The use of security keys is only possible with secured or local connections (https).',
     'D3_WEBAUTHN_ERR_INVALIDSTATE'                    => 'The key from the token cannot be used or can no longer be used. It may have been stored in your account before.',
     'D3_WEBAUTHN_ERR_NOTALLOWED'                      => 'The request was not allowed by the browser or the platform. Possibly permissions are missing or the time has expired.',
     'D3_WEBAUTHN_ERR_ABORT'                           => 'The action was aborted by the browser or the platform.',
