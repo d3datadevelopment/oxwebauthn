@@ -35,10 +35,8 @@ class d3user_webauthn extends AdminDetailsController
 
     /**
      * @return string
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
      */
-    public function render()
+    public function render(): string
     {
         $this->addTplParam('readonly', (bool) !(oxNew(Webauthn::class)->isAvailable()));
 
@@ -114,7 +112,7 @@ class d3user_webauthn extends AdminDetailsController
      * @param $userId
      * @return array
      */
-    public function getCredentialList($userId)
+    public function getCredentialList($userId): array
     {
         $oUser = $this->getUserObject();
         $oUser->load($userId);
@@ -126,7 +124,7 @@ class d3user_webauthn extends AdminDetailsController
     /**
      * @return User
      */
-    public function getUserObject()
+    public function getUserObject(): User
     {
         return oxNew(User::class);
     }

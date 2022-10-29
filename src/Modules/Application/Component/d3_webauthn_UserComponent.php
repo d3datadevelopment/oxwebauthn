@@ -15,7 +15,6 @@
 
 namespace D3\Webauthn\Modules\Application\Component;
 
-use D3\Webauthn\Application\Model\d3webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnMissingPublicKeyCredentialRequestOptions;
 use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
@@ -114,15 +113,14 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     {
         $sWebauth = base64_decode(Registry::getRequest()->getRequestParameter('keyauth'));
 
-        $sUserId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         $oUser = oxNew(User::class);
-        $oUser->load($sUserId);
+        $oUser->load($userId);
 
         $webauthn = $this->d3GetWebauthnObject();
-        $webauthn->loadByUserId($sUserId);
 
         try {
-            if (false == $this->isNoWebauthnOrNoLogin($webauthn) && $this->hasValidWebauthn($sWebauth, $webauthn)) {
+            if (false == $this->isNoWebauthnOrNoLogin($webauthn, $userId) && $this->hasValidWebauthn($sWebauth, $webauthn)) {
                 $this->d3WebauthnRelogin($oUser, $sWebauth);
                 $this->d3WebauthnClearSessionVariables();
 
@@ -151,28 +149,32 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     }
 
     /**
-     * @param d3webauthn $webauthn
+     * @param Webauthn $webauthn
      * @return bool
      */
-    public function isNoWebauthnOrNoLogin($webauthn)
+    public function isNoWebauthnOrNoLogin($webauthn, $userId)
     {
         return false == $this->d3GetSession()->getVariable("auth")
-            || false == $webauthn->isActive();
+            || false == $webauthn->isActive($userId);
     }
 
     /**
      * @param string $sWebauth
-     * @param d3webauthn $webauthn
+     * @param Webauthn $webauthn
      * @return bool
      * @throws d3webauthnMissingPublicKeyCredentialRequestOptions
      * @throws d3webauthnWrongAuthException
      */
-    public function hasValidWebauthn($sWebauth, $webauthn)
+    public function hasValidWebauthn($sWebauth, $webauthn): bool
     {
-        return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            (
-                $sWebauth && $webauthn->verify($sWebauth)
-            );
+        try {
+            return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
+                (
+                    $sWebauth && $webauthn->assertAuthn($sWebauth)
+                );
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

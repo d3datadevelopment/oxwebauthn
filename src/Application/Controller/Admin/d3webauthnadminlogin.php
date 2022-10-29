@@ -35,7 +35,7 @@ class d3webauthnadminlogin extends AdminController
 {
     protected $_sThisTemplate = 'd3webauthnadminlogin.tpl';
 
-    protected function _authorize() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    protected function _authorize(): bool
     {
         return true;
     }
@@ -48,10 +48,10 @@ class d3webauthnadminlogin extends AdminController
     public function render()
     {
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            false == Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+            !Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
             $this->getUtils()->redirect('index.php?cl=admin_start');
-            if (false == defined('OXID_PHP_UNIT')) {
+            if (!defined('OXID_PHP_UNIT')) {
                 // @codeCoverageIgnoreStart
                 exit;
                 // @codeCoverageIgnoreEnd
@@ -65,10 +65,6 @@ class d3webauthnadminlogin extends AdminController
         return parent::render();
     }
 
-    /**
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
     public function generateCredentialRequest()
     {
         /** @var Webauthn $webauthn */
@@ -104,19 +100,20 @@ class d3webauthnadminlogin extends AdminController
                 $loginController = oxNew(LoginController::class);
                 return $loginController->checklogin();
             }
-
         } catch (Exception $e) {
             Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
 
             $user->logout();
             $this->getUtils()->redirect('index.php?cl=login');
         }
+
+        return null;
     }
 
     /**
      * @return Utils
      */
-    public function getUtils()
+    public function getUtils(): Utils
     {
         return Registry::getUtils();
     }
@@ -126,11 +123,11 @@ class d3webauthnadminlogin extends AdminController
         return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
-    public function previousClassIsOrderStep()
+    public function previousClassIsOrderStep(): bool
     {
         $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $resolvedClass = Registry::getControllerClassNameResolver()->getClassNameById($sClassKey);
-        $resolvedClass = $resolvedClass ? $resolvedClass : 'start';
+        $resolvedClass = $resolvedClass ?: 'start';
 
         /** @var FrontendController $oController */
         $oController = oxNew($resolvedClass);
@@ -140,7 +137,7 @@ class d3webauthnadminlogin extends AdminController
     /**
      * @return bool
      */
-    public function getIsOrderStep()
+    public function getIsOrderStep(): bool
     {
         return $this->previousClassIsOrderStep();
     }
@@ -150,7 +147,7 @@ class d3webauthnadminlogin extends AdminController
      *
      * @return array
      */
-    public function getBreadCrumb()
+    public function getBreadCrumb(): array
     {
         $aPaths = [];
         $aPath = [];

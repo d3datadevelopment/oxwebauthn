@@ -41,10 +41,10 @@ class d3webauthnlogin extends FrontendController
     public function render()
     {
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            false == Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+            !Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
-            $this->getUtils()->redirect('index.php?cl=start', true, 302);
-            if (false == defined('OXID_PHP_UNIT')) {
+            $this->getUtils()->redirect('index.php?cl=start');
+            if (!defined('OXID_PHP_UNIT')) {
                 // @codeCoverageIgnoreStart
                 exit;
                 // @codeCoverageIgnoreEnd
@@ -58,10 +58,6 @@ class d3webauthnlogin extends FrontendController
         return parent::render();
     }
 
-    /**
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
     public function generateCredentialRequest()
     {
         /** @var Webauthn $webauthn */
@@ -107,7 +103,7 @@ class d3webauthnlogin extends FrontendController
     /**
      * @return Utils
      */
-    public function getUtils()
+    public function getUtils(): Utils
     {
         return Registry::getUtils();
     }
@@ -117,11 +113,11 @@ class d3webauthnlogin extends FrontendController
         return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
-    public function previousClassIsOrderStep()
+    public function previousClassIsOrderStep(): bool
     {
         $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $resolvedClass = Registry::getControllerClassNameResolver()->getClassNameById($sClassKey);
-        $resolvedClass = $resolvedClass ? $resolvedClass : 'start';
+        $resolvedClass = $resolvedClass ?: 'start';
 
         /** @var FrontendController $oController */
         $oController = oxNew($resolvedClass);
@@ -131,7 +127,7 @@ class d3webauthnlogin extends FrontendController
     /**
      * @return bool
      */
-    public function getIsOrderStep()
+    public function getIsOrderStep(): bool
     {
         return $this->previousClassIsOrderStep();
     }
@@ -141,7 +137,7 @@ class d3webauthnlogin extends FrontendController
      *
      * @return array
      */
-    public function getBreadCrumb()
+    public function getBreadCrumb(): array
     {
         $aPaths = [];
         $aPath = [];

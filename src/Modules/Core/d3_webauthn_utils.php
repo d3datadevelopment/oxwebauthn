@@ -15,7 +15,7 @@
 
 namespace D3\Webauthn\Modules\Core;
 
-use D3\Webauthn\Application\Model\d3webauthn;
+use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\DBALException;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -35,11 +35,10 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
 
         $userID = $this->d3GetSessionObject()->getVariable("auth");
         $webauthnAuth = (bool) $this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
-        /** @var d3webauthn $webauthn */
+        /** @var Webauthn $webauthn */
         $webauthn = $this->d3GetWebauthnObject();
-        $webauthn->loadByUserId($userID);
 
-        if ($blAuth && $webauthn->isActive() && false === $webauthnAuth) {
+        if ($blAuth && $webauthn->isActive($userID) && false === $webauthnAuth) {
             $this->redirect('index.php?cl=login', true, 302);
             if (false == defined('OXID_PHP_UNIT')) {
                 // @codeCoverageIgnoreStart
@@ -60,10 +59,10 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
     }
 
     /**
-     * @return d3webauthn
+     * @return Webauthn
      */
     public function d3GetWebauthnObject()
     {
-        return oxNew(d3webauthn::class);
+        return oxNew(Webauthn::class);
     }
 }

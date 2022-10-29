@@ -20,8 +20,6 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use OxidEsales\Eshop\Application\Controller\AccountController;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
-use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Registry;
 
 class d3_account_webauthn extends AccountController
@@ -30,10 +28,8 @@ class d3_account_webauthn extends AccountController
 
     /**
      * @return string
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
      */
-    public function render()
+    public function render(): string
     {
         $sRet = parent::render();
 
@@ -53,7 +49,7 @@ class d3_account_webauthn extends AccountController
     /**
      * @return publicKeyCredentialList
      */
-    public function getCredentialList()
+    public function getCredentialList(): PublicKeyCredentialList
     {
         $oUser = $this->getUser();
         $credentialList = oxNew(PublicKeyCredentialList::class);
