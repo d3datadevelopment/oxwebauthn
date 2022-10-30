@@ -38,7 +38,7 @@
 
 [{capture name="javascripts"}]
     function deleteItem(id) {
-        if (confirm('wirklich loeschen?') === true) {
+        if (confirm('[{oxmultilang ident="D3WEBAUTHN_DELETE_CONFIRM"}]') === true) {
             document.getElementById('fncname').value = 'deleteKey';
             document.getElementById('oxidvalue').value = id;
             document.getElementById('myedit').submit();
@@ -57,9 +57,9 @@
                     <div class="card">
                         <div class="card-body">
                             <p class="card-text">
-                                Bitte die Anfrage Ihres Browsers bestätigen.
+                                [{oxmultilang ident="D3WEBAUTHN_CONF_BROWSER_REQUEST"}]
                             </p>
-                            <button onclick="document.getElementById('webauthn').submit();">Abbrechen</button>
+                            <button onclick="document.getElementById('webauthn').submit();">[{oxmultilang ident="D3WEBAUTHN_CANCEL"}]</button>
                         </div>
 
                     </div>
@@ -82,7 +82,9 @@
             <table style="padding:0; border:0; width:98%;">
                 <tr>
                     <td></td>
-                    <td class="errorbox">[{oxmultilang ident=$sSaveError}]</td>
+                    <td class="errorbox">
+                        [{oxmultilang ident=$sSaveError}]
+                    </td>
                 </tr>
             </table>
         [{/if}]
@@ -102,7 +104,9 @@
                                     <input type="hidden" name="fnc" value="requestNewCredential">
                                     <input type="hidden" name="oxid" value="[{$oxid}]">
                                     [{block name="user_d3user_totp_registerform"}]
-                                        <label for="credentialname">Name des Schlüssels</label>
+                                        <label for="credentialname">
+                                            [{oxmultilang ident="D3_WEBAUTHN_KEYNAME"}]
+                                        </label>
                                         <p class="card-text">
                                             <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
                                         </p>
@@ -132,14 +136,14 @@
                                                 [{$credential->getName()}]
                                                 <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">
                                                     <span class="glyphicon glyphicon-pencil"></span>
-                                                    delete
+                                                    [{oxmultilang ident="D3WEBAUTHN_DELETE"}]
                                                 </a>
                                             </li>
                                         [{/foreach}]
                                     </ul>
                                 [{else}]
                                     <div class="card-text">
-                                        kein Schluessel registriert
+                                        [{oxmultilang ident="D3WEBAUTHN_CANCELNOKEYREGISTERED"}]
                                     </div>
                                 [{/if}]
                             </div>

@@ -17,18 +17,18 @@
 
 declare(strict_types=1);
 
-namespace D3\Webauthn\Application\Model\Webauthn;
+namespace D3\Webauthn\Application\Model;
 
-use OxidEsales\Eshop\Application\Model\Shop;
+use OxidEsales\Eshop\Core\Registry;
 use Webauthn\PublicKeyCredentialRpEntity;
 
-class d3PublicKeyCredentialRpEntity extends PublicKeyCredentialRpEntity
+class RelyingPartyEntity extends PublicKeyCredentialRpEntity
 {
-    public function __construct(Shop $shop)
+    public function __construct()
     {
         parent::__construct(
-            $shop->getFieldData('oxname'),
-            $_SERVER['HTTP_HOST']
+            Registry::getConfig()->getActiveShop()->getFieldData('oxname'),
+            preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST'])
         );
     }
 }

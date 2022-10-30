@@ -24,11 +24,17 @@ $aLang = [
     'D3_WEBAUTHN_ERROR_MISSINGPKC'                    => 'Keine prüfbaren Anfrageoptionen gespeichert. Bitte führen Sie die Anmeldung noch einmal durch bzw. wenden sich an den Betreiber.',
     'WEBAUTHN_INPUT_HELP'                             => 'Bitte mit Hardwareschlüssel authentisieren.',
     'WEBAUTHN_CANCEL_LOGIN'                           => 'Anmeldung abbrechen',
+    'D3WEBAUTHN_CONF_BROWSER_REQUEST'                 => 'Bitte die Anfrage des Browsers bestätigen:',
+    'D3WEBAUTHN_CANCEL'                               => 'Abbrechen',
+    'D3WEBAUTHN_DELETE'                               => 'Löschen',
+    'D3WEBAUTHN_DELETE_CONFIRM'                       => 'Soll der Schlüssel wirklich gelöscht werden?',
+    'D3WEBAUTHN_CANCELNOKEYREGISTERED'                => 'kein Schlüssel registriert',
 
     'd3mxuser_webauthn'                               => 'Hardwareschlüssel',
 
     'D3_WEBAUTHN_REGISTERNEW'                         => 'neue Registrierung erstellen',
     'D3_WEBAUTHN_ADDKEY'                              => 'Sicherheitsschlüssel hinzufügen',
+    'D3_WEBAUTHN_KEYNAME'                             => 'Name des Schlüssels',
 
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registrierte Schlüssel',
 

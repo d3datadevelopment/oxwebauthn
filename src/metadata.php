@@ -25,19 +25,15 @@ use D3\Webauthn\Application\Controller\d3_account_webauthn;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Controller\Admin\d3_LoginController_Webauthn;
-use D3\Webauthn\Modules\Application\Controller\d3_StartController_Webauthn;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use D3\Webauthn\Modules\Core\d3_webauthn_utils;
-use D3\Webauthn\Setup as ModuleSetup;
-use D3\ModCfg\Application\Model\d3utils;
 use OxidEsales\Eshop\Application\Component\UserComponent;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\OrderController;
 use OxidEsales\Eshop\Application\Controller\PaymentController;
-use OxidEsales\Eshop\Application\Controller\StartController;
 use OxidEsales\Eshop\Application\Controller\UserController;
 use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Application\Model as OxidModel;
@@ -69,7 +65,6 @@ $aModule = array(
         PaymentController::class  => d3_webauthn_PaymentController::class,
         OrderController::class => d3_webauthn_OrderController::class,
         OxidModel\User::class  => d3_User_Webauthn::class,
-        StartController::class => d3_StartController_Webauthn::class,
         LoginController::class => d3_LoginController_Webauthn::class,
         Utils::class           => d3_webauthn_utils::class,
         UserComponent::class   => d3_webauthn_UserComponent::class,
@@ -99,15 +94,10 @@ $aModule = array(
             'block'         => 'account_menu',
             'file'          => 'Application/views/blocks/page/account/inc/account_menu.tpl',
         ],
-            [
-                'template'      => 'page/shop/start.tpl',
-                'block'         => 'start_welcome_text',
-                'file'          => 'Application/views/blocks/page/shop/start_welcome_text.tpl',
-            ],
         [
-            'template'      => 'login.tpl',
-            'block'         => 'admin_login_form',
-            'file'          => 'Application/views/admin/blocks/d3webauthn_login_admin_login_form.tpl',
+            'template'      => 'widget/header/servicebox.tpl',
+            'block'         => 'widget_header_servicebox_items',
+            'file'          => 'Application/views/blocks/widget/header/widget_header_servicebox_items.tpl',
         ]
     ]
 );

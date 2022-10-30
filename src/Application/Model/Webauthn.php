@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
+use Exception;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Webauthn\PublicKeyCredentialCreationOptions;
 use Webauthn\PublicKeyCredentialRequestOptions;
-use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialSource;
 use Webauthn\Server;
 
@@ -22,7 +27,7 @@ class Webauthn
     public const SESSION_CREATIONS_OPTIONS = 'd3WebAuthnCreationOptions';
     public const SESSION_ASSERTION_OPTIONS = 'd3WebAuthnAssertionOptions';
 
-    public function isAvailable()
+    public function isAvailable(): bool
     {
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ||       // is HTTPS
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ||
@@ -40,12 +45,16 @@ class Webauthn
     }
 
     /**
+     * @param User $user
      * @return false|string
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function getCreationOptions(User $user)
     {
-        /** @var d3_User_Webauthn $user */
-        $userEntity = $user->d3GetWebauthnUserEntity();
+        $userEntity = oxNew(UserEntity::class, $user);
 
         /** @var PublicKeyCredentialList $credentialSourceRepository */
         $credentialSourceRepository = oxNew(PublicKeyCredentialList::class);
@@ -66,12 +75,19 @@ class Webauthn
         return json_encode($publicKeyCredentialCreationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    public function getRequestOptions()
+    /**
+     * @return false|string
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getRequestOptions(string $userId)
     {
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
-        $user->load('oxdefaultadmin');
-        $userEntity = $user->d3GetWebauthnUserEntity();
+        $user->load($userId);
+        $userEntity = oxNew(UserEntity::class, $user);
 
         // Get the list of authenticators associated to the user
         $credentialList = oxNew(PublicKeyCredentialList::class);
@@ -98,14 +114,10 @@ class Webauthn
     /**
      * @return Server
      */
-    public function getServer()
+    public function getServer(): Server
     {
-        $rpEntity = new PublicKeyCredentialRpEntity(
-            Registry::getConfig()->getActiveShop()->getFieldData('oxname'),
-            preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST'])
-        );
-
-        return new Server($rpEntity, oxNew(PublicKeyCredentialList::class));
+        $rpEntity = oxNew(RelyingPartyEntity::class);
+        return oxNew(Server::class, $rpEntity, oxNew(PublicKeyCredentialList::class));
     }
 
     public function saveAuthn(string $credential, string $keyName = null)
@@ -128,15 +140,18 @@ class Webauthn
 
             $pkCredential = oxNew(PublicKeyCredential::class);
             $pkCredential->saveCredentialSource($publicKeyCredentialSource, $keyName);
-        } catch (\Exception $e) {
-            dumpvar($e->getMessage());
-            dumpvar($e);
-
-            die();
+        } catch (Exception $e) {
+            // ToDo: write exc msg to display and log
         }
     }
 
-    public function assertAuthn(string $response)
+    /**
+     * @param string $response
+     * @return bool
+     * @throws AssertionFailedException
+     * @throws WebauthnException
+     */
+    public function assertAuthn(string $response): bool
     {
         $psr17Factory = new Psr17Factory();
         $creator = new ServerRequestCreator(
@@ -147,10 +162,9 @@ class Webauthn
         );
         $serverRequest = $creator->fromGlobals();
 
-        /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
-        $user->load('oxdefaultadmin');
-        $userEntity = $user->d3GetWebauthnUserEntity();
+        $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+        $userEntity = oxNew(UserEntity::class, $user);
 
         $this->getServer()->loadAndCheckAssertionResponse(
             html_entity_decode($response),
@@ -165,6 +179,10 @@ class Webauthn
     /**
      * @param $userId
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function isActive($userId): bool
     {
@@ -175,15 +193,19 @@ class Webauthn
     /**
      * @param $userId
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function UserUseWebauthn($userId): bool
     {
-        /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
         $user->load($userId);
-        $entity = $user->d3GetWebauthnUserEntity();
-        $credentionList = oxNew(PublicKeyCredentialList::class);
-        $list = $credentionList->findAllForUserEntity($entity);
+        $entity = oxNew(UserEntity::class, $user);
+
+        $credentialList = oxNew(PublicKeyCredentialList::class);
+        $list = $credentialList->findAllForUserEntity($entity);
 
         return is_array($list) && count($list);
     }

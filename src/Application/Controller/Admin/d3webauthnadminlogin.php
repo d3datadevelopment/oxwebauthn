@@ -15,9 +15,11 @@
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
+use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Exception;
@@ -67,12 +69,17 @@ class d3webauthnadminlogin extends AdminController
 
     public function generateCredentialRequest()
     {
-        /** @var Webauthn $webauthn */
-        $webauthn = oxNew(Webauthn::class);
-        $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions();
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
-        $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
-        $this->addTplParam('isAdmin', isAdmin());
+        try {
+            /** @var Webauthn $webauthn */
+            $webauthn = oxNew(Webauthn::class);
+            $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+            $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
+            Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
+            $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
+            $this->addTplParam('isAdmin', isAdmin());
+        } catch (WebauthnException $e) {
+            // ToDo write exc message to display and log
+        }
     }
 
     public function assertAuthn()
@@ -92,15 +99,16 @@ class d3webauthnadminlogin extends AdminController
             if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
                 $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
                 $webAuthn = oxNew(Webauthn::class);
+                $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
                 $webAuthn->assertAuthn($credential);
-                $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+                $user->load($userId);
                 Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
 
                 /** @var d3_webauthn_UserComponent $userCmp */
                 $loginController = oxNew(LoginController::class);
                 return $loginController->checklogin();
             }
-        } catch (Exception $e) {
+        } catch (AssertionFailedException|WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
 
             $user->logout();

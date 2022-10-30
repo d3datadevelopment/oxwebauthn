@@ -15,16 +15,14 @@
 
 namespace D3\Webauthn\Modules\Application\Component;
 
+use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\WebauthnConf;
-use D3\Webauthn\Application\Model\Exceptions\d3webauthnMissingPublicKeyCredentialRequestOptions;
-use D3\Webauthn\Application\Model\Exceptions\d3webauthnWrongAuthException;
 use D3\Webauthn\Application\Model\Webauthn;
-use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
-use Doctrine\DBAL\DBALException;
+use D3\Webauthn\Application\Model\WebauthnException;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsView;
@@ -37,8 +35,10 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 {
     /**
      * @return string|void
-     * @throws DBALException
-     * @throws DatabaseConnectionException
+     * @throws ContainerExceptionInterface
+     * @throws Exception
+     * @throws NotFoundExceptionInterface
+     * @throws DoctrineDriverException
      */
     public function login_noredirect()
     {
@@ -49,12 +49,15 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($userId)
-                && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 Registry::getSession()->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
                     $this->getParent()->getClassKey() != 'd3webauthnlogin' ? $this->getParent()->getClassKey() : 'start');
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userId);
+                Registry::getSession()->setVariable(
+                    WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
+                    $userId
+                );
                 Registry::getSession()->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
                     $this->getParent()->getViewConfig()->getNavFormParams()
@@ -67,47 +70,18 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         }
 
         parent::login_noredirect();
-
-        /** @var d3_User_Webauthn $user */
-/*
-        $oUser = $this->getUser();
-
-        if ($oUser && $oUser->getId()) {
-            $webauthn = $this->d3GetWebauthnObject();
-            $webauthn->loadByUserId($oUser->getId());
-
-            if ($webauthn->isActive()
-                && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
-            ) {
-                Registry::getSession()->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
-                    $this->getParent()->getClassKey() != 'd3webauthnlogin' ? $this->getParent()->getClassKey() : 'start');
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $oUser->getId());
-                Registry::getSession()->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
-                    $this->getParent()->getViewConfig()->getNavFormParams()
-                );
-
-                $oUser->d3templogout();
-
-                return "d3webauthnlogin";
-            }
-        }
-*/
     }
 
     /**
      * @return Webauthn
      */
-    public function d3GetWebauthnObject()
+    public function d3GetWebauthnObject(): Webauthn
     {
         return oxNew(Webauthn::class);
     }
 
     /**
      * @return bool|string
-     * @throws DatabaseConnectionException
-     * @throws d3webauthnMissingPublicKeyCredentialRequestOptions
      */
     public function checkWebauthnlogin()
     {
@@ -119,15 +93,11 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
         $webauthn = $this->d3GetWebauthnObject();
 
-        try {
-            if (false == $this->isNoWebauthnOrNoLogin($webauthn, $userId) && $this->hasValidWebauthn($sWebauth, $webauthn)) {
-                $this->d3WebauthnRelogin($oUser, $sWebauth);
-                $this->d3WebauthnClearSessionVariables();
+        if (!$this->isNoWebauthnOrNoLogin($webauthn, $userId) && $this->hasValidWebauthn($sWebauth, $webauthn)) {
+            $this->d3WebauthnRelogin($oUser, $sWebauth);
+            $this->d3WebauthnClearSessionVariables();
 
-                return false;
-            }
-        } catch (d3webauthnWrongAuthException $oEx) {
-            $this->d3GetUtilsView()->addErrorToDisplay($oEx, false, false, "", 'd3webauthnlogin');
+            return false;
         }
 
         return 'd3webauthnlogin';
@@ -136,7 +106,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     /**
      * @return UtilsView
      */
-    public function d3GetUtilsView()
+    public function d3GetUtilsView(): UtilsView
     {
         return Registry::getUtilsView();
     }
@@ -150,9 +120,14 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
     /**
      * @param Webauthn $webauthn
+     * @param $userId
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws Exception
+     * @throws NotFoundExceptionInterface
      */
-    public function isNoWebauthnOrNoLogin($webauthn, $userId)
+    public function isNoWebauthnOrNoLogin(Webauthn $webauthn, $userId): bool
     {
         return false == $this->d3GetSession()->getVariable("auth")
             || false == $webauthn->isActive($userId);
@@ -162,17 +137,15 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      * @param string $sWebauth
      * @param Webauthn $webauthn
      * @return bool
-     * @throws d3webauthnMissingPublicKeyCredentialRequestOptions
-     * @throws d3webauthnWrongAuthException
      */
-    public function hasValidWebauthn($sWebauth, $webauthn): bool
+    public function hasValidWebauthn(string $sWebauth, Webauthn $webauthn): bool
     {
         try {
             return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
                 (
                     $sWebauth && $webauthn->assertAuthn($sWebauth)
                 );
-        } catch (\Exception $e) {
+        } catch (AssertionFailedException|WebauthnException $e) {
             return false;
         }
     }
@@ -195,19 +168,20 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
     }
 
     /**
      * @return Session
      */
-    public function d3GetSession()
+    public function d3GetSession(): Session
     {
         return Registry::getSession();
     }
 
     /**
      * @return string|null
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws DoctrineDriverException
      * @throws Exception
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface

@@ -15,19 +15,27 @@
  * @link      http://www.oxidmodule.com
  */
 
-namespace D3\Webauthn\Application\Model\Webauthn;
+namespace D3\Webauthn\Application\Model;
 
 use OxidEsales\Eshop\Application\Model\User;
 use Webauthn\PublicKeyCredentialUserEntity;
 
-class d3PublicKeyCredentialUserEntity extends publicKeyCredentialUserEntity
+class UserEntity extends publicKeyCredentialUserEntity
 {
+    /**
+     * @param User $user
+     * @throws WebauthnException
+     */
     public function __construct(User $user)
     {
+        if (!$user->isLoaded() || !$user->getId()) {
+            throw oxNew(WebauthnException::class, 'can not create webauthn user entity from not loaded user');
+        }
+
         parent::__construct(
-            strtolower($user->getFieldData('oxfname').'.'.$user->getFieldData('oxlname')),
+            strtolower($user->getFieldData('oxusername')),
             $user->getId(),
-            $user->getFieldData('oxfname').', '.$user->getFieldData('oxlname')
+            $user->getFieldData('oxfname') . ' ' . $user->getFieldData('oxlname')
         );
     }
 }

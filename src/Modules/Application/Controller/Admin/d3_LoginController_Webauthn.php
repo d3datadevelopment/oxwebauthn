@@ -33,8 +33,6 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 {
-
-
     /**
      * @return Webauthn
      */
@@ -45,7 +43,10 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 
     /**
      * @return mixed|string
-     * @throws DatabaseConnectionException
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineException
+     * @throws Exception
+     * @throws NotFoundExceptionInterface
      */
     public function checklogin()
     {
@@ -56,13 +57,20 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($userId)
-                && false == Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 Registry::getSession()->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
-                    $this->getClassKey() != 'd3webauthnadminlogin' ? $this->getClassKey() : 'admin_start');
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userId);
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $lgn_user);
+                    $this->getClassKey() != 'd3webauthnadminlogin' ? $this->getClassKey() : 'admin_start'
+                );
+                Registry::getSession()->setVariable(
+                    WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
+                    $userId
+                );
+                Registry::getSession()->setVariable(
+                    WebauthnConf::WEBAUTHN_SESSION_LOGINUSER,
+                    $lgn_user
+                );
 
 /*
                 Registry::getSession()->setVariable(

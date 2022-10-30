@@ -18,11 +18,16 @@
 namespace D3\Webauthn\Application\Model\Credential;
 
 use DateTime;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Exception;
 use OxidEsales\Eshop\Core\Model\BaseModel;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Webauthn\PublicKeyCredentialSource;
 
 class PublicKeyCredential extends BaseModel
@@ -84,11 +89,18 @@ class PublicKeyCredential extends BaseModel
 
     /**
      * @param PublicKeyCredentialSource $publicKeyCredentialSource
+     * @param string|null $keyName
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
+        if ((oxNew(PublicKeyCredentialList::class))
+            ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
+        ) {
+            return;
+        }
+
         // will save on every successfully assertion, set id to prevent duplicated database entries
         $id = $this->getIdByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId());
 
@@ -104,6 +116,14 @@ class PublicKeyCredential extends BaseModel
         $this->save();
     }
 
+    /**
+     * @param string $publicKeyCredentialId
+     * @return string|null
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function getIdByCredentialId(string $publicKeyCredentialId): ?string
     {
         /** @var QueryBuilder $qb */

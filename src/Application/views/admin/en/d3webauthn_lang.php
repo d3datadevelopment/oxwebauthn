@@ -24,11 +24,17 @@ $aLang = [
     'D3_WEBAUTHN_ERROR_MISSINGPKC'                    => 'No verifiable request options saved. Please perform the registration again or contact the operator.',
     'WEBAUTHN_INPUT_HELP'                             => 'Please authenticate with hardware key.',
     'WEBAUTHN_CANCEL_LOGIN'                           => 'Cancel login',
+    'D3WEBAUTHN_CONF_BROWSER_REQUEST'                 => 'Please confirm the browser request:',
+    'D3WEBAUTHN_CANCEL'                               => 'Cancel',
+    'D3WEBAUTHN_DELETE'                               => 'Delete',
+    'D3WEBAUTHN_DELETE_CONFIRM'                       => 'Do you really want to delete the key?',
+    'D3WEBAUTHN_CANCELNOKEYREGISTERED'                => 'No key registered',
 
     'd3mxuser_webauthn'                               => 'hardware key',
 
     'D3_WEBAUTHN_REGISTERNEW'                         => 'create new registration',
     'D3_WEBAUTHN_ADDKEY'                              => 'add security key',
+    'D3_WEBAUTHN_KEYNAME'                             => 'Key name',
 
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registered keys',
 

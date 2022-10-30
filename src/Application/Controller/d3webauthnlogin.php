@@ -15,12 +15,14 @@
 
 namespace D3\Webauthn\Application\Controller;
 
+use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
-use Exception;
+use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -28,6 +30,8 @@ use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Utils;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3webauthnlogin extends FrontendController
 {
@@ -58,12 +62,25 @@ class d3webauthnlogin extends FrontendController
         return parent::render();
     }
 
+    /**
+     * @return void
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function generateCredentialRequest()
     {
-        /** @var Webauthn $webauthn */
-        $webauthn = oxNew(Webauthn::class);
-        $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions();
-        $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
+        try {
+            /** @var Webauthn $webauthn */
+            $webauthn = oxNew(Webauthn::class);
+            $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+            $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
+            $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
+        } catch (WebauthnException $e) {
+            // ToDo: write exc msg to display and log
+        }
+
         $this->addTplParam('isAdmin', isAdmin());
     }
 
@@ -92,7 +109,7 @@ class d3webauthnlogin extends FrontendController
                 $userCmp->d3WebauthnRelogin($user, $credential);
             }
 
-        } catch (Exception $e) {
+        } catch (AssertionFailedException|WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
 
             $user->logout();

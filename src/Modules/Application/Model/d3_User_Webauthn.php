@@ -16,10 +16,8 @@
 namespace D3\Webauthn\Modules\Application\Model;
 
 use D3\Webauthn\Application\Model\WebauthnConf;
-use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use ReflectionClass;
-use Webauthn\PublicKeyCredentialUserEntity;
 
 class d3_User_Webauthn extends d3_User_Webauthn_parent
 {
@@ -56,22 +54,6 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $loginUser);
 
         return $return;
-    }
-
-    /**
-     * @return PublicKeyCredentialUserEntity
-     */
-    public function d3GetWebauthnUserEntity(): PublicKeyCredentialUserEntity
-    {
-        if ($this->isLoaded()) {
-            return oxNew(PublicKeyCredentialUserEntity::class,
-                $this->getFieldData('oxusername'),
-                $this->getId(),
-                $this->getFieldData('oxfname') . ' ' . $this->getFieldData('oxlname')
-            );
-        }
-
-        throw oxNew(StandardException::class, 'can not create webauthn user entity from not loaded user');
     }
 
     public function login($userName, $password, $setSessionCookie = false)

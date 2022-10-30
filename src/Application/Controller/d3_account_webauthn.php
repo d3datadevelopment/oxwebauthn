@@ -19,6 +19,7 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use D3\Webauthn\Application\Model\WebauthnException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Registry;
 
@@ -69,13 +70,18 @@ class d3_account_webauthn extends AccountController
 
     public function setAuthnRegister()
     {
-        $authn = oxNew(Webauthn::class);
-        $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
+        try {
+            $authn = oxNew(Webauthn::class);
+            $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
 
-        $this->addTplParam(
-            'webauthn_publickey_create',
-            $publicKeyCredentialCreationOptions
-        );
+            $this->addTplParam(
+                'webauthn_publickey_create',
+                $publicKeyCredentialCreationOptions
+            );
+        } catch (WebauthnException $e) {
+            // ToDo: add exc msg to display and log
+        }
+
         $this->addTplParam('isAdmin', isAdmin());
         $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
     }

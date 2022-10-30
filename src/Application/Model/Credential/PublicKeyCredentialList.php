@@ -17,13 +17,16 @@
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Model\ListModel;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
-use phpDocumentor\Reflection\Types\This;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Webauthn\PublicKeyCredentialSource;
 use Webauthn\PublicKeyCredentialSourceRepository;
 use Webauthn\PublicKeyCredentialUserEntity;
@@ -37,6 +40,14 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
         parent::__construct(PublicKeyCredential::class);
     }
 
+    /**
+     * @param string $publicKeyCredentialId
+     * @return PublicKeyCredentialSource|null
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function findOneByCredentialId(string $publicKeyCredentialId): ?PublicKeyCredentialSource
     {
         /** @var QueryBuilder $qb */
@@ -66,6 +77,14 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
         return $credential instanceof PublicKeyCredentialSource ? $credential : null;
     }
 
+    /**
+     * @param PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity
+     * @return array|PublicKeyCredentialSource[]
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
+     */
     public function findAllForUserEntity(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array
     {
         /** @var QueryBuilder $qb */
@@ -91,7 +110,15 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
         }, $qb->execute()->fetchAllAssociative());
     }
 
-    public function getAllFromUser(User $user)
+    /**
+     * @param User $user
+     * @return $this
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
+     */
+    public function getAllFromUser(User $user): PublicKeyCredentialList
     {
         if (!$user->isLoaded()) {
             return $this;

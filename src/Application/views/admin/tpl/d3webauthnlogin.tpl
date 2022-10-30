@@ -16,7 +16,7 @@
 
     [{include file="js_login.tpl"}]
 
-    <form action="[{$oViewConf->getSelfLink()}]" target="_top" method="post" name="login" id="login">
+    <form action="[{$oViewConf->getSelfLink()}]" method="post" id="login">
 
         [{block name="admin_login_form"}]
             [{$oViewConf->getHiddenSid()}]
@@ -50,7 +50,7 @@
 </div>
 
 [{oxscript}]
-<script type="text/javascript">if (window != window.top) top.location.href = document.location.href;</script>
+<script type="text/javascript">if (window !== window.top) top.location.href = document.location.href;</script>
 
 </body>
 </html>
