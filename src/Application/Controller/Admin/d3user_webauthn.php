@@ -107,7 +107,7 @@ class d3user_webauthn extends AdminDetailsController
                 $publicKeyCredentialCreationOptions
             );
         } catch (WebauthnException $e) {
-            // ToDo: log exc message
+            // ToDo: log exc message and show message
         }
 
         $this->addTplParam('isAdmin', isAdmin());

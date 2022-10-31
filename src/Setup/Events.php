@@ -17,9 +17,20 @@
 
 namespace D3\Webauthn\Setup;
 
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Exception;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\DbMetaDataHandler;
+use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
+use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\UtilsView;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Events
 {
@@ -44,6 +55,9 @@ class Events
 
     /**
      * Execute action on activate event
+     * @return void
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
      */
     public static function onActivate()
     {
@@ -52,6 +66,8 @@ class Events
         self::regenerateViews();
 
         self::clearCache();
+
+        self::seoUrl();
     }
 
     public static function onDeactivate()
@@ -60,6 +76,9 @@ class Events
 
     /**
      * Execute the sql at the first time of the module installation.
+     * @return void
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
      */
     private static function setupModule()
     {
@@ -75,7 +94,7 @@ class Events
      *
      * @return bool
      */
-    protected static function tableExists($sTableName)
+    protected static function tableExists(string $sTableName): bool
     {
         $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
 
@@ -86,6 +105,8 @@ class Events
      * Executes given sql statement.
      *
      * @param string $sSQL Sql to execute.
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
      */
     private static function executeSQL($sSQL)
     {
@@ -100,7 +121,7 @@ class Events
      *
      * @return bool
      */
-    protected static function fieldExists($sFieldName, $sTableName)
+    protected static function fieldExists(string $sFieldName, string $sTableName): bool
     {
         $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
 
@@ -117,11 +138,11 @@ class Events
     }
 
     /**
-     * Empty cache
+     * clear cache
      */
     private static function clearCache()
     {
-        /** @var \OxidEsales\Eshop\Core\UtilsView $oUtilsView */
+        /** @var UtilsView $oUtilsView */
         $oUtilsView = Registry::getUtilsView();
         $sSmartyDir = $oUtilsView->getSmartyDir();
 
@@ -132,5 +153,66 @@ class Events
                 }
             }
         }
+    }
+
+    /**
+     * @return void
+     */
+    private static function seoUrl()
+    {
+        try {
+            if (!self::hasSeoUrl()) {
+                self::createSeoUrl();
+            }
+        } catch (Exception|NotFoundExceptionInterface|DoctrineDriverException|ContainerExceptionInterface $e) {
+            Registry::getUtilsView()->addErrorToDisplay('error wile creating SEO URLs: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * @return bool
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private static function hasSeoUrl(): bool
+    {
+        /** @var QueryBuilder $qb */
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->select('1')
+            ->from('oxseo')
+            ->where(
+                $qb->expr()->and(
+                    $qb->expr()->eq(
+                        'oxstdurl',
+                        $qb->createNamedParameter('index.php?cl=d3_account_webauthn')
+                    ),
+                    $qb->expr()->eq(
+                        'oxshopid',
+                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                    ),
+                    $qb->expr()->eq(
+                        'oxlang',
+                        $qb->createNamedParameter('1')
+                    )
+                )
+            )
+            ->setMaxResults(1);
+        return $qb->execute()->fetchOne();
+    }
+
+    /**
+     * @return void
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
+     */
+    private static function createSeoUrl()
+    {
+        $query = "INSERT INTO `oxseo` (`OXOBJECTID`, `OXIDENT`, `OXSHOPID`, `OXLANG`, `OXSTDURL`, `OXSEOURL`, `OXTYPE`, `OXFIXED`, `OXEXPIRED`, `OXPARAMS`, `OXTIMESTAMP`) VALUES
+            ('ff57646b47249ee33c6b672741ac371a', 'be07f06fe03a4d5d7936f2eac5e3a87b', 1, 1, 'index.php?cl=d3_account_webauthn', 'en/key-authintication/', 'static', 0, 0, '', NOW()),
+            ('ff57646b47249ee33c6b672741ac371a', '220a1af77362196789eeed4741dda184', 1, 0, 'index.php?cl=d3_account_webauthn', 'key-authentisierung/', 'static', 0, 0, '', NOW());";
+
+        DatabaseProvider::getDb()->execute($query);
     }
 }

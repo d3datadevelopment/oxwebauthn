@@ -15,7 +15,6 @@
 
 namespace D3\Webauthn\Modules\Application\Controller;
 
-
 class d3_webauthn_OrderController extends d3_webauthn_OrderController_parent
 {
     use d3_webauthn_getUserTrait;

@@ -22,6 +22,7 @@ use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Application\Model\User;
@@ -39,8 +40,12 @@ class d3webauthnlogin extends FrontendController
 
     /**
      * @return null
+     * @throws ContainerExceptionInterface
      * @throws DatabaseConnectionException
      * @throws DatabaseErrorException
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function render()
     {
@@ -64,7 +69,7 @@ class d3webauthnlogin extends FrontendController
 
     /**
      * @return void
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -78,7 +83,11 @@ class d3webauthnlogin extends FrontendController
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
         } catch (WebauthnException $e) {
-            // ToDo: write exc msg to display and log
+            Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            $exception = oxNew(WebauthnException::class, Registry::getLang()->translateString('D3_WEBAUTHN_ERR_LOGINPROHIBITED'));
+            Registry::getUtilsView()->addErrorToDisplay($exception);
+            Registry::getLogger()->error('webauthn request options: '.$e->getMessage());
+            $this->getUtils()->redirect('index.php?cl=start');
         }
 
         $this->addTplParam('isAdmin', isAdmin());

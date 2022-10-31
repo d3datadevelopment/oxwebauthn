@@ -28,4 +28,6 @@ $aLang = array(
     'D3_WEBAUTHN_ACCOUNT_TYPE1'            => 'nur Auth-Stick',
     'D3_WEBAUTHN_ACCOUNT_TYPE2'            => 'nur Auth-Stick, Passwort als Alternative',
     'D3_WEBAUTHN_ACCOUNT_TYPE3'            => 'Auth-Stick und Passwort in Kombination',
+
+    'D3_WEBAUTHN_ERR_LOGINPROHIBITED'      => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
 );

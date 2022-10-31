@@ -47,4 +47,5 @@ $aLang = [
     'D3_WEBAUTHN_ERR_UNKNOWN'                         => 'The action was cancelled due to an unknown error.',
     'D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT'                 => 'Unfortunately, your browser does not support the use of hardware keys.',
 
+    'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Unfortunately, logging in with a security key is currently not possible for technical reasons. Please use your password instead.',
 ];

@@ -15,7 +15,6 @@
 
 namespace D3\Webauthn\Modules\Application\Controller;
 
-
 class d3_webauthn_PaymentController extends d3_webauthn_PaymentController_parent
 {
     use d3_webauthn_getUserTrait;

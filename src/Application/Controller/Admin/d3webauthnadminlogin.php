@@ -22,16 +22,17 @@ use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
-use Exception;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminController;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
-use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Utils;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3webauthnadminlogin extends AdminController
 {
@@ -44,8 +45,10 @@ class d3webauthnadminlogin extends AdminController
 
     /**
      * @return null
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function render()
     {
@@ -62,11 +65,16 @@ class d3webauthnadminlogin extends AdminController
 
         $this->generateCredentialRequest();
 
-        //$this->addTplParam('navFormParams', Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
-
         return parent::render();
     }
 
+    /**
+     * @return void
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function generateCredentialRequest()
     {
         try {
@@ -78,7 +86,11 @@ class d3webauthnadminlogin extends AdminController
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
-            // ToDo write exc message to display and log
+            Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            $exception = oxNew(WebauthnException::class, Registry::getLang()->translateString('D3_WEBAUTHN_ERR_LOGINPROHIBITED'));
+            Registry::getUtilsView()->addErrorToDisplay($exception);
+            Registry::getLogger()->error('webauthn request options: '.$e->getMessage());
+            $this->getUtils()->redirect('index.php?cl=login');
         }
     }
 

@@ -24,13 +24,9 @@ namespace D3\Webauthn\Modules\Application\Component
 
 namespace D3\Webauthn\Modules\Application\Controller
 {
-
     use OxidEsales\Eshop\Application\Controller\OrderController;
     use OxidEsales\Eshop\Application\Controller\PaymentController;
-    use OxidEsales\Eshop\Application\Controller\StartController;
     use OxidEsales\Eshop\Application\Controller\UserController;
-
-    class d3_StartController_Webauthn_parent extends StartController {}
 
     class d3_webauthn_UserController_parent extends UserController {}
 

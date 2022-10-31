@@ -186,7 +186,8 @@ class Webauthn
      */
     public function isActive($userId): bool
     {
-        return false == Registry::getConfig()->getConfigParam('blDisableWebauthnGlobally')
+        return !Registry::getConfig()->getConfigParam(WebauthnConf::GLOBAL_SWITCH)
+            && !Registry::getSession()->getVariable(WebauthnConf::GLOBAL_SWITCH)
             && $this->UserUseWebauthn($userId);
     }
 

@@ -16,7 +16,15 @@
 namespace D3\Webauthn\Modules\Application\Model;
 
 use D3\Webauthn\Application\Model\WebauthnConf;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Query\QueryBuilder;
+use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 
 class d3_User_Webauthn extends d3_User_Webauthn_parent
@@ -31,27 +39,6 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
-
-        return $return;
-    }
-
-    public function d3templogout()
-    {
-        $varname = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
-        $object = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
-        $currentUser = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-        $currentClass = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
-        $navFormParams = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
-        $loginUser = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
-
-        $return = $this->logout();
-
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH,  $varname);
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $object);
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $currentUser);
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS, $currentClass);
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS, $navFormParams);
-        Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $loginUser);
 
         return $return;
     }
@@ -77,5 +64,44 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         }
 
         return parent::login($userName, $password, $setSessionCookie);
+    }
+
+    /**
+     * @param string $username
+     * @param ?string $rights
+     * @return string|null
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws Exception
+     * @throws NotFoundExceptionInterface
+     */
+    public function d3GetLoginUserId(string $username, string $rights = null): ?string
+    {
+        if (empty($username)) {
+            return null;
+        }
+
+        /** @var QueryBuilder $qb */
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->select('oxid')
+            ->from($this->getViewName())
+            ->where(
+                $qb->expr()->and(
+                    $qb->expr()->eq(
+                        'oxusername',
+                        $qb->createNamedParameter($username)
+                    ),
+                    $qb->expr()->eq(
+                        'oxshopid',
+                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                    ),
+                    $rights ? $qb->expr()->eq(
+                        'oxrights',
+                        $qb->createNamedParameter($rights)
+                    ) : '1'
+                )
+            )->setMaxResults(1);
+
+        return $qb->execute()->fetchOne();
     }
 }

@@ -17,14 +17,22 @@ namespace D3\Webauthn\Modules\Application\Controller;
 
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
+use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 trait d3_webauthn_getUserTrait
 {
     /**
      * @return bool|object|User
+     * @throws Exception
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function getUser()
     {
@@ -34,7 +42,7 @@ trait d3_webauthn_getUserTrait
             $webauthn = $this->d3GetWebauthnpObject();
 
             if ($webauthn->isActive($user->getId())
-                && false == $this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !$this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 return false;
             }
@@ -46,7 +54,7 @@ trait d3_webauthn_getUserTrait
     /**
      * @return Webauthn
      */
-    public function d3GetWebauthnObject()
+    public function d3GetWebauthnObject(): Webauthn
     {
         return oxNew(Webauthn::class);
     }
@@ -54,7 +62,7 @@ trait d3_webauthn_getUserTrait
     /**
      * @return Session
      */
-    public function d3GetSessionObject()
+    public function d3GetSessionObject(): Session
     {
         return Registry::getSession();
     }

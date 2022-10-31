@@ -19,6 +19,7 @@ use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnException;
+use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -43,7 +44,9 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function login_noredirect()
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('lgn_usr');
-        $userId = $this->d3GetLoginUserId($lgn_user);
+        /** @var d3_User_Webauthn $user */
+        $user = oxNew(User::class);
+        $userId = $user->d3GetLoginUserId($lgn_user);
 
         if ($lgn_user && $userId) {
             $webauthn = $this->d3GetWebauthnObject();
@@ -63,8 +66,6 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                     $this->getParent()->getViewConfig()->getNavFormParams()
                 );
 
-                //$oUser->d3templogout();
-
                 return "d3webauthnlogin";
             }
         }
@@ -81,29 +82,6 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     }
 
     /**
-     * @return bool|string
-     */
-    public function checkWebauthnlogin()
-    {
-        $sWebauth = base64_decode(Registry::getRequest()->getRequestParameter('keyauth'));
-
-        $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-        $oUser = oxNew(User::class);
-        $oUser->load($userId);
-
-        $webauthn = $this->d3GetWebauthnObject();
-
-        if (!$this->isNoWebauthnOrNoLogin($webauthn, $userId) && $this->hasValidWebauthn($sWebauth, $webauthn)) {
-            $this->d3WebauthnRelogin($oUser, $sWebauth);
-            $this->d3WebauthnClearSessionVariables();
-
-            return false;
-        }
-
-        return 'd3webauthnlogin';
-    }
-
-    /**
      * @return UtilsView
      */
     public function d3GetUtilsView(): UtilsView
@@ -111,7 +89,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         return Registry::getUtilsView();
     }
 
-    public function cancelWebauthnLogin()
+    public function cancelWebauthnLogin(): bool
     {
         $this->d3WebauthnClearSessionVariables();
 
@@ -151,16 +129,29 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     }
 
     /**
-     * @param User $oUser
+     * @param User $user
      * @param $sWebauthn
      */
-    public function d3WebauthnRelogin(User $oUser, $sWebauthn)
+    public function d3WebauthnRelogin(User $user, $sWebauthn)
     {
+        $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
         $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauthn);
-        $this->d3GetSession()->setVariable('usr', $oUser->getId());
+        $this->d3GetSession()->setVariable('usr', $user->getId());
         $this->setUser(null);
         $this->setLoginStatus(USER_LOGIN_SUCCESS);
-        $this->_afterLogin($oUser);
+
+        // cookie must be set ?
+        if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
+            Registry::getUtilsServer()->setUserCookie(
+                $user->oxuser__oxusername->value,
+                $user->oxuser__oxpassword->value,
+                Registry::getConfig()->getShopId(),
+                31536000,
+                User::USER_COOKIE_SALT
+            );
+        }
+
+        $this->_afterLogin($user);
     }
 
     public function d3WebauthnClearSessionVariables()
@@ -177,40 +168,5 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function d3GetSession(): Session
     {
         return Registry::getSession();
-    }
-
-    /**
-     * @return string|null
-     * @throws DoctrineDriverException
-     * @throws Exception
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function d3GetLoginUserId($username): ?string
-    {
-        if (empty($username)) {
-            return null;
-        }
-
-        $user = oxNew(User::class);
-
-        /** @var QueryBuilder $qb */
-        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
-        $qb->select('oxid')
-            ->from($user->getViewName())
-            ->where(
-                $qb->expr()->and(
-                    $qb->expr()->eq(
-                        'oxusername',
-                        $qb->createNamedParameter($username)
-                    ),
-                    $qb->expr()->eq(
-                        'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
-                    )
-                )
-            )->setMaxResults(1);
-
-        return $qb->execute()->fetchOne();
     }
 }

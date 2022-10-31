@@ -18,16 +18,22 @@ namespace D3\Webauthn\Modules\Core;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3_webauthn_utils extends d3_webauthn_utils_parent
 {
     /**
      * @return bool
-     * @throws DBALException
-     * @throws DatabaseConnectionException
+     * @throws Exception
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function checkAccessRights()
     {
@@ -35,12 +41,11 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
 
         $userID = $this->d3GetSessionObject()->getVariable("auth");
         $webauthnAuth = (bool) $this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
-        /** @var Webauthn $webauthn */
         $webauthn = $this->d3GetWebauthnObject();
 
         if ($blAuth && $webauthn->isActive($userID) && false === $webauthnAuth) {
             $this->redirect('index.php?cl=login', true, 302);
-            if (false == defined('OXID_PHP_UNIT')) {
+            if (!defined('OXID_PHP_UNIT')) {
                 // @codeCoverageIgnoreStart
                 exit;
                 // @codeCoverageIgnoreEnd
@@ -53,7 +58,7 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
     /**
      * @return Session
      */
-    public function d3GetSessionObject()
+    public function d3GetSessionObject(): Session
     {
         return Registry::getSession();
     }
@@ -61,7 +66,7 @@ class d3_webauthn_utils extends d3_webauthn_utils_parent
     /**
      * @return Webauthn
      */
-    public function d3GetWebauthnObject()
+    public function d3GetWebauthnObject(): Webauthn
     {
         return oxNew(Webauthn::class);
     }
