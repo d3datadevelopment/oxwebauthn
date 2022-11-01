@@ -38,6 +38,7 @@ class WebauthnErrors
                 return $lang->translateString('D3_WEBAUTHN_ERR_UNKNOWN', null, true);
             case self::NOPUBKEYSUPPORT:
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT', null, true);
+            // ToDo: translate messages from Webauthn package like "The credential ID is invalid."
         }
 
         return $msg;

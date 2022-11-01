@@ -111,6 +111,8 @@ class d3webauthnlogin extends FrontendController
 
         } catch (AssertionFailedException|WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
+            // ToDo: add requested username
+            Registry::getLogger()->info($e->getMessage());
 
             $user->logout();
             $this->getUtils()->redirect('index.php?cl=start');
