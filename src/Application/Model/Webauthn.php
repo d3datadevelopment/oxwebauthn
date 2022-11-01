@@ -117,7 +117,9 @@ class Webauthn
     public function getServer(): Server
     {
         $rpEntity = oxNew(RelyingPartyEntity::class);
-        return oxNew(Server::class, $rpEntity, oxNew(PublicKeyCredentialList::class));
+        $server = oxNew(Server::class, $rpEntity, oxNew(PublicKeyCredentialList::class));
+        $server->setLogger(Registry::getLogger());
+        return $server;
     }
 
     public function saveAuthn(string $credential, string $keyName = null)

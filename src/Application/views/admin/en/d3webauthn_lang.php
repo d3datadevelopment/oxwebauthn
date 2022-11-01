@@ -15,6 +15,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+use D3\Webauthn\Application\Model\WebauthnConf;
+
 $sLangName = "English";
 
 $aLang = [
@@ -39,13 +41,15 @@ $aLang = [
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registered keys',
 
     'D3_WEBAUTHN_ERR_UNSECURECONNECTION'              => 'The use of security keys is only possible with secured or local connections (https).',
-    'D3_WEBAUTHN_ERR_INVALIDSTATE'                    => 'The key from the token cannot be used or can no longer be used. It may have been stored in your account before.',
+    'D3_WEBAUTHN_ERR_INVALIDSTATE_'.WebauthnConf::TYPE_CREATE   => 'The key from the token cannot be used or can no longer be used. It may have been stored in your account before.',
+    'D3_WEBAUTHN_ERR_INVALIDSTATE_'.WebauthnConf::TYPE_GET      => 'The key cannot be validated.',
     'D3_WEBAUTHN_ERR_NOTALLOWED'                      => 'The request was not allowed by the browser or the platform. Possibly permissions are missing or the time has expired.',
     'D3_WEBAUTHN_ERR_ABORT'                           => 'The action was aborted by the browser or the platform.',
     'D3_WEBAUTHN_ERR_CONSTRAINT'                      => 'The action could not be performed by the authenticating device.',
     'D3_WEBAUTHN_ERR_NOTSUPPORTED'                    => 'The action is not supported.',
     'D3_WEBAUTHN_ERR_UNKNOWN'                         => 'The action was cancelled due to an unknown error.',
     'D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT'                 => 'Unfortunately, your browser does not support the use of hardware keys.',
+    'D3_WEBAUTHN_ERR_TECHNICALERROR'                  => 'A technical error occurred while checking the access data.',
 
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Unfortunately, logging in with a security key is currently not possible for technical reasons. Please use your password instead.',
 ];

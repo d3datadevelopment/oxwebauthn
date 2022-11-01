@@ -15,6 +15,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+use D3\Webauthn\Application\Model\WebauthnConf;
+
 $sLangName = "Deutsch";
 
 $aLang = [
@@ -39,13 +41,15 @@ $aLang = [
     'D3_WEBAUTHN_REGISTEREDKEYS'                      => 'registrierte Schlüssel',
 
     'D3_WEBAUTHN_ERR_UNSECURECONNECTION'              => 'Die Verwendung von Sicherheitsschlüsseln ist nur bei gesicherten oder lokalen Verbindungen (https) möglich.',
-    'D3_WEBAUTHN_ERR_INVALIDSTATE'                    => 'Der Schlüssel vom Token kann nicht oder nicht mehr verwendet werden. Möglicherweise wurde dieser in Ihrem Konto schon einmal gespeichert.',
+    'D3_WEBAUTHN_ERR_INVALIDSTATE_'.WebauthnConf::TYPE_CREATE   => 'Der Schlüssel vom Token kann nicht oder nicht mehr verwendet werden. Möglicherweise wurde dieser in Ihrem Konto schon einmal gespeichert.',
+    'D3_WEBAUTHN_ERR_INVALIDSTATE_'.WebauthnConf::TYPE_GET      => 'Der Schlüssel kann nicht validiert werden.',
     'D3_WEBAUTHN_ERR_NOTALLOWED'                      => 'Die Anfrage wurde vom Browser oder der Plattform nicht zugelassen. Möglicherweise fehlen Berechtigungen oder die Zeit ist abgelaufen.',
     'D3_WEBAUTHN_ERR_ABORT'                           => 'Die Aktion wurde vom Browser oder der Plattform abgebrochen.',
     'D3_WEBAUTHN_ERR_CONSTRAINT'                      => 'Die Aktion konnte vom authentisierenden Gerät nicht durchgeführt werden.',
     'D3_WEBAUTHN_ERR_NOTSUPPORTED'                    => 'Die Aktion wird nicht unterstützt.',
     'D3_WEBAUTHN_ERR_UNKNOWN'                         => 'Die Aktion wurde wegen eines unbekannten Fehlers abgebrochen.',
     'D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT'                 => 'Ihr Browser unterstützt die Verwendung von Hardwareschlüsseln leider nicht.',
+    'D3_WEBAUTHN_ERR_TECHNICALERROR'                  => 'Beim Prüfen der Zugangsdaten ist ein technischer Fehler aufgetreten.',
 
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
 ];

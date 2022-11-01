@@ -102,8 +102,8 @@ class d3webauthnlogin extends FrontendController
             if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
                 $errors = oxNew(WebauthnErrors::class);
                 throw oxNew(
-                    StandardException::class,
-                    $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+                    WebauthnException::class,
+                    $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_GET)
                 );
             }
 

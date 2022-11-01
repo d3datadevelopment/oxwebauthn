@@ -6,26 +6,27 @@ use OxidEsales\Eshop\Core\Registry;
 
 class WebauthnErrors
 {
-    public const INVALIDSTATE   = 'invalidstateerror';
-    public const NOTALLWED      = 'notallowederror';
-    public const ABORT          = 'aborterror';
-    public const CONSTRAINT     = 'constrainterror';
-    public const NOTSUPPORTED   = 'notsupporederror';
-    public const UNKNOWN        = 'unknownerror';
-    public const NOPUBKEYSUPPORT= 'd3nopublickeycredentialsupportederror';
+    public const INVALIDSTATE       = 'invalidstateerror';
+    public const NOTALLWED          = 'notallowederror';
+    public const ABORT              = 'aborterror';
+    public const CONSTRAINT         = 'constrainterror';
+    public const NOTSUPPORTED       = 'notsupporederror';
+    public const UNKNOWN            = 'unknownerror';
+    public const NOPUBKEYSUPPORT    = 'd3nopublickeycredentialsupportederror';
 
     /**
-     * @see https://webidl.spec.whatwg.org/
      * @param $msg
-     * @return mixed|string
+     * @param null $type
+     * @return string
      */
-    public function translateError($msg)
+    public function translateError($msg, $type = null): string
     {
         $lang = Registry::getLang();
+        $type = $type ? '_'.$type : null;
 
         switch ($this->getErrIdFromMessage($msg)) {
             case self::INVALIDSTATE:
-                return $lang->translateString('D3_WEBAUTHN_ERR_INVALIDSTATE', null, true);
+                return $lang->translateString('D3_WEBAUTHN_ERR_INVALIDSTATE'.$type, null, true);
             case self::NOTALLWED:
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOTALLOWED', null, true);
             case self::ABORT:
@@ -38,10 +39,9 @@ class WebauthnErrors
                 return $lang->translateString('D3_WEBAUTHN_ERR_UNKNOWN', null, true);
             case self::NOPUBKEYSUPPORT:
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT', null, true);
-            // ToDo: translate messages from Webauthn package like "The credential ID is invalid."
         }
 
-        return $msg;
+        return $lang->translateString('D3_WEBAUTHN_ERR_TECHNICALERROR', null, true);
     }
 
     /**

@@ -25,4 +25,7 @@ class WebauthnConf
     public const WEBAUTHN_SESSION_NAVFORMPARAMS = 'd3webauthnNavFormParams';   // no usage
 
     public const GLOBAL_SWITCH                  = 'blDisableWebauthnGlobally';
+
+    public const TYPE_CREATE                    = 'TYPECREATE';
+    public const TYPE_GET                       = 'TYPEGET';
 }

@@ -18,6 +18,7 @@ namespace D3\Webauthn\Application\Controller\Admin;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
@@ -74,7 +75,7 @@ class d3user_webauthn extends AdminDetailsController
         if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
             $errors = oxNew(WebauthnErrors::class);
             Registry::getUtilsView()->addErrorToDisplay(
-                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_CREATE)
             );
         }
 

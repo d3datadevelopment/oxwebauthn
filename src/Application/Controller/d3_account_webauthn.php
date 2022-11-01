@@ -18,6 +18,7 @@ namespace D3\Webauthn\Application\Controller;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Application\Model\WebauthnException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
@@ -91,7 +92,7 @@ class d3_account_webauthn extends AccountController
         if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
             $errors = oxNew(WebauthnErrors::class);
             Registry::getUtilsView()->addErrorToDisplay(
-                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'))
+                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_CREATE)
             );
         }
 
