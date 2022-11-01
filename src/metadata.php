@@ -66,7 +66,6 @@ $aModule = array(
         OrderController::class => d3_webauthn_OrderController::class,
         OxidModel\User::class  => d3_User_Webauthn::class,
         LoginController::class => d3_LoginController_Webauthn::class,
-        Utils::class           => d3_webauthn_utils::class,
         UserComponent::class   => d3_webauthn_UserComponent::class,
     ],
     'controllers'   => [

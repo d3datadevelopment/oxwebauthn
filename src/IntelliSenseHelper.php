@@ -48,10 +48,3 @@ namespace D3\Webauthn\Modules\Application\Model
 
     class d3_User_Webauthn_parent extends User {}
 }
-
-namespace D3\Webauthn\Modules\Core
-{
-    use OxidEsales\Eshop\Core\Utils;
-
-    class d3_webauthn_utils_parent extends Utils {}
-}
