@@ -15,6 +15,7 @@
 
 namespace D3\Webauthn\Application\Controller;
 
+use D3\Webauthn\Application\Controller\Traits\accountTrait;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
@@ -26,6 +27,8 @@ use OxidEsales\Eshop\Core\Registry;
 
 class d3_account_webauthn extends AccountController
 {
+    use accountTrait;
+
     protected $_sThisTemplate = 'd3_account_webauthn.tpl';
 
     /**
