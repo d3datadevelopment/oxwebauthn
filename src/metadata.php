@@ -140,6 +140,11 @@ $aModule = array(
             'template'      => 'widget/header/servicebox.tpl',
             'block'         => 'widget_header_servicebox_items',
             'file'          => 'Application/views/blocks/widget/header/widget_header_servicebox_items.tpl',
+        ],
+        [
+            'template'      => 'page/checkout/inc/options.tpl',
+            'block'         => 'checkout_options_login',
+            'file'          => 'Application/views/blocks/page/checkout/inc/checkout_options_login.tpl',
         ]
     ]
 );
