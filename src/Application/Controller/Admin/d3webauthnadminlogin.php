@@ -103,7 +103,7 @@ class d3webauthnadminlogin extends AdminController
             if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
                 $errors = oxNew(WebauthnErrors::class);
                 throw oxNew(
-                    StandardException::class,
+                    WebauthnException::class,
                     $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_GET)
                 );
             }
