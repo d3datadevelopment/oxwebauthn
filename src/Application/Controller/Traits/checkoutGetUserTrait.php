@@ -13,7 +13,7 @@
  * @link      http://www.oxidmodule.com
  */
 
-namespace D3\Webauthn\Modules\Application\Controller;
+namespace D3\Webauthn\Application\Controller\Traits;
 
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
@@ -25,13 +25,13 @@ use OxidEsales\Eshop\Core\Session;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-trait d3_webauthn_getUserTrait
+trait checkoutGetUserTrait
 {
     /**
      * @return bool|object|User
-     * @throws Exception
-     * @throws DoctrineException
      * @throws ContainerExceptionInterface
+     * @throws DoctrineException
+     * @throws Exception
      * @throws NotFoundExceptionInterface
      */
     public function getUser()
@@ -39,7 +39,7 @@ trait d3_webauthn_getUserTrait
         $user = parent::getUser();
 
         if ($user && $user->getId()) {
-            $webauthn = $this->d3GetWebauthnpObject();
+            $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($user->getId())
                 && !$this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
