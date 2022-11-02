@@ -9,7 +9,7 @@ $aLang = array(
     'charset'                              => 'UTF-8',
 
     'PAGE_TITLE_D3WEBAUTHNLOGIN'           => 'Passwortloses Anmelden',
-    'D3_WEBAUTHN_ACCOUNT'                  => 'Sicherheitsschlüssel',
+    'D3_WEBAUTHN_ACCOUNT'                  => 'Meine Schlüssel',
     'D3_WEBAUTHN_ACC_REGISTERNEW'          => 'neue Registrierung erstellen',
     'D3_WEBAUTHN_ACC_ADDKEY'               => 'Sicherheitsschlüssel hinzufügen',
     
