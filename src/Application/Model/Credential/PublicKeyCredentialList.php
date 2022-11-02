@@ -58,7 +58,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                 $qb->expr()->and(
                     $qb->expr()->eq(
                         'credentialid',
-                        $qb->createNamedParameter(bin2hex($publicKeyCredentialId))
+                        $qb->createNamedParameter(base64_encode($publicKeyCredentialId))
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
@@ -72,7 +72,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
             return null;
         }
 
-        $credential = unserialize(hex2bin($credential));
+        $credential = unserialize(base64_decode($credential));
 
         return $credential instanceof PublicKeyCredentialSource ? $credential : null;
     }
@@ -106,7 +106,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
 
         // generate decoded credentials list
         return array_map(function (array $fields) {
-            return unserialize(hex2bin($fields['credential']));
+            return unserialize(base64_decode($fields['credential']));
         }, $qb->execute()->fetchAllAssociative());
     }
 

@@ -54,13 +54,13 @@ class PublicKeyCredential extends BaseModel
     public function setCredentialId($credentialId)
     {
         $this->assign([
-            'credentialid' => bin2hex($credentialId)
+            'credentialid' => base64_encode($credentialId)
         ]);
     }
 
     public function getCredentialId()
     {
-        return hex2bin($this->__get($this->_getFieldLongName('credentialid'))->rawValue);
+        return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue);
     }
 
     public function setUserId($userId)
@@ -78,13 +78,13 @@ class PublicKeyCredential extends BaseModel
     public function setCredential($credential)
     {
         $this->assign([
-            'credential' => bin2hex(serialize($credential))
+            'credential' => base64_encode(serialize($credential))
         ]);
     }
 
     public function getCredential()
     {
-        return unserialize(hex2bin($this->__get($this->_getFieldLongName('credential'))->rawValue));
+        return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue));
     }
 
     /**
@@ -134,7 +134,7 @@ class PublicKeyCredential extends BaseModel
                 $qb->expr()->and(
                     $qb->expr()->eq(
                         'credentialid',
-                        $qb->createNamedParameter(bin2hex($publicKeyCredentialId))
+                        $qb->createNamedParameter(base64_encode($publicKeyCredentialId))
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
