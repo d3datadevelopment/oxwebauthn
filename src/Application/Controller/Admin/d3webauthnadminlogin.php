@@ -94,7 +94,7 @@ class d3webauthnadminlogin extends AdminController
         }
     }
 
-    public function assertAuthn()
+    public function d3AssertAuthn()
     {
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);

@@ -13,14 +13,14 @@
     [{assign var="formNavParams" value=""}]
 [{else}]
     [{assign var="action" value=$oViewConf->getSelfActionLink()}]
-    [{assign var="formNavParams" value=""}]
+    [{assign var="formNavParams" value=$oViewConf->getNavFormParams()}]
 [{/if}]
 
 <form id="webauthn" action="[{$action}]" method="post">
     [{$oViewConf->getHiddenSid()}]
-    [{$formNavParams}]
-    <input type="hidden" name="fnc" value="assertAuthn">
     <input type="hidden" name="cl" value="[{$oViewConf->getActiveClassName()}]">
+    [{$formNavParams}]
+    <input type="hidden" name="fnc" value="d3AssertAuthn">
     <input type="hidden" name="credential" value=''>
     <input type="hidden" name="error" value=''>
 </form>

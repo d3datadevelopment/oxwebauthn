@@ -23,6 +23,7 @@ class WebauthnConf
     public const WEBAUTHN_SESSION_LOGINUSER     = 'd3webauthnLoginUser';   // username entered in login form
     public const WEBAUTHN_SESSION_CURRENTCLASS  = 'd3webauthnCurrentClass';    // no usage
     public const WEBAUTHN_SESSION_NAVFORMPARAMS = 'd3webauthnNavFormParams';   // no usage
+    public const WEBAUTHN_SESSION_NAVPARAMS     = 'd3webauthnNavigationParams';   // no usage
 
     public const GLOBAL_SWITCH                  = 'blDisableWebauthnGlobally';
 
