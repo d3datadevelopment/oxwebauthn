@@ -41,47 +41,71 @@ class PublicKeyCredential extends BaseModel
         parent::__construct();
     }
 
-    public function setName($name)
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
     {
         $this->assign(['name' => $name]);
     }
 
-    public function getName()
+    /**
+     * @return string|null
+     */
+    public function getName(): ?string
     {
         return $this->getFieldData('name');
     }
 
-    public function setCredentialId($credentialId)
+    /**
+     * @param string $credentialId
+     */
+    public function setCredentialId(string $credentialId)
     {
         $this->assign([
             'credentialid' => base64_encode($credentialId)
         ]);
     }
 
+    /**
+     * @return false|string
+     */
     public function getCredentialId()
     {
         return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue);
     }
 
-    public function setUserId($userId)
+    /**
+     * @param string $userId
+     */
+    public function setUserId(string $userId)
     {
         $this->assign([
             'oxuserid' => $userId
         ]);
     }
 
-    public function getUserId()
+    /**
+     * @return string|null
+     */
+    public function getUserId(): ?string
     {
         return $this->__get($this->_getFieldLongName('oxuserid'))->rawValue;
     }
 
-    public function setCredential($credential)
+    /**
+     * @param PublicKeyCredentialSource $credential
+     */
+    public function setCredential(PublicKeyCredentialSource $credential)
     {
         $this->assign([
             'credential' => base64_encode(serialize($credential))
         ]);
     }
 
+    /**
+     * @return false|PublicKeyCredentialSource
+     */
     public function getCredential()
     {
         return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue));
@@ -89,8 +113,13 @@ class PublicKeyCredential extends BaseModel
 
     /**
      * @param PublicKeyCredentialSource $publicKeyCredentialSource
-     * @param string|null $keyName
+     * @param string|null               $keyName
+     *
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      * @throws Exception
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
@@ -118,10 +147,10 @@ class PublicKeyCredential extends BaseModel
 
     /**
      * @param string $publicKeyCredentialId
+     *
      * @return string|null
-     * @throws DoctrineDriverException
-     * @throws DoctrineException
      * @throws ContainerExceptionInterface
+     * @throws DoctrineException
      * @throws NotFoundExceptionInterface
      */
     public function getIdByCredentialId(string $publicKeyCredentialId): ?string

@@ -44,7 +44,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function login_noredirect()
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('lgn_usr');
-        $password = Registry::getConfig()->getRequestParameter('lgn_pwd', true);
+        $password = Registry::getRequest()->getRequestParameter('lgn_pwd');
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);

@@ -122,36 +122,41 @@ class Webauthn
         return $server;
     }
 
+    /**
+     * @param string      $credential
+     * @param string|null $keyName
+     *
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
+     * @throws Exception
+     */
     public function saveAuthn(string $credential, string $keyName = null)
     {
-        try {
-            $psr17Factory = new Psr17Factory();
-            $creator = new ServerRequestCreator(
-                $psr17Factory,
-                $psr17Factory,
-                $psr17Factory,
-                $psr17Factory
-            );
-            $serverRequest = $creator->fromGlobals();
+        $psr17Factory = new Psr17Factory();
+        $creator = new ServerRequestCreator(
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory
+        );
+        $serverRequest = $creator->fromGlobals();
 
-            $publicKeyCredentialSource = $this->getServer()->loadAndCheckAttestationResponse(
-                html_entity_decode($credential),
-                Registry::getSession()->getVariable(self::SESSION_CREATIONS_OPTIONS),
-                $serverRequest
-            );
+        $publicKeyCredentialSource = $this->getServer()->loadAndCheckAttestationResponse(
+            html_entity_decode($credential),
+            Registry::getSession()->getVariable(self::SESSION_CREATIONS_OPTIONS),
+            $serverRequest
+        );
 
-            $pkCredential = oxNew(PublicKeyCredential::class);
-            $pkCredential->saveCredentialSource($publicKeyCredentialSource, $keyName);
-        } catch (Exception $e) {
-            // ToDo: write exc msg to display and log
-        }
+        $pkCredential = oxNew(PublicKeyCredential::class);
+        $pkCredential->saveCredentialSource($publicKeyCredentialSource, $keyName);
     }
 
     /**
      * @param string $response
+     *
      * @return bool
-     * @throws AssertionFailedException
-     * @throws WebauthnException
      */
     public function assertAuthn(string $response): bool
     {

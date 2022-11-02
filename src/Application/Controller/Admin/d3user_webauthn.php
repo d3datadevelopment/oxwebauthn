@@ -20,14 +20,15 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
-use D3\Webauthn\Application\Model\WebauthnException;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
 use Exception;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminDetailsController;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
-use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Registry;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3user_webauthn extends AdminDetailsController
 {
@@ -40,7 +41,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function render(): string
     {
-        $this->addTplParam('readonly', (bool) !(oxNew(Webauthn::class)->isAvailable()));
+        $this->addTplParam('readonly', !(oxNew(Webauthn::class)->isAvailable()));
 
         parent::render();
 
@@ -66,26 +67,31 @@ class d3user_webauthn extends AdminDetailsController
 
     public function requestNewCredential()
     {
-        $this->setPageType('requestnew');
-        $this->setAuthnRegister();
+        try {
+            $this->setPageType( 'requestnew' );
+            $this->setAuthnRegister();
+        } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
+            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
+            Registry::getLogger()->error('webauthn creation request: '.$e->getMessage());
+            Registry::getUtils()->redirect('index.php?cl=d3user_webauthn');
+        }
     }
 
     public function saveAuthn()
     {
-        if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
-            $errors = oxNew(WebauthnErrors::class);
-            Registry::getUtilsView()->addErrorToDisplay(
-                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_CREATE)
-            );
-        }
+        try {
+            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
+                $errors = oxNew( WebauthnErrors::class );
+                Registry::getUtilsView()->addErrorToDisplay( $errors->translateError( Registry::getRequest()->getRequestEscapedParameter( 'error' ), WebauthnConf::TYPE_CREATE ) );
+            }
 
-        if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
-            /** @var Webauthn $webauthn */
-            $webauthn = oxNew(Webauthn::class);
-            $webauthn->saveAuthn(
-                Registry::getRequest()->getRequestEscapedParameter('credential'),
-                Registry::getRequest()->getRequestEscapedParameter('keyname')
-            );
+            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'credential' ) ) ) {
+                /** @var Webauthn $webauthn */
+                $webauthn = oxNew( Webauthn::class );
+                $webauthn->saveAuthn( Registry::getRequest()->getRequestEscapedParameter( 'credential' ), Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
+            }
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
+            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
         }
     }
 
@@ -94,22 +100,24 @@ class d3user_webauthn extends AdminDetailsController
         $this->addTplParam('pageType', $pageType);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws NotFoundExceptionInterface
+     * @throws DoctrineException
+     */
     public function setAuthnRegister()
     {
-        try {
-            $authn = oxNew(Webauthn::class);
+        $authn = oxNew(Webauthn::class);
 
-            $user = $this->getUserObject();
-            $user->load($this->getEditObjectId());
-            $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
+        $user = $this->getUserObject();
+        $user->load($this->getEditObjectId());
+        $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
 
-            $this->addTplParam(
-                'webauthn_publickey_create',
-                $publicKeyCredentialCreationOptions
-            );
-        } catch (WebauthnException $e) {
-            // ToDo: log exc message and show message
-        }
+        $this->addTplParam(
+            'webauthn_publickey_create',
+            $publicKeyCredentialCreationOptions
+        );
 
         $this->addTplParam('isAdmin', isAdmin());
         $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
@@ -117,7 +125,12 @@ class d3user_webauthn extends AdminDetailsController
 
     /**
      * @param $userId
+     *
      * @return array
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function getCredentialList($userId): array
     {
