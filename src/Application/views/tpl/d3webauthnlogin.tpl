@@ -28,7 +28,7 @@
                 <input type="hidden" name="cl" value="[{$oView->getPreviousClass()}]">
                 [{$navFormParams}]
 
-                <button class="btn btn_cancel btn-outline-danger" type="submit">
+                <button class="btn btn_cancel btn-outline-danger btn-sm" type="submit">
                     [{oxmultilang ident="WEBAUTHN_CANCEL_LOGIN"}]
                 </button>
             </form>

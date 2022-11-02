@@ -28,15 +28,18 @@
     [{if $pageType === 'requestnew'}]
         <div class="container-fluid">
             <div class="row justify-content-center">
-                <div class="col-6">
+                <div class="[{*wave*}]col-6[{*/wave*}] [{*flow*}]col-xs-6 col-xs-offset-3[{*/flow*}]">
                     [{include file="js_create.tpl"}]
 
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="card-text">
+                    <div class="[{*wave*}]card[{*/wave*}] [{*flow*}]panel panel-default[{*/flow*}]">
+                        <div class="[{*wave*}]card-header[{*/wave*}] [{*flow*}]panel-heading[{*/flow*}]">
+                            [{oxmultilang ident="D3_WEBAUTHN_CONFIRMATION"}]
+                        </div>
+                        <div class="[{*wave*}]card-body[{*/wave*}] [{*flow*}]panel-body[{*/flow*}]">
+                            <p class="[{*wave*}]card-text[{*/wave*}]">
                                 [{oxmultilang ident="D3_WEBAUTHN_CONF_BROWSER_REQUEST"}]
                             </p>
-                            <button onclick="document.getElementById('webauthn').submit();">[{oxmultilang ident="D3_WEBAUTHN_CANCEL"}]</button>
+                            <button onclick="document.getElementById('webauthn').submit();" class="btn btn-danger btn-sm [{*wave*}]float-right[{*/wave*}] [{*flow*}]pull-right[{*/flow*}]">[{oxmultilang ident="D3_WEBAUTHN_CANCEL"}]</button>
                         </div>
 
                     </div>
@@ -59,25 +62,25 @@
 
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12 col-lg-6 contentbox">
-                    <div class="card">
+                <div class="[{*wave*}]col-12[{*/wave*}] [{*flow*}]col-xs-12[{*/flow*}] col-lg-6 contentbox">
+                    <div class="[{*wave*}]card[{*/wave*}] [{*flow*}]panel panel-default[{*/flow*}]">
                         [{block name="user_d3user_totp_registernew"}]
-                            <div class="card-header">
+                            <div class="[{*wave*}]card-header[{*/wave*}] [{*flow*}]panel-heading[{*/flow*}]">
                                 [{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTERNEW"}]
                             </div>
-                            <div class="card-body">
+                            <div class="[{*wave*}]card-body[{*/wave*}] [{*flow*}]panel-body[{*/flow*}]">
                                 <form name="newcred" id="newcred" action="[{$oViewConf->getSelfLink()}]" method="post">
                                     [{$oViewConf->getHiddenSid()}]
                                     <input type="hidden" name="cl" value="[{$oView->getClassName()}]">
                                     <input type="hidden" name="fnc" value="requestNewCredential">
                                     <input type="hidden" name="oxid" value="[{$oxid}]">
                                     [{block name="user_d3user_totp_registerform"}]
-                                        <label for="credentialname">[{oxmultilang ident="D3_WEBAUTHN_KEYNAME"}]</label>
-                                        <p class="card-text">
+                                        <p class="[{*wave*}]card-text[{*/wave*}]">
+                                            <label for="credentialname">[{oxmultilang ident="D3_WEBAUTHN_KEYNAME" suffix="COLON"}]</label>
                                             <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
                                         </p>
-                                        <p class="card-text">
-                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success">
+                                        <p class="[{*wave*}]card-text[{*/wave*}]">
+                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success btn-sm">
                                                 [{oxmultilang ident="D3_WEBAUTHN_ACC_ADDKEY"}]
                                             </button>
                                         </p>
@@ -88,31 +91,31 @@
                     </div>
                 </div>
                 <div class="col-12 col-lg-6 contentbox">
-                    <div class="card">
+                    <div class="[{*wave*}]card[{*/wave*}] [{*flow*}]panel panel-default[{*/flow*}]">
                         [{block name="user_d3user_totp_form2"}]
-                            <div class="card-header">
+                            <div class="[{*wave*}]card-header[{*/wave*}] [{*flow*}]panel-heading[{*/flow*}]">
                                 [{oxmultilang ident="D3_WEBAUTHN_ACC_REGISTEREDKEYS"}]
                             </div>
-                            <div class="card-body">
-                                [{assign var="list" value=$oView->getCredentialList()}]
-                                [{if $list|@count}]
-                                    <ul class="list-group list-group-flush">
-                                        [{foreach from=$list item="credential"}]
-                                            <li class="list-group-item">
-                                                [{$credential->getName()}]
-                                                <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">
-                                                    <span class="glyphicon glyphicon-pencil"></span>
-                                                    [{oxmultilang ident="D3_WEBAUTHN_DELETE"}]
-                                                </a>
-                                            </li>
-                                        [{/foreach}]
-                                    </ul>
-                                [{else}]
-                                    <div class="card-text">
+                            [{assign var="list" value=$oView->getCredentialList()}]
+                            [{if $list|@count}]
+                                <ul class="list-group list-group-flush">
+                                    [{foreach from=$list item="credential"}]
+                                        <li class="list-group-item" style="line-height: 2em">
+                                            [{$credential->getName()}]
+                                            <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm [{*wave*}]float-right[{*/wave*}] [{*flow*}]pull-right[{*/flow*}]">
+                                                <span class="glyphicon glyphicon-pencil"></span>
+                                                [{oxmultilang ident="D3_WEBAUTHN_DELETE"}]
+                                            </a>
+                                        </li>
+                                    [{/foreach}]
+                                </ul>
+                            [{else}]
+                                <div class="[{*wave*}]card-body[{*/wave*}] [{*flow*}]panel-body[{*/flow*}]">
+                                    <div class="[{*wave*}]card-text[{*/wave*}]">
                                         [{oxmultilang ident="D3_WEBAUTHN_NOKEYREGISTERED"}]
                                     </div>
-                                [{/if}]
-                            </div>
+                                </div>
+                            [{/if}]
                         [{/block}]
                     </div>
                 </div>

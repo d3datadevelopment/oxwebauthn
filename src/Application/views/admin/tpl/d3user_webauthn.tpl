@@ -104,14 +104,14 @@
                                     <input type="hidden" name="fnc" value="requestNewCredential">
                                     <input type="hidden" name="oxid" value="[{$oxid}]">
                                     [{block name="user_d3user_totp_registerform"}]
-                                        <label for="credentialname">
-                                            [{oxmultilang ident="D3_WEBAUTHN_KEYNAME"}]
-                                        </label>
                                         <p class="card-text">
+                                            <label for="credentialname">
+                                                [{oxmultilang ident="D3_WEBAUTHN_KEYNAME" suffix="COLON"}]
+                                            </label>
                                             <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
                                         </p>
                                         <p class="card-text">
-                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success">
+                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success btn-sm">
                                                 [{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]
                                             </button>
                                         </p>
@@ -127,26 +127,26 @@
                             <div class="card-header">
                                 [{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]
                             </div>
-                            <div class="card-body">
-                                [{assign var="list" value=$oView->getCredentialList($oxid)}]
-                                [{if $list|@count}]
-                                    <ul class="list-group list-group-flush">
-                                        [{foreach from=$list item="credential"}]
-                                            <li class="list-group-item">
-                                                [{$credential->getName()}]
-                                                <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm">
-                                                    <span class="glyphicon glyphicon-pencil"></span>
-                                                    [{oxmultilang ident="D3WEBAUTHN_DELETE"}]
-                                                </a>
-                                            </li>
-                                        [{/foreach}]
-                                    </ul>
-                                [{else}]
+                            [{assign var="list" value=$oView->getCredentialList($oxid)}]
+                            [{if $list|@count}]
+                                <ul class="list-group list-group-flush list-unstyled">
+                                    [{foreach from=$list item="credential"}]
+                                        <li class="list-group-item" style="line-height: 2em; background: none">
+                                            [{$credential->getName()}]
+                                            <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm float-right">
+                                                <span class="glyphicon glyphicon-pencil"></span>
+                                                [{oxmultilang ident="D3WEBAUTHN_DELETE"}]
+                                            </a>
+                                        </li>
+                                    [{/foreach}]
+                                </ul>
+                            [{else}]
+                                <div class="card-body">
                                     <div class="card-text">
                                         [{oxmultilang ident="D3WEBAUTHN_CANCELNOKEYREGISTERED"}]
                                     </div>
-                                [{/if}]
-                            </div>
+                                </div>
+                            [{/if}]
                         [{/block}]
                     </div>
                 </div>

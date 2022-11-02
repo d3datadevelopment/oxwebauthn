@@ -210,8 +210,8 @@ class Events
     private static function createSeoUrl()
     {
         $query = "INSERT INTO `oxseo` (`OXOBJECTID`, `OXIDENT`, `OXSHOPID`, `OXLANG`, `OXSTDURL`, `OXSEOURL`, `OXTYPE`, `OXFIXED`, `OXEXPIRED`, `OXPARAMS`, `OXTIMESTAMP`) VALUES
-            ('ff57646b47249ee33c6b672741ac371a', 'be07f06fe03a4d5d7936f2eac5e3a87b', 1, 1, 'index.php?cl=d3_account_webauthn', 'en/key-authintication/', 'static', 0, 0, '', NOW()),
-            ('ff57646b47249ee33c6b672741ac371a', '220a1af77362196789eeed4741dda184', 1, 0, 'index.php?cl=d3_account_webauthn', 'key-authentisierung/', 'static', 0, 0, '', NOW());";
+            ('ff57646b47249ee33c6b672741ac371a', 'be07f06fe03a4d5d7936f2eac5e3a87b', 1, 1, 'index.php?cl=d3_account_webauthn', 'en/key-authentication/', 'static', 0, 0, '', NOW()),
+            ('ff57646b47249ee33c6b672741ac371a', '220a1af77362196789eeed4741dda184', 1, 0, 'index.php?cl=d3_account_webauthn', 'sicherheitsschluessel/', 'static', 0, 0, '', NOW());";
 
         DatabaseProvider::getDb()->execute($query);
     }
