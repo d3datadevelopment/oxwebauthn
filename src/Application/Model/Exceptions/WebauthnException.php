@@ -43,6 +43,6 @@ class WebauthnException extends StandardException
      */
     public function setDetailedErrorMessage(string $detailedErrorMessage = null): void
     {
-        $this->detailedErrorMessage = $detailedErrorMessage;
+        $this->detailedErrorMessage = 'Webauthn: '.$detailedErrorMessage;
     }
 }

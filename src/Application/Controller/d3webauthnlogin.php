@@ -87,7 +87,7 @@ class d3webauthnlogin extends FrontendController
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
         } catch (WebauthnException $e) {
             Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
-            Registry::getLogger()->error('webauthn request options: '.$e->getDetailedErrorMessage(), ['UserId' => $userId]);
+            Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
             Registry::getLogger()->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
             $this->getUtils()->redirect('index.php?cl=start');

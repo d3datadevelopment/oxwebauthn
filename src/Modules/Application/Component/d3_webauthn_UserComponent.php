@@ -199,7 +199,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         } catch (WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e);
             Registry::getLogger()->error(
-                'Webauthn: '.$e->getDetailedErrorMessage(),
+                $e->getDetailedErrorMessage(),
                 ['UserId'   => Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)]
             );
             Registry::getLogger()->debug($e->getTraceAsString());
