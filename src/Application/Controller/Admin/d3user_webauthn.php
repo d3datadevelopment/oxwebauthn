@@ -73,6 +73,7 @@ class d3user_webauthn extends AdminDetailsController
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e);
             Registry::getLogger()->error('webauthn creation request: '.$e->getMessage(), ['UserId' => $this->getEditObjectId()]);
+            Registry::getLogger()->debug($e->getTraceAsString());
             Registry::getUtils()->redirect('index.php?cl=d3user_webauthn');
         }
     }
@@ -93,6 +94,7 @@ class d3user_webauthn extends AdminDetailsController
             }
         } catch (WebauthnException|Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
             Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
+            Registry::getLogger()->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
         }
     }

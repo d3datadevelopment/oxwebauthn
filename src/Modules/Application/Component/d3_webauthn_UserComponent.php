@@ -202,6 +202,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 'Webauthn: '.$e->getDetailedErrorMessage(),
                 ['UserId'   => Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)]
             );
+            Registry::getLogger()->debug($e->getTraceAsString());
             $user->logout();
         }
     }

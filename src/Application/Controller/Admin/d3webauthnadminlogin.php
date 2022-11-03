@@ -88,6 +88,7 @@ class d3webauthnadminlogin extends AdminController
             Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             Registry::getUtilsView()->addErrorToDisplay($e);
             Registry::getLogger()->error('webauthn request options: '.$e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            Registry::getLogger()->debug($e->getTraceAsString());
             $this->getUtils()->redirect('index.php?cl=login');
         }
     }
@@ -122,6 +123,7 @@ class d3webauthnadminlogin extends AdminController
         } catch (WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e);
             Registry::getLogger()->error('Webauthn: '.$e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            Registry::getLogger()->debug($e->getTraceAsString());
             $user->logout();
             $this->getUtils()->redirect('index.php?cl=login');
         }

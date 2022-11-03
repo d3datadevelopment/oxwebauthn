@@ -79,6 +79,7 @@ class d3_account_webauthn extends AccountController
             $this->setPageType('requestnew');
         } catch (WebauthnException $e) {
             Registry::getLogger()->error('webauthn register: '.$e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            Registry::getLogger()->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
         }
     }
