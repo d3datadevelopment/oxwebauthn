@@ -3,13 +3,14 @@
 namespace D3\Webauthn\Application\Model\Exceptions;
 
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use Exception;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 
 class WebauthnException extends StandardException
 {
     public $detailedErrorMessage = null;
 
-    public function __construct( $sMessage = "not set", $iCode = 0, \Exception $previous = null )
+    public function __construct( $sMessage = "not set", $iCode = 0, Exception $previous = null )
     {
         $this->setDetailedErrorMessage($sMessage);
 

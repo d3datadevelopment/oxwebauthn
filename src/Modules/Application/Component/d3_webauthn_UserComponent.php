@@ -203,7 +203,6 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 ['UserId'   => Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)]
             );
             $user->logout();
-            Registry::getUtils()->redirect('index.php?cl=start');
         }
     }
 }
