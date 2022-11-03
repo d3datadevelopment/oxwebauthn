@@ -26,9 +26,13 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
 {
     public function __construct()
     {
+        $shopUrl = is_string(Registry::getConfig()->getConfigParam('d3webauthn_diffshopurl')) ?
+            trim(Registry::getConfig()->getConfigParam('d3webauthn_diffshopurl')) :
+            null;
+
         parent::__construct(
             Registry::getConfig()->getActiveShop()->getFieldData('oxname'),
-            preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST'])
+            $shopUrl ?: preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST'])
         );
     }
 }

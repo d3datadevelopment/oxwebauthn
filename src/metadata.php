@@ -146,5 +146,13 @@ $aModule = array(
             'block'         => 'checkout_options_login',
             'file'          => 'Application/views/blocks/page/checkout/inc/checkout_options_login.tpl',
         ]
+    ],
+    'settings'  => [
+        [
+            'group'     => $sModuleId.'_general',
+            'name'      => $sModuleId.'_diffshopurl',
+            'type'      => 'str',
+            'value'     => false
+        ],
     ]
 );
