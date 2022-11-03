@@ -17,10 +17,11 @@
 
 namespace D3\Webauthn\Application\Model;
 
+use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use OxidEsales\Eshop\Application\Model\User;
 use Webauthn\PublicKeyCredentialUserEntity;
 
-class UserEntity extends publicKeyCredentialUserEntity
+class UserEntity extends PublicKeyCredentialUserEntity
 {
     /**
      * @param User $user
@@ -29,7 +30,9 @@ class UserEntity extends publicKeyCredentialUserEntity
     public function __construct(User $user)
     {
         if (!$user->isLoaded() || !$user->getId()) {
-            throw oxNew(WebauthnException::class, 'can not create webauthn user entity from not loaded user');
+            /** @var WebauthnException $e */
+            $e = oxNew(WebauthnException::class, 'can not create webauthn user entity from not loaded user');
+            throw $e;
         }
 
         parent::__construct(

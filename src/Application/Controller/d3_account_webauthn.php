@@ -18,12 +18,17 @@ namespace D3\Webauthn\Application\Controller;
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnCreateException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnErrors;
-use D3\Webauthn\Application\Model\WebauthnException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Registry;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class d3_account_webauthn extends AccountController
 {
@@ -61,10 +66,21 @@ class d3_account_webauthn extends AccountController
         return $credentialList->getAllFromUser($oUser);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     */
     public function requestNewCredential()
     {
-        $this->setPageType('requestnew');
-        $this->setAuthnRegister();
+        try {
+            $this->setAuthnRegister();
+            $this->setPageType('requestnew');
+        } catch (WebauthnException $e) {
+            Registry::getLogger()->error('webauthn register: '.$e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            Registry::getUtilsView()->addErrorToDisplay($e);
+        }
     }
 
     public function setPageType($pageType)
@@ -72,19 +88,22 @@ class d3_account_webauthn extends AccountController
         $this->addTplParam('pageType', $pageType);
     }
 
+    /**
+     * @throws WebauthnException
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function setAuthnRegister()
     {
-        try {
-            $authn = oxNew(Webauthn::class);
-            $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
+        $authn = oxNew(Webauthn::class);
+        $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
 
-            $this->addTplParam(
-                'webauthn_publickey_create',
-                $publicKeyCredentialCreationOptions
-            );
-        } catch (WebauthnException $e) {
-            // ToDo: add exc msg to display and log
-        }
+        $this->addTplParam(
+            'webauthn_publickey_create',
+            $publicKeyCredentialCreationOptions
+        );
 
         $this->addTplParam('isAdmin', isAdmin());
         $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
@@ -92,20 +111,20 @@ class d3_account_webauthn extends AccountController
 
     public function saveAuthn()
     {
-        if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
-            $errors = oxNew(WebauthnErrors::class);
-            Registry::getUtilsView()->addErrorToDisplay(
-                $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_CREATE)
-            );
-        }
+        try {
+            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
+                /** @var WebauthnCreateException $e */
+                $e = oxNew( WebauthnCreateException::class, Registry::getRequest()->getRequestEscapedParameter( 'error' ) );
+                throw $e;
+            }
 
-        if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
-            /** @var Webauthn $webauthn */
-            $webauthn = oxNew(Webauthn::class);
-            $webauthn->saveAuthn(
-                Registry::getRequest()->getRequestEscapedParameter('credential'),
-                Registry::getRequest()->getRequestEscapedParameter('keyname')
-            );
+            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'credential' ) ) ) {
+                /** @var Webauthn $webauthn */
+                $webauthn = oxNew( Webauthn::class );
+                $webauthn->saveAuthn( Registry::getRequest()->getRequestEscapedParameter( 'credential' ), Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
+            }
+        } catch (WebauthnException $e) {
+            Registry::getUtilsView()->addErrorToDisplay( $e );
         }
     }
 

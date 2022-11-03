@@ -17,9 +17,9 @@ namespace D3\Webauthn\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnCreateException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Webauthn;
-use D3\Webauthn\Application\Model\WebauthnConf;
-use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -71,8 +71,8 @@ class d3user_webauthn extends AdminDetailsController
             $this->setPageType( 'requestnew' );
             $this->setAuthnRegister();
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
-            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
-            Registry::getLogger()->error('webauthn creation request: '.$e->getMessage());
+            Registry::getUtilsView()->addErrorToDisplay($e);
+            Registry::getLogger()->error('webauthn creation request: '.$e->getMessage(), ['UserId' => $this->getEditObjectId()]);
             Registry::getUtils()->redirect('index.php?cl=d3user_webauthn');
         }
     }
@@ -81,8 +81,9 @@ class d3user_webauthn extends AdminDetailsController
     {
         try {
             if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
-                $errors = oxNew( WebauthnErrors::class );
-                Registry::getUtilsView()->addErrorToDisplay( $errors->translateError( Registry::getRequest()->getRequestEscapedParameter( 'error' ), WebauthnConf::TYPE_CREATE ) );
+                /** @var WebauthnCreateException $e */
+                $e = oxNew(WebauthnCreateException::class, Registry::getRequest()->getRequestEscapedParameter( 'error' ));
+                throw $e;
             }
 
             if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'credential' ) ) ) {
@@ -90,8 +91,9 @@ class d3user_webauthn extends AdminDetailsController
                 $webauthn = oxNew( Webauthn::class );
                 $webauthn->saveAuthn( Registry::getRequest()->getRequestEscapedParameter( 'credential' ), Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
             }
-        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
-            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
+        } catch (WebauthnException|Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
+            Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
+            Registry::getUtilsView()->addErrorToDisplay($e);
         }
     }
 

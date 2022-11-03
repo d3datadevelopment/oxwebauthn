@@ -16,20 +16,17 @@
 namespace D3\Webauthn\Modules\Application\Component;
 
 use Assert\AssertionFailedException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Webauthn;
-use D3\Webauthn\Application\Model\WebauthnErrors;
-use D3\Webauthn\Application\Model\WebauthnException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsView;
-use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
-use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -130,7 +127,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 (
                     $sWebauth && $webauthn->assertAuthn($sWebauth)
                 );
-        } catch (AssertionFailedException|WebauthnException $e) {
+        } catch (WebauthnException $e) {
             return false;
         }
     }
@@ -184,26 +181,27 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
         try {
             if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
-                $errors = oxNew(WebauthnErrors::class);
-                throw oxNew(
-                    WebauthnException::class,
-                    $errors->translateError(Registry::getRequest()->getRequestEscapedParameter('error'), WebauthnConf::TYPE_GET)
+                /** @var WebauthnGetException $e */
+                $e = oxNew(
+                    WebauthnGetException::class,
+                    Registry::getRequest()->getRequestEscapedParameter('error')
                 );
+                throw $e;
             }
 
             if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
                 $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
-                $webAuthn = oxNew(Webauthn::class);
-                $webAuthn->assertAuthn($credential);
+                $webAuthn = oxNew( Webauthn::class );
+                $webAuthn->assertAuthn( $credential );
                 $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
                 $this->d3WebauthnRelogin($user, $credential);
             }
-
-        } catch (AssertionFailedException|WebauthnException $e) {
-            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
-            // ToDo: add requested username
-            Registry::getLogger()->info($e->getMessage());
-
+        } catch (WebauthnException $e) {
+            Registry::getUtilsView()->addErrorToDisplay($e);
+            Registry::getLogger()->error(
+                'Webauthn: '.$e->getDetailedErrorMessage(),
+                ['UserId'   => Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)]
+            );
             $user->logout();
             Registry::getUtils()->redirect('index.php?cl=start');
         }

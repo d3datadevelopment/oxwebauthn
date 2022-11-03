@@ -7,6 +7,8 @@ namespace D3\Webauthn\Application\Model;
 use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -37,9 +39,8 @@ class Webauthn
             return true;
         }
 
-        Registry::getUtilsView()->addErrorToDisplay(
-            Registry::getLang()->translateString('D3_WEBAUTHN_ERR_UNSECURECONNECTION', null, true)
-        );
+        $e = oxNew(WebauthnException::class, 'D3_WEBAUTHN_ERR_UNSECURECONNECTION');
+        Registry::getUtilsView()->addErrorToDisplay($e);
 
         return false;
     }
@@ -51,6 +52,7 @@ class Webauthn
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
+     * @throws WebauthnException
      */
     public function getCreationOptions(User $user)
     {
@@ -81,6 +83,7 @@ class Webauthn
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws WebauthnException
      */
     public function getRequestOptions(string $userId)
     {
@@ -157,6 +160,7 @@ class Webauthn
      * @param string $response
      *
      * @return bool
+     * @throws WebauthnException
      */
     public function assertAuthn(string $response): bool
     {
@@ -173,12 +177,13 @@ class Webauthn
         $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
         $userEntity = oxNew(UserEntity::class, $user);
 
-        $this->getServer()->loadAndCheckAssertionResponse(
-            html_entity_decode($response),
-            Registry::getSession()->getVariable(self::SESSION_ASSERTION_OPTIONS),
-            $userEntity,
-            $serverRequest
-        );
+        try {
+            $this->getServer()->loadAndCheckAssertionResponse( html_entity_decode( $response ), Registry::getSession()->getVariable( self::SESSION_ASSERTION_OPTIONS ), $userEntity, $serverRequest );
+        } catch (AssertionFailedException $e) {
+            /** @var WebauthnGetException $exc */
+            $exc = oxNew(WebauthnGetException::class, $e->getMessage(), 0, $e);
+            throw $exc;
+        }
 
         return true;
     }
