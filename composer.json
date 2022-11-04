@@ -1,6 +1,6 @@
 {
   "name": "d3/oxwebauthn",
-  "description": "Webauthn / FIDO2 module for OXID eShop.",
+  "description": "Webauthn / FIDO2 based login for OXID eShop.",
   "type": "oxideshop-module",
   "keywords": [
     "oxid",

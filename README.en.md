@@ -15,7 +15,6 @@ The key management is done in the admin area and in the user's "My Account".
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Extensibility](#extensibility)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
@@ -37,7 +36,17 @@ Activate the module in the admin area of the shop in "Extensions -> Modules".
 
 ## Usage
 
-## Extensibility
+The shop account is opened (as usual) with user name and password. Afterwards, [FIDO2](https://fidoalliance.org/) keys can be added as an additional authentication option. From this moment on, logging into the shop (frontend and backend) can be done either with FIDO2 or with password. Both work independently of each other.
+
+Logging in with password does not differ from the shop standard and remains as a fallback option.
+
+To use the registered FIDO2 keys, simply leave the password field blank when logging in. As soon as at least one character is entered in the password field, a login with password is assumed. If the password field is left blank, the system checks for the existence of a key registration and, if successful, requests the corresponding device. If there is no registration, a login with password is also assumed.
+
+The keys can be easily managed in the My Account area of the frontend and also in the customer account in the backend. The administration includes the registration of new keys (multiple keys per account are possible and recommended). A free text name can be assigned to each key. Furthermore, all registered keys are displayed with their names. Registered keys can also be deleted there.
+
+Any FIDO2-certified hardware can be used for registration. This can be USB tokens (e.g. Solokey or YubiKey), NFC or Bluetooth transmitters, smartphones (Android from version 7, iOS from version 14) or smartcards.
+
+Since a password is no longer required with a FIDO2-based login, the password can also be more complex than passwords suitable for everyday use.
 
 ## Changelog
 

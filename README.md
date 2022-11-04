@@ -15,7 +15,6 @@ Die Schlüsselverwaltung erfolgt im Adminbereich sowie im "Mein Konto" des Benut
 
 - [Installation](#installation)
 - [Verwendung](#verwendung)
-- [Erweiterbarkeit](#erweiterbarkeit)
 - [Changelog](#changelog)
 - [Beitragen](#beitragen)
 - [Lizenz](#lizenz)
@@ -37,7 +36,17 @@ Aktivieren Sie das Modul im Shopadmin unter "Erweiterungen -> Module".
 
 ## Verwendung
 
-## Erweiterbarkeit
+Die Eröffnung des Shopkontos erfolgt (wie gewohnt) mit Benutzername und Passwort. Im Anschluss lassen sich [FIDO2](https://fidoalliance.org/)-Keys als zusätzliche Authensierungsmöglichkeit hinzufügen. Ab diesem Moment kann die Anmeldung im Shop (Frontend und Backend) entweder mit FIDO2 oder mit Passwort erfolgen. Beides funktioniert unabhängig voneinander.
+
+Die Anmeldung mit Passwort unterscheidet sich nicht vom Shopstandard und bleibt als Rückfalloption weiterhin bestehen.
+
+Zur Verwendung der registrierten FIDO2-Keys wird bei der Anmeldung einfach das Passwortfeld leer gelassen. Sobald in das Passwortfeld mindestens ein Zeichen eingegeben wurde, wird von einer Anmeldung mit Passwort ausgegangen. Bei leerer Übergabe des Passwortfeldes wird auf die Existenz einer Keyregistrierung geprüft und im Erfolgsfall das entsprechende Gerät angefordert. Liegt keine Registrierung vor, wird ebenfalls von einer Anmeldung mit Passwort ausgegangen.
+
+Die Keys können einfach im Mein-Konto-Bereich des Frontends und auch im Kundenkonto im Backend verwaltet werden. Die Verwaltung umfasst das Registrieren neuer Keys (mehrfache Keys pro Konto sind möglich und empfohlen). Jedem Key kann ein Freitextname zugeordnet werden. Weiterhin werden alle registrierten Keys mit ihrem Namen dargestellt. Ebenso sind registrierte Keys dort löschbar.
+
+Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können USB-Tokens (z.B. Solokey oder YubiKey), NFC- oder Bluetoothsender, Smartphones (Android ab Version 7, iOS ab Version 14) oder Smartcards sein.
+
+Da bei einer FIDO2-basierten Anmeldung kein Passwort mehr benötigt wird, kann das Kennwort auch komplexer als alltagstaugliche Passworte sein.
 
 ## Changelog
 
