@@ -125,10 +125,9 @@ class d3webauthnadminlogin extends AdminController
             Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
             Registry::getLogger()->debug($e->getTraceAsString());
             $user->logout();
-            $this->getUtils()->redirect('index.php?cl=login');
         }
 
-        return null;
+        return 'login';
     }
 
     /**

@@ -85,6 +85,7 @@ class d3webauthnlogin extends FrontendController
             $webauthn = oxNew(Webauthn::class);
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
+            $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
             Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
@@ -92,8 +93,6 @@ class d3webauthnlogin extends FrontendController
             Registry::getUtilsView()->addErrorToDisplay($e);
             $this->getUtils()->redirect('index.php?cl=start');
         }
-
-        $this->addTplParam('isAdmin', isAdmin());
     }
 
     /**
