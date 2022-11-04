@@ -50,6 +50,7 @@ $aLang = [
     'D3_WEBAUTHN_ERR_UNKNOWN'                         => 'Die Aktion wurde wegen eines unbekannten Fehlers abgebrochen.',
     'D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT'                 => 'Ihr Browser unterstützt die Verwendung von Hardwareschlüsseln leider nicht.',
     'D3_WEBAUTHN_ERR_TECHNICALERROR'                  => 'Beim Prüfen der Zugangsdaten ist ein technischer Fehler aufgetreten.',
+    'D3_WEBAUTHN_ERR_NOTLOADEDUSER'                   => "Kann keine Anmeldedaten von nicht geladenem Kundenkonto beziehen.",
 
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
 

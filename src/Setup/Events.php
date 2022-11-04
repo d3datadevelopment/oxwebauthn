@@ -15,6 +15,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Setup;
 
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;

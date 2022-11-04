@@ -24,7 +24,7 @@
             <form action="[{$oViewConf->getSelfActionLink()}]" method="post" name="webauthnlogout" id="webauthnlogout">
                 [{$oViewConf->getHiddenSid()}]
 
-                <input type="hidden" name="fnc" value="cancelWebauthnlogin">
+                <input type="hidden" name="fnc" value="d3CancelWebauthnlogin">
                 <input type="hidden" name="cl" value="[{$oView->getPreviousClass()}]">
                 [{$navFormParams}]
 

@@ -13,6 +13,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller\Traits;
 
 use D3\Webauthn\Application\Model\Webauthn;
@@ -28,13 +30,13 @@ use Psr\Container\NotFoundExceptionInterface;
 trait checkoutGetUserTrait
 {
     /**
-     * @return bool|object|User
+     * @return null|false|User
      * @throws ContainerExceptionInterface
      * @throws DoctrineException
      * @throws Exception
      * @throws NotFoundExceptionInterface
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         $user = parent::getUser();
 

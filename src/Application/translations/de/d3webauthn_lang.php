@@ -35,4 +35,5 @@ $aLang = array(
 
     'D3_WEBAUTHN_ERR_UNSECURECONNECTION'   => 'Die Verwendung von Sicherheitsschlüsseln ist nur bei lokalen oder gesicherten Verbindungen (https) möglich.',
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'      => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
+    'D3_WEBAUTHN_ERR_NOTLOADEDUSER'        => "Kann keine Anmeldedaten von nicht geladenem Kundenkonto beziehen.",
 );

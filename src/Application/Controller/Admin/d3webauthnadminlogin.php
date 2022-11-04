@@ -13,9 +13,10 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller\Admin;
 
-use Assert\AssertionFailedException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
@@ -37,19 +38,22 @@ class d3webauthnadminlogin extends AdminController
 {
     protected $_sThisTemplate = 'd3webauthnadminlogin.tpl';
 
+    /**
+     * @return bool
+     */
     protected function _authorize(): bool
     {
         return true;
     }
 
     /**
-     * @return null
+     * @return string
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
      */
-    public function render()
+    public function render(): string
     {
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
             !Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
@@ -74,7 +78,7 @@ class d3webauthnadminlogin extends AdminController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function generateCredentialRequest()
+    public function generateCredentialRequest(): void
     {
         $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         try {
@@ -93,7 +97,10 @@ class d3webauthnadminlogin extends AdminController
         }
     }
 
-    public function d3AssertAuthn()
+    /**
+     * @return string|null
+     */
+    public function d3AssertAuthn(): ?string
     {
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
@@ -138,11 +145,17 @@ class d3webauthnadminlogin extends AdminController
         return Registry::getUtils();
     }
 
-    public function getPreviousClass()
+    /**
+     * @return string|null
+     */
+    public function getPreviousClass(): ?string
     {
         return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
+    /**
+     * @return bool
+     */
     public function previousClassIsOrderStep(): bool
     {
         $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);

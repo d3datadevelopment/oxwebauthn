@@ -13,6 +13,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
@@ -65,7 +67,10 @@ class d3user_webauthn extends AdminDetailsController
         return $this->_sThisTemplate;
     }
 
-    public function requestNewCredential()
+    /**
+     * @return void
+     */
+    public function requestNewCredential(): void
     {
         try {
             $this->setPageType( 'requestnew' );
@@ -78,7 +83,10 @@ class d3user_webauthn extends AdminDetailsController
         }
     }
 
-    public function saveAuthn()
+    /**
+     * @return void
+     */
+    public function saveAuthn(): void
     {
         try {
             if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
@@ -99,7 +107,11 @@ class d3user_webauthn extends AdminDetailsController
         }
     }
 
-    public function setPageType($pageType)
+    /**
+     * @param $pageType
+     * @return void
+     */
+    public function setPageType($pageType): void
     {
         $this->addTplParam('pageType', $pageType);
     }
@@ -109,8 +121,9 @@ class d3user_webauthn extends AdminDetailsController
      * @throws DoctrineDriverException
      * @throws NotFoundExceptionInterface
      * @throws DoctrineException
+     * @throws WebauthnException
      */
-    public function setAuthnRegister()
+    public function setAuthnRegister(): void
     {
         $authn = oxNew(Webauthn::class);
 
@@ -153,7 +166,10 @@ class d3user_webauthn extends AdminDetailsController
         return oxNew(User::class);
     }
 
-    public function deleteKey()
+    /**
+     * @return void
+     */
+    public function deleteKey(): void
     {
         /** @var PublicKeyCredential $credential */
         $credential = oxNew(PublicKeyCredential::class);

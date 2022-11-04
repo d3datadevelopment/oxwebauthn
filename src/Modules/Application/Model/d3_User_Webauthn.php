@@ -13,19 +13,22 @@
  * @link          http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Modules\Application\Model;
 
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
-use OxidEsales\Eshop\Application\Model\User;
+use OxidEsales\Eshop\Core\Exception\UserException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 
 class d3_User_Webauthn extends d3_User_Webauthn_parent
 {
@@ -43,6 +46,14 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         return $return;
     }
 
+    /**
+     * @param $userName
+     * @param $password
+     * @param $setSessionCookie
+     * @return bool
+     * @throws UserException
+     * @throws ReflectionException
+     */
     public function login($userName, $password, $setSessionCookie = false)
     {
         if (Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
@@ -68,7 +79,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
 
     /**
      * @param string $username
-     * @param ?string $rights
+     * @param string|null $rights
      * @return string|null
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException

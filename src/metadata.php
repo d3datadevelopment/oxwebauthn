@@ -15,9 +15,7 @@
  * @link      http://www.oxidmodule.com
  */
 
-// https://github.com/web-auth/webauthn-framework/tree/master/doc
-// https://webauthn-doc.spomky-labs.com/
-// https://docs.solokeys.io/solo/
+declare(strict_types=1);
 
 use D3\Webauthn\Application\Controller\Admin\d3user_webauthn;
 use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
@@ -39,7 +37,6 @@ use D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
-use D3\Webauthn\Modules\Core\d3_webauthn_utils;
 use OxidEsales\Eshop\Application\Component\UserComponent;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Application\Controller\AccountDownloadsController;
@@ -55,7 +52,6 @@ use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\OrderController;
 use OxidEsales\Eshop\Application\Controller\PaymentController;
 use OxidEsales\Eshop\Application\Controller\UserController;
-use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Application\Model as OxidModel;
 
 /**
@@ -76,10 +72,10 @@ $aModule = array(
         'de'        => 'Webauthn f&uuml;r OXID eSales Shop',
         'en'        => 'Webauthn for OXID eSales shop',
     ],
-    'version'     => '0.0.1',
+    'version'     => '1.0.0.0',
     'author'      => 'D&sup3; Data Development (Inh.: Thomas Dartsch)',
     'email'       => 'support@shopmodule.com',
-    'url'         => 'http://www.oxidmodule.com/',
+    'url'         => 'https://www.oxidmodule.com/',
     'extend'      => [
         UserController::class       => d3_webauthn_UserController::class,
         PaymentController::class    => d3_webauthn_PaymentController::class,

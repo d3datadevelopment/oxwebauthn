@@ -13,6 +13,8 @@
  * @link          http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller\Traits;
 
 /** workaround for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */

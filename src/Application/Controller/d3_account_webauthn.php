@@ -13,6 +13,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller;
 
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
@@ -27,6 +29,7 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\SeoEncoder;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -50,7 +53,6 @@ class d3_account_webauthn extends AccountController
         }
 
         $this->addTplParam('user', $this->getUser());
-
         $this->addTplParam('readonly',  (bool) !(oxNew(Webauthn::class)->isAvailable()));
 
         return $sRet;
@@ -58,6 +60,10 @@ class d3_account_webauthn extends AccountController
 
     /**
      * @return publicKeyCredentialList
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
      */
     public function getCredentialList(): PublicKeyCredentialList
     {
@@ -71,8 +77,9 @@ class d3_account_webauthn extends AccountController
      * @throws NotFoundExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
+     * @return void
      */
-    public function requestNewCredential()
+    public function requestNewCredential(): void
     {
         try {
             $this->setAuthnRegister();
@@ -84,7 +91,11 @@ class d3_account_webauthn extends AccountController
         }
     }
 
-    public function setPageType($pageType)
+    /**
+     * @param $pageType
+     * @return void
+     */
+    public function setPageType($pageType): void
     {
         $this->addTplParam('pageType', $pageType);
     }
@@ -95,22 +106,26 @@ class d3_account_webauthn extends AccountController
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @return void
      */
-    public function setAuthnRegister()
+    public function setAuthnRegister(): void
     {
         $authn = oxNew(Webauthn::class);
         $publicKeyCredentialCreationOptions = $authn->getCreationOptions($this->getUser());
 
-        $this->addTplParam(
-            'webauthn_publickey_create',
-            $publicKeyCredentialCreationOptions
-        );
-
+        $this->addTplParam('webauthn_publickey_create', $publicKeyCredentialCreationOptions);
         $this->addTplParam('isAdmin', isAdmin());
         $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
     }
 
-    public function saveAuthn()
+    /**
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     * @throws NotFoundExceptionInterface
+     */
+    public function saveAuthn(): void
     {
         try {
             if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
@@ -129,12 +144,37 @@ class d3_account_webauthn extends AccountController
         }
     }
 
-    public function deleteKey()
+    /**
+     * @return void
+     */
+    public function deleteKey(): void
     {
         if (Registry::getRequest()->getRequestEscapedParameter('deleteoxid')) {
             /** @var PublicKeyCredential $credential */
             $credential = oxNew(PublicKeyCredential::class);
             $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getBreadCrumb(): array
+    {
+        $aPaths = [];
+        $aPath = [];
+
+        $iBaseLanguage = Registry::getLang()->getBaseLanguage();
+        /** @var SeoEncoder $oSeoEncoder */
+        $oSeoEncoder = Registry::getSeoEncoder();
+        $aPath['title'] = Registry::getLang()->translateString('MY_ACCOUNT', $iBaseLanguage, false);
+        $aPath['link'] = $oSeoEncoder->getStaticUrl($this->getViewConfig()->getSelfLink() . "cl=account");
+        $aPaths[] = $aPath;
+
+        $aPath['title'] = Registry::getLang()->translateString('D3_WEBAUTHN_ACCOUNT', $iBaseLanguage, false);
+        $aPath['link'] = $this->getLink();
+        $aPaths[] = $aPath;
+
+        return $aPaths;
     }
 }

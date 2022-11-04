@@ -13,6 +13,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Controller;
 
 use D3\Webauthn\Application\Model\Webauthn;
@@ -30,7 +32,10 @@ class d3webauthnlogin extends FrontendController
 {
     protected $_sThisTemplate = 'd3webauthnlogin.tpl';
 
-    public function getNavigationParams()
+    /**
+     * @return array
+     */
+    public function getNavigationParams(): array
     {
         $navparams = Registry::getSession()->getVariable(
             WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS
@@ -43,13 +48,13 @@ class d3webauthnlogin extends FrontendController
     }
 
     /**
-     * @return null
+     * @return string
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
      */
-    public function render()
+    public function render(): string
     {
         if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
             !Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
@@ -76,7 +81,7 @@ class d3webauthnlogin extends FrontendController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function generateCredentialRequest()
+    public function generateCredentialRequest(): void
     {
         $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
@@ -103,11 +108,17 @@ class d3webauthnlogin extends FrontendController
         return Registry::getUtils();
     }
 
-    public function getPreviousClass()
+    /**
+     * @return string|null
+     */
+    public function getPreviousClass(): ?string
     {
         return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
+    /**
+     * @return bool
+     */
     public function previousClassIsOrderStep(): bool
     {
         $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
@@ -128,8 +139,6 @@ class d3webauthnlogin extends FrontendController
     }
 
     /**
-     * Returns Bread Crumb - you are here page1/page2/page3...
-     *
      * @return array
      */
     public function getBreadCrumb(): array

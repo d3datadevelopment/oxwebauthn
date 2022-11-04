@@ -13,6 +13,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Modules\Application\Component;
 
 use Assert\AssertionFailedException;
@@ -93,50 +95,16 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         return Registry::getUtilsView();
     }
 
-    public function cancelWebauthnLogin(): bool
+    public function d3CancelWebauthnLogin(): void
     {
         $this->d3WebauthnClearSessionVariables();
-
-        return false;
-    }
-
-    /**
-     * @param Webauthn $webauthn
-     * @param $userId
-     * @return bool
-     * @throws ContainerExceptionInterface
-     * @throws DoctrineDriverException
-     * @throws Exception
-     * @throws NotFoundExceptionInterface
-     */
-    public function isNoWebauthnOrNoLogin(Webauthn $webauthn, $userId): bool
-    {
-        return false == $this->d3GetSession()->getVariable("auth")
-            || false == $webauthn->isActive($userId);
-    }
-
-    /**
-     * @param string $sWebauth
-     * @param Webauthn $webauthn
-     * @return bool
-     */
-    public function hasValidWebauthn(string $sWebauth, Webauthn $webauthn): bool
-    {
-        try {
-            return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-                (
-                    $sWebauth && $webauthn->assertAuthn($sWebauth)
-                );
-        } catch (WebauthnException $e) {
-            return false;
-        }
     }
 
     /**
      * @param User $user
      * @param $sWebauthn
      */
-    public function d3WebauthnRelogin(User $user, $sWebauthn)
+    public function d3WebauthnRelogin(User $user, $sWebauthn): void
     {
         $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
         $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauthn);
@@ -149,16 +117,17 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
             Registry::getUtilsServer()->setUserCookie(
                 $user->oxuser__oxusername->value,
                 $user->oxuser__oxpassword->value,
-                Registry::getConfig()->getShopId(),
-                31536000,
-                User::USER_COOKIE_SALT
+                Registry::getConfig()->getShopId()
             );
         }
 
         $this->_afterLogin($user);
     }
 
-    public function d3WebauthnClearSessionVariables()
+    /**
+     * @return void
+     */
+    public function d3WebauthnClearSessionVariables(): void
     {
         $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
@@ -174,7 +143,10 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         return Registry::getSession();
     }
 
-    public function d3AssertAuthn()
+    /**
+     * @return void
+     */
+    public function d3AssertAuthn(): void
     {
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);

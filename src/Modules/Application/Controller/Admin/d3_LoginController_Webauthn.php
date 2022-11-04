@@ -13,6 +13,8 @@
  * @link          http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Modules\Application\Controller\Admin;
 
 use D3\Webauthn\Application\Model\Webauthn;
@@ -88,7 +90,10 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         return parent::checklogin();
     }
 
-    public function d3WebauthnCancelLogin()
+    /**
+     * @return void
+     */
+    public function d3WebauthnCancelLogin(): void
     {
         $oUser = $this->d3GetUserObject();
         $oUser->logout();

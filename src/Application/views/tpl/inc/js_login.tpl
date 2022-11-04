@@ -1,5 +1,3 @@
-[{*** require creationOptions variable containing ... ***}]
-
 [{oxscript include=$oViewConf->getModuleUrl('d3webauthn', 'out/src/js/webauthn.js')}]
 
 [{capture name="d3script"}]

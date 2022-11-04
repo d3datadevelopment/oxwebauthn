@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * This Software is the property of Data Development and is protected
+ * by copyright law - it is NOT Freeware.
+ *
+ * Any unauthorized use of this software without a valid license
+ * is a violation of the license agreement and will be prosecuted by
+ * civil and criminal law.
+ *
+ * http://www.shopmodule.com
+ *
+ * @copyright (C) D3 Data Development (Inh. Thomas Dartsch)
+ * @author    D3 Data Development - Daniel Seifert <support@shopmodule.com>
+ * @link      http://www.oxidmodule.com
+ */
+
 declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
@@ -29,12 +44,16 @@ class Webauthn
     public const SESSION_CREATIONS_OPTIONS = 'd3WebAuthnCreationOptions';
     public const SESSION_ASSERTION_OPTIONS = 'd3WebAuthnAssertionOptions';
 
+    /**
+     * @return bool
+     */
     public function isAvailable(): bool
     {
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ||       // is HTTPS
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ||
             !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on' ||
-            in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'])         // is localhost
+            in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) ||      // is localhost
+            preg_match('/.*\.localhost$/mi', $_SERVER['REMOTE_ADDR'])   // localhost is TLD
         ) {
             return true;
         }
@@ -47,14 +66,13 @@ class Webauthn
 
     /**
      * @param User $user
-     * @return false|string
+     * @return string
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
-     * @throws WebauthnException
      */
-    public function getCreationOptions(User $user)
+    public function getCreationOptions(User $user): string
     {
         $userEntity = oxNew(UserEntity::class, $user);
 
@@ -74,18 +92,23 @@ class Webauthn
 
         Registry::getSession()->setVariable(self::SESSION_CREATIONS_OPTIONS, $publicKeyCredentialCreationOptions);
 
-        return json_encode($publicKeyCredentialCreationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = json_encode($publicKeyCredentialCreationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        if ($json === false) {
+            throw oxNew(Exception::class, "can't encode creation options");
+        }
+
+        return $json;
     }
 
     /**
-     * @return false|string
+     * @return string
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws WebauthnException
      */
-    public function getRequestOptions(string $userId)
+    public function getRequestOptions(string $userId): string
     {
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
@@ -111,7 +134,13 @@ class Webauthn
 
         Registry::getSession()->setVariable(self::SESSION_ASSERTION_OPTIONS, $publicKeyCredentialRequestOptions);
 
-        return json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        if ($json === false) {
+            throw oxNew(Exception::class, "can't encode request options");
+        }
+
+        return $json;
     }
 
     /**
@@ -119,7 +148,9 @@ class Webauthn
      */
     public function getServer(): Server
     {
+        /** @var RelyingPartyEntity $rpEntity */
         $rpEntity = oxNew(RelyingPartyEntity::class);
+        /** @var Server $server */
         $server = oxNew(Server::class, $rpEntity, oxNew(PublicKeyCredentialList::class));
         $server->setLogger(Registry::getLogger());
         return $server;
@@ -135,7 +166,7 @@ class Webauthn
      * @throws NotFoundExceptionInterface
      * @throws Exception
      */
-    public function saveAuthn(string $credential, string $keyName = null)
+    public function saveAuthn(string $credential, string $keyName = null): void
     {
         $psr17Factory = new Psr17Factory();
         $creator = new ServerRequestCreator(
@@ -173,12 +204,19 @@ class Webauthn
         );
         $serverRequest = $creator->fromGlobals();
 
+        /** @var User $user */
         $user = oxNew(User::class);
         $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+        /** @var UserEntity $userEntity */
         $userEntity = oxNew(UserEntity::class, $user);
 
         try {
-            $this->getServer()->loadAndCheckAssertionResponse( html_entity_decode( $response ), Registry::getSession()->getVariable( self::SESSION_ASSERTION_OPTIONS ), $userEntity, $serverRequest );
+            $this->getServer()->loadAndCheckAssertionResponse(
+                html_entity_decode( $response ),
+                Registry::getSession()->getVariable( self::SESSION_ASSERTION_OPTIONS ),
+                $userEntity,
+                $serverRequest
+            );
         } catch (AssertionFailedException $e) {
             /** @var WebauthnGetException $exc */
             $exc = oxNew(WebauthnGetException::class, $e->getMessage(), 0, $e);
@@ -213,10 +251,13 @@ class Webauthn
      */
     public function UserUseWebauthn($userId): bool
     {
+        /** @var User $user */
         $user = oxNew(User::class);
         $user->load($userId);
+        /** @var UserEntity $entity */
         $entity = oxNew(UserEntity::class, $user);
 
+        /** @var PublicKeyCredentialList $credentialList */
         $credentialList = oxNew(PublicKeyCredentialList::class);
         $list = $credentialList->findAllForUserEntity($entity);
 

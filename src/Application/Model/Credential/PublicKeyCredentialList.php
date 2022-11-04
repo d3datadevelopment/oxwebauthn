@@ -15,6 +15,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Model\Credential;
 
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
@@ -112,7 +114,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
 
     /**
      * @param User $user
-     * @return $this
+     * @return self
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
@@ -151,6 +153,10 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
         return $this;
     }
 
+    /**
+     * @param PublicKeyCredentialSource $publicKeyCredentialSource
+     * @return void
+     */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {
         $this->getBaseObject()->saveCredentialSource($publicKeyCredentialSource);

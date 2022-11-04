@@ -15,6 +15,8 @@
  * @link      http://www.oxidmodule.com
  */
 
+declare(strict_types=1);
+
 namespace D3\Webauthn\Application\Model\Credential;
 
 use DateTime;
@@ -44,9 +46,11 @@ class PublicKeyCredential extends BaseModel
     /**
      * @param string $name
      */
-    public function setName(string $name)
+    public function setName(string $name): void
     {
-        $this->assign(['name' => $name]);
+        $this->assign([
+            'name' => $name
+        ]);
     }
 
     /**
@@ -60,7 +64,7 @@ class PublicKeyCredential extends BaseModel
     /**
      * @param string $credentialId
      */
-    public function setCredentialId(string $credentialId)
+    public function setCredentialId(string $credentialId): void
     {
         $this->assign([
             'credentialid' => base64_encode($credentialId)
@@ -70,7 +74,7 @@ class PublicKeyCredential extends BaseModel
     /**
      * @return false|string
      */
-    public function getCredentialId()
+    public function getCredentialId(): ?string
     {
         return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue);
     }
@@ -78,7 +82,7 @@ class PublicKeyCredential extends BaseModel
     /**
      * @param string $userId
      */
-    public function setUserId(string $userId)
+    public function setUserId(string $userId): void
     {
         $this->assign([
             'oxuserid' => $userId
@@ -96,7 +100,7 @@ class PublicKeyCredential extends BaseModel
     /**
      * @param PublicKeyCredentialSource $credential
      */
-    public function setCredential(PublicKeyCredentialSource $credential)
+    public function setCredential(PublicKeyCredentialSource $credential): void
     {
         $this->assign([
             'credential' => base64_encode(serialize($credential))
@@ -106,7 +110,7 @@ class PublicKeyCredential extends BaseModel
     /**
      * @return false|PublicKeyCredentialSource
      */
-    public function getCredential()
+    public function getCredential(): ?PublicKeyCredentialSource
     {
         return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue));
     }
@@ -124,6 +128,7 @@ class PublicKeyCredential extends BaseModel
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
+        // item exist already
         if ((oxNew(PublicKeyCredentialList::class))
             ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
         ) {
@@ -150,6 +155,7 @@ class PublicKeyCredential extends BaseModel
      *
      * @return string|null
      * @throws ContainerExceptionInterface
+     * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
      */
