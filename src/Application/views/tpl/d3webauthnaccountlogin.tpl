@@ -1,3 +1,4 @@
+[{** workaround for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) **}]
 [{include file=$oxLoginTpl}]
 
 [{capture name="d3JsFnc"}][{strip}]

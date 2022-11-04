@@ -45,6 +45,7 @@ namespace D3\Webauthn\Modules\Application\Controller
 
     class d3_webauthn_PaymentController_parent extends PaymentController {}
 
+    /** workarounds for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
     class d3_AccountController_Webauthn_parent extends AccountController {}
 
     class d3_AccountDownloadsController_Webauthn_parent extends AccountDownloadsController {}

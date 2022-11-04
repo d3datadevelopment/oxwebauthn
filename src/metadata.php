@@ -88,6 +88,7 @@ $aModule = array(
         LoginController::class      => d3_LoginController_Webauthn::class,
         UserComponent::class        => d3_webauthn_UserComponent::class,
 
+        /** workarounds for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
         AccountController::class    => d3_AccountController_Webauthn::class,
         AccountDownloadsController::class    => d3_AccountDownloadsController_Webauthn::class,
         AccountNoticeListController::class   => d3_AccountNoticeListController_Webauthn::class,
@@ -110,6 +111,7 @@ $aModule = array(
         'd3webauthnlogin.tpl'       => 'd3/oxwebauthn/Application/views/tpl/d3webauthnlogin.tpl',
         'd3webauthnadminlogin.tpl'  => 'd3/oxwebauthn/Application/views/admin/tpl/d3webauthnlogin.tpl',
         'd3_account_webauthn.tpl'   => 'd3/oxwebauthn/Application/views/tpl/d3_account_webauthn.tpl',
+        /** workaround for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
         'd3webauthnaccountlogin.tpl'=> 'd3/oxwebauthn/Application/views/tpl/d3webauthnaccountlogin.tpl',
 
         'js_create.tpl'             => 'd3/oxwebauthn/Application/views/tpl/inc/js_create.tpl',

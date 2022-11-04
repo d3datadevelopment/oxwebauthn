@@ -15,6 +15,7 @@
 
 namespace D3\Webauthn\Application\Controller\Traits;
 
+/** workaround for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
 trait accountTrait
 {
     protected $d3WebauthnLoginTemplate = 'd3webauthnaccountlogin.tpl';

@@ -17,6 +17,7 @@ namespace D3\Webauthn\Modules\Application\Controller;
 
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
 
+/** workaround for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
 class d3_AccountDownloadsController_Webauthn extends d3_AccountDownloadsController_Webauthn_parent
 {
     use accountTrait;
