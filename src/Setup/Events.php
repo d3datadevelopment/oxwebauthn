@@ -59,6 +59,10 @@ class Events
      */
     public static function onActivate()
     {
+        if (defined('OXID_PHP_UNIT')) {
+            return;
+        }
+
         self::setupModule();
 
         self::regenerateViews();

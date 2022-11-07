@@ -111,6 +111,6 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
                 )
             )->setMaxResults(1);
 
-        return $qb->execute()->fetchOne();
+        return $qb->execute()->fetchOne() ?: null;
     }
 }
