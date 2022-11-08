@@ -46,7 +46,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('user') ?:
             Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
-        $password = Registry::getRequest()->getRequestParameter('pwd', true);
+        $password = Registry::getRequest()->getRequestParameter('pwd');
 
         /** @var d3_User_Webauthn $user */
         $user = $this->d3GetUserObject();
@@ -54,7 +54,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 
         if ($lgn_user && $userId &&
             false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
-            !strlen(trim($password))
+            (!$password || !strlen(trim($password)))
         ) {
             $webauthn = $this->d3GetWebauthnObject();
 

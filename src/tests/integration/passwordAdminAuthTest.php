@@ -16,17 +16,16 @@
 namespace D3\Webauthn\tests\integration;
 
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
-use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 
 class passwordAdminAuthTest extends integrationTestCase
 {
     protected $userList = [
-        '1' => 'userId1',
-        '2' => 'userId2',
-        '3' => 'userId3',
-        '4' => 'userId4',
+        1   => 'userId1',
+        2   => 'userId2',
+        3   => 'userId3',
+        4   => 'userId4',
     ];
 
     public function createTestData()
@@ -34,7 +33,7 @@ class passwordAdminAuthTest extends integrationTestCase
         $admin = DatabaseProvider::getDb()->getOne('SELECT oxid FROM oxuser WHERE oxrights = "malladmin"');
         Registry::getSession()->setVariable('auth', $admin);
         $this->createUser(
-            $this->userList['1'],
+            $this->userList[1],
             [
                 'oxactive'      => 1,
                 'oxrights'      => 'user',
@@ -47,7 +46,7 @@ class passwordAdminAuthTest extends integrationTestCase
         );
 
         $this->createUser(
-            $this->userList['2'],
+            $this->userList[2],
             [
                 'oxactive'      => 1,
                 'oxrights'      => 'malladmin',
@@ -60,7 +59,7 @@ class passwordAdminAuthTest extends integrationTestCase
         );
 
         $this->createUser(
-            $this->userList['3'],
+            $this->userList[3],
             [
                 'oxactive'      => 1,
                 'oxrights'      => 'malladmin',
@@ -73,7 +72,7 @@ class passwordAdminAuthTest extends integrationTestCase
         );
 
         $this->createUser(
-            $this->userList['4'],
+            $this->userList[4],
             [
                 'oxactive'      => 0,
                 'oxrights'      => 'malladmin',
@@ -96,9 +95,9 @@ class passwordAdminAuthTest extends integrationTestCase
 
     /**
      * @test
-     * @dataProvider passwordLoginDataProvider
+     * @dataProvider loginDataProvider
      */
-    public function testCantLoginBecauseOfNotExistingAccount($username, $password, $expected)
+    public function testCheckLoginReturn($username, $password, $expected)
     {
         $_POST['user'] = $username;
         $_POST['pwd'] = $password;
@@ -115,11 +114,11 @@ class passwordAdminAuthTest extends integrationTestCase
     /**
      * @return array[]
      */
-    public function passwordLoginDataProvider(): array
+    public function loginDataProvider(): array
     {
         return [
             'not existing account'  => ['unknown@user.localhost', '123456', null],
-            'missing password'      => ['admin@user.localhost', 'null', null],
+            'missing password'      => ['admin@user.localhost', null, null],
             'inactive account'      => ['inactive@user.localhost', '123456', null],
             'no backend account'    => ['noadmin@user.localhost', '123456', null],
             'wrong shop account'    => ['wrongshop@user.localhost', '123456', 'admin_start'],

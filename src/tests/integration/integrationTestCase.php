@@ -132,7 +132,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
     {
         try {
             /** @var BaseModel $oObject */
-            $oObject = d3GetModCfgDIC()->get($sClass);
+            $oObject = oxNew($sClass);
             if (method_exists($oObject, 'setRights')) {
                 $oObject->setRights(null);
             }
