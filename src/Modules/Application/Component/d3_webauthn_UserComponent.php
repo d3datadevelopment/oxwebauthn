@@ -33,13 +33,13 @@ use Psr\Container\NotFoundExceptionInterface;
 class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 {
     /**
-     * @return string|void
+     * @return string
      * @throws ContainerExceptionInterface
      * @throws Exception
      * @throws NotFoundExceptionInterface
      * @throws DoctrineDriverException
      */
-    public function login_noredirect()
+    public function login()
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('lgn_usr');
         $password = Registry::getRequest()->getRequestParameter('lgn_pwd');
@@ -70,11 +70,12 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                     $this->getParent()->getViewConfig()->getNavFormParams()
                 );
 
-                return "d3webauthnlogin";
+                $sUrl = $this->getConfig()->getShopHomeUrl() . 'cl=d3webauthnlogin';
+                Registry::getUtils()->redirect($sUrl, true, 302);
             }
         }
 
-        parent::login_noredirect();
+        return parent::login();
     }
 
     /**
@@ -102,7 +103,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      * @param User $user
      * @param $sWebauthn
      */
-    public function d3WebauthnRelogin(User $user, $sWebauthn): void
+    protected function d3WebauthnRelogin(User $user, $sWebauthn): void
     {
         $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
         $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauthn);

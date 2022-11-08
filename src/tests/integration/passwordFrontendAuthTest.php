@@ -86,11 +86,10 @@ class passwordFrontendAuthTest extends integrationTestCase
         $controller->init();
         /** @var d3_webauthn_UserComponent $component */
         $component = $controller->getComponent('oxcmp_user');
-        $component->login_noredirect();
 
         $this->assertSame(
             $expected,
-            $component->getLoginStatus()
+            $component->login()
         );
 
         $component->logout();
@@ -102,11 +101,11 @@ class passwordFrontendAuthTest extends integrationTestCase
     public function loginDataProvider(): array
     {
         return [
-            'not existing account'  => ['unknown@user.localhost', '123456', USER_LOGIN_FAIL],
-            'missing password'      => ['noadmin@user.localhost', null, USER_LOGIN_FAIL],
-            'inactive account'      => ['inactive@user.localhost', '123456', USER_LOGIN_FAIL],
-            'wrong shop account'    => ['wrongshop@user.localhost', '123456', USER_LOGIN_FAIL],
-            'account ok'            => ['noadmin@user.localhost', '123456', USER_LOGIN_SUCCESS],
+            'not existing account'  => ['unknown@user.localhost', '123456', 'user'],
+            'missing password'      => ['noadmin@user.localhost', null, 'user'],
+            'inactive account'      => ['inactive@user.localhost', '123456', 'user'],
+            'wrong shop account'    => ['wrongshop@user.localhost', '123456', 'user'],
+            'account ok'            => ['noadmin@user.localhost', '123456', 'payment'],
         ];
     }
 }
