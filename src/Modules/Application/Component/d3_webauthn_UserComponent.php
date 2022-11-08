@@ -47,7 +47,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $user = oxNew(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
 
-        if ($lgn_user && $userId && !strlen(trim($password))) {
+        if ($lgn_user && $userId && !strlen(trim((string) $password))) {
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($userId)

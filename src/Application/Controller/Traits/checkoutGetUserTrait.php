@@ -28,13 +28,13 @@ use Psr\Container\NotFoundExceptionInterface;
 trait checkoutGetUserTrait
 {
     /**
-     * @return null|false|User
+     * @return false|User
      * @throws ContainerExceptionInterface
      * @throws DoctrineException
      * @throws Exception
      * @throws NotFoundExceptionInterface
      */
-    public function getUser(): ?User
+    public function getUser()
     {
         $user = parent::getUser();
 
