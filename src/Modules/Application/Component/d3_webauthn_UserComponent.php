@@ -100,30 +100,6 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     }
 
     /**
-     * @param User $user
-     * @param $sWebauthn
-     */
-    protected function d3WebauthnRelogin(User $user, $sWebauthn): void
-    {
-        $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
-        $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $sWebauthn);
-        $this->d3GetSession()->setVariable('usr', $user->getId());
-        $this->setUser(null);
-        $this->setLoginStatus(USER_LOGIN_SUCCESS);
-
-        // cookie must be set ?
-        if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
-            Registry::getUtilsServer()->setUserCookie(
-                $user->oxuser__oxusername->value,
-                $user->oxuser__oxpassword->value,
-                Registry::getConfig()->getShopId()
-            );
-        }
-
-        $this->_afterLogin($user);
-    }
-
-    /**
      * @return void
      */
     public function d3WebauthnClearSessionVariables(): void
@@ -165,7 +141,24 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 $webAuthn = oxNew( Webauthn::class );
                 $webAuthn->assertAuthn( $credential );
                 $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
-                $this->d3WebauthnRelogin($user, $credential);
+
+                // relogin, don't extract from this try block
+                $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
+                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
+                $this->d3GetSession()->setVariable('usr', $user->getId());
+                $this->setUser(null);
+                $this->setLoginStatus(USER_LOGIN_SUCCESS);
+
+                // cookie must be set ?
+                if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
+                    Registry::getUtilsServer()->setUserCookie(
+                        $user->oxuser__oxusername->value,
+                        $user->oxuser__oxpassword->value,
+                        Registry::getConfig()->getShopId()
+                    );
+                }
+
+                $this->_afterLogin($user);
             }
         } catch (WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay($e);
