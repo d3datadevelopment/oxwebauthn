@@ -26,6 +26,7 @@ class WebauthnErrors
     public const NOTSUPPORTED       = 'notsupporederror';
     public const UNKNOWN            = 'unknownerror';
     public const NOPUBKEYSUPPORT    = 'd3nopublickeycredentialsupportederror';
+    public const UNSECURECONNECTION = 'D3_WEBAUTHN_ERR_UNSECURECONNECTION';
 
     /**
      * @param $msg
@@ -54,6 +55,11 @@ class WebauthnErrors
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT', null, true);
         }
 
+        switch ($msg) {
+            case self::UNSECURECONNECTION:
+                return $lang->translateString($msg);
+        }
+
         return $lang->translateString('D3_WEBAUTHN_ERR_TECHNICALERROR', null, true);
     }
 
@@ -63,6 +69,10 @@ class WebauthnErrors
      */
     public function getErrIdFromMessage(string $msg): string
     {
-        return trim(strtolower(substr($msg, 0, strpos($msg, ':'))));
+        if (is_int(strpos($msg, ':'))) {
+            return trim( strtolower( substr( $msg, 0, strpos( $msg, ':' ) ) ) );
+        }
+
+        return trim(strtolower($msg));
     }
 }

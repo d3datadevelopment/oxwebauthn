@@ -55,6 +55,7 @@ class Webauthn
         }
 
         $e = oxNew(WebauthnException::class, 'D3_WEBAUTHN_ERR_UNSECURECONNECTION');
+        Registry::getLogger()->info($e->getDetailedErrorMessage());
         Registry::getUtilsView()->addErrorToDisplay($e);
 
         return false;
