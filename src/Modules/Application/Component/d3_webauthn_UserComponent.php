@@ -70,7 +70,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                     $this->getParent()->getViewConfig()->getNavFormParams()
                 );
 
-                $sUrl = $this->getConfig()->getShopHomeUrl() . 'cl=d3webauthnlogin';
+                $sUrl = Registry::getConfig()->getShopHomeUrl() . 'cl=d3webauthnlogin';
                 Registry::getUtils()->redirect($sUrl, true, 302);
             }
         }
@@ -86,14 +86,6 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         return oxNew(Webauthn::class);
     }
 
-    /**
-     * @return UtilsView
-     */
-    public function d3GetUtilsView(): UtilsView
-    {
-        return Registry::getUtilsView();
-    }
-
     public function d3CancelWebauthnLogin(): void
     {
         $this->d3WebauthnClearSessionVariables();
@@ -104,16 +96,16 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function d3WebauthnClearSessionVariables(): void
     {
-        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
-        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
-        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
+        $this->d3WebauthnGetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $this->d3WebauthnGetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $this->d3WebauthnGetSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        $this->d3WebauthnGetSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
     }
 
     /**
      * @return Session
      */
-    public function d3GetSession(): Session
+    public function d3WebauthnGetSession(): Session
     {
         return Registry::getSession();
     }
@@ -144,8 +136,8 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
                 // relogin, don't extract from this try block
                 $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
-                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
-                $this->d3GetSession()->setVariable('usr', $user->getId());
+                $this->d3WebauthnGetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
+                $this->d3WebauthnGetSession()->setVariable('usr', $user->getId());
                 $this->setUser(null);
                 $this->setLoginStatus(USER_LOGIN_SUCCESS);
 

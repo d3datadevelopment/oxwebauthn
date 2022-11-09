@@ -201,7 +201,7 @@ class Events
                 )
             )
             ->setMaxResults(1);
-        return $qb->execute()->fetchOne();
+        return (bool) $qb->execute()->fetchOne();
     }
 
     /**
