@@ -49,7 +49,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         $password = Registry::getRequest()->getRequestParameter('pwd');
 
         /** @var d3_User_Webauthn $user */
-        $user = $this->d3GetUserObject();
+        $user = $this->d3WebauthnGetUserObject();
         $userId = $user->d3GetLoginUserId($lgn_user, 'malladmin');
 
         if ($lgn_user && $userId &&
@@ -86,14 +86,14 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function d3WebauthnCancelLogin(): void
     {
-        $oUser = $this->d3GetUserObject();
+        $oUser = $this->d3WebauthnGetUserObject();
         $oUser->logout();
     }
 
     /**
      * @return User
      */
-    public function d3GetUserObject(): User
+    public function d3WebauthnGetUserObject(): User
     {
         return oxNew(User::class);
     }

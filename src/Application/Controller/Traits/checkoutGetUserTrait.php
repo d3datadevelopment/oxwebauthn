@@ -42,7 +42,7 @@ trait checkoutGetUserTrait
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($user->getId())
-                && !$this->d3GetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !$this->d3WebauthnGetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 return false;
             }
@@ -62,7 +62,7 @@ trait checkoutGetUserTrait
     /**
      * @return Session
      */
-    public function d3GetSessionObject(): Session
+    public function d3WebauthnGetSessionObject(): Session
     {
         return Registry::getSession();
     }
