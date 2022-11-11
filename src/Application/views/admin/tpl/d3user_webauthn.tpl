@@ -93,7 +93,7 @@
             <div class="row">
                 <div class="col-6">
                     <div class="card">
-                        [{block name="user_d3user_totp_registernew"}]
+                        [{block name="user_d3user_webauthn_registernew"}]
                             <div class="card-header">
                                 [{oxmultilang ident="D3_WEBAUTHN_REGISTERNEW"}]
                             </div>
@@ -103,7 +103,7 @@
                                     <input type="hidden" name="cl" value="[{$oView->getClassName()}]">
                                     <input type="hidden" name="fnc" value="requestNewCredential">
                                     <input type="hidden" name="oxid" value="[{$oxid}]">
-                                    [{block name="user_d3user_totp_registerform"}]
+                                    [{block name="user_d3user_webauthn_registerform"}]
                                         <p class="card-text">
                                             <label for="credentialname">
                                                 [{oxmultilang ident="D3_WEBAUTHN_KEYNAME" suffix="COLON"}]
@@ -123,7 +123,7 @@
                 </div>
                 <div class="col-6">
                     <div class="card">
-                        [{block name="user_d3user_totp_form2"}]
+                        [{block name="user_d3user_webauthn_form2"}]
                             <div class="card-header">
                                 [{oxmultilang ident="D3_WEBAUTHN_REGISTEREDKEYS"}]
                             </div>
