@@ -66,7 +66,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
             );
         $credential = $qb->execute()->fetchOne();
 
-        if (!strlen($credential)) {
+        if (!is_string($credential) || !strlen($credential)) {
             return null;
         }
 
