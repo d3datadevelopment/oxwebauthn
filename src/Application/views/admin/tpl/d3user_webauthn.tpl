@@ -104,17 +104,26 @@
                                     <input type="hidden" name="fnc" value="requestNewCredential">
                                     <input type="hidden" name="oxid" value="[{$oxid}]">
                                     [{block name="user_d3user_webauthn_registerform"}]
-                                        <p class="card-text">
-                                            <label for="credentialname">
-                                                [{oxmultilang ident="D3_WEBAUTHN_KEYNAME" suffix="COLON"}]
-                                            </label>
-                                            <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
-                                        </p>
-                                        <p class="card-text">
-                                            <button type="submit" [{$readonly}] class="btn btn-primary btn-success btn-sm">
-                                                [{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]
-                                            </button>
-                                        </p>
+                                        <div class="card-text">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <label for="credentialname">
+                                                        [{oxmultilang ident="D3_WEBAUTHN_KEYNAME" suffix="COLON"}]
+                                                    </label>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input id="credentialname" type="text" name="credenialname" [{$readonly}]>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 20px;">
+                                                <div class="col-6"></div>
+                                                <div class="col-6">
+                                                    <button type="submit" [{$readonly}] class="btn btn-primary btn-success btn-sm">
+                                                        [{oxmultilang ident="D3_WEBAUTHN_ADDKEY"}]
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     [{/block}]
                                 </form>
                             </div>
@@ -133,7 +142,7 @@
                                     [{foreach from=$list item="credential"}]
                                         <li class="list-group-item" style="line-height: 2em; background: none">
                                             [{$credential->getName()}]
-                                            <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-danger btn-sm float-right">
+                                            <a onclick="deleteItem('[{$credential->getId()}]'); return false;" href="#" class="btn btn-outline-danger btn-sm float-right">
                                                 <span class="glyphicon glyphicon-pencil"></span>
                                                 [{oxmultilang ident="D3WEBAUTHN_DELETE"}]
                                             </a>
