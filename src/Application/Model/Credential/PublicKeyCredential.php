@@ -175,6 +175,6 @@ class PublicKeyCredential extends BaseModel
             );
         $oxid = $qb->execute()->fetchOne();
 
-        return is_string($oxid) && strlen($oxid) ? $oxid : null;
+        return strlen((string) $oxid) ? $oxid : null;
     }
 }

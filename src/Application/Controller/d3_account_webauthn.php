@@ -126,16 +126,18 @@ class d3_account_webauthn extends AccountController
     public function saveAuthn(): void
     {
         try {
-            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'error' ) ) ) {
+            $error = Registry::getRequest()->getRequestEscapedParameter('error');
+            if (strlen((string) $error)) {
                 /** @var WebauthnCreateException $e */
-                $e = oxNew( WebauthnCreateException::class, Registry::getRequest()->getRequestEscapedParameter( 'error' ) );
+                $e = oxNew( WebauthnCreateException::class, $error);
                 throw $e;
             }
 
-            if ( strlen( Registry::getRequest()->getRequestEscapedParameter( 'credential' ) ) ) {
+            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            if (strlen((string) $credential)) {
                 /** @var Webauthn $webauthn */
                 $webauthn = oxNew( Webauthn::class );
-                $webauthn->saveAuthn( Registry::getRequest()->getRequestEscapedParameter( 'credential' ), Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
+                $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
             Registry::getUtilsView()->addErrorToDisplay( $e );

@@ -105,17 +105,15 @@ class d3webauthnadminlogin extends AdminController
         $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
         try {
-            if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
+            $error = Registry::getRequest()->getRequestEscapedParameter('error');
+            if (strlen((string) $error)) {
                 /** @var WebauthnGetException $e */
-                $e = oxNew(
-                    WebauthnGetException::class,
-                    Registry::getRequest()->getRequestEscapedParameter('error')
-                );
+                $e = oxNew(WebauthnGetException::class, $error);
                 throw $e;
             }
 
-            if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
-                $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            if (strlen((string) $credential)) {
                 $webAuthn = oxNew( Webauthn::class );
                 $webAuthn->assertAuthn( $credential );
                 $user->load($userId);

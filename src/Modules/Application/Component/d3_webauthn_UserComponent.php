@@ -119,19 +119,17 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $user = oxNew(User::class);
 
         try {
-            if (strlen(Registry::getRequest()->getRequestEscapedParameter('error'))) {
+            $error = Registry::getRequest()->getRequestEscapedParameter('error');
+            if (strlen((string) $error)) {
                 /** @var WebauthnGetException $e */
-                $e = oxNew(
-                    WebauthnGetException::class,
-                    Registry::getRequest()->getRequestEscapedParameter('error')
-                );
+                $e = oxNew(WebauthnGetException::class, $error);
                 throw $e;
             }
 
-            if (strlen(Registry::getRequest()->getRequestEscapedParameter('credential'))) {
-                $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            if (strlen((string) $credential)) {
                 $webAuthn = oxNew( Webauthn::class );
-                $webAuthn->assertAuthn( $credential );
+                $webAuthn->assertAuthn($credential);
                 $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
 
                 // relogin, don't extract from this try block

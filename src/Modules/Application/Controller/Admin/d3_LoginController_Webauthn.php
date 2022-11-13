@@ -54,7 +54,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 
         if ($lgn_user && $userId &&
             false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
-            (!$password || !strlen(trim($password)))
+            (!strlen(trim((string) $password)))
         ) {
             $webauthn = $this->d3GetWebauthnObject();
 
