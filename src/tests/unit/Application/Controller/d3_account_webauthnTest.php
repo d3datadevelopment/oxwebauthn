@@ -38,6 +38,9 @@ class d3_account_webauthnTest extends UnitTestCase
      */
     public function setUp(): void
     {
+        unset($_POST['error']);
+        unset($_POST['credential']);
+
         parent::setUp();
 
         $this->_oController = oxNew(d3_account_webauthn::class);
@@ -183,12 +186,12 @@ class d3_account_webauthnTest extends UnitTestCase
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'getLogger'])
+            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'getLoggerObject'])
             ->getMock();
         $oControllerMock->expects($this->atLeastOnce())->method('setAuthnRegister');
         $oControllerMock->expects($this->atLeastOnce())->method('setPageType');
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('getLogger')->willReturn($loggerMock);
+        $oControllerMock->method('getLoggerObject')->willReturn($loggerMock);
 
         $this->_oController = $oControllerMock;
 
@@ -221,13 +224,13 @@ class d3_account_webauthnTest extends UnitTestCase
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'getLogger'])
+            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'getLoggerObject'])
             ->getMock();
         $oControllerMock->expects($this->atLeastOnce())->method('setAuthnRegister')
             ->willThrowException(oxNew(WebauthnException::class));
         $oControllerMock->expects($this->never())->method('setPageType');
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('getLogger')->willReturn($loggerMock);
+        $oControllerMock->method('getLoggerObject')->willReturn($loggerMock);
 
         $this->_oController = $oControllerMock;
 
@@ -331,11 +334,17 @@ class d3_account_webauthnTest extends UnitTestCase
             ->getMock();
         $utilsViewMock->expects($this->atLeastOnce())->method('addErrorToDisplay');
 
+        /** @var LoggerInterface|MockObject $loggerMock */
+        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
+        $loggerMock->expects($this->never())->method('error')->willReturn(true);
+        $loggerMock->expects($this->never())->method('debug')->willReturn(true);
+
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['getWebauthnObject', 'getUtilsViewObject'])
+            ->onlyMethods(['getUtilsViewObject', 'getLoggerObject'])
             ->getMock();
         $oControllerMock->method('getUtilsViewObject')->willReturn($utilsViewMock);
+        $oControllerMock->method('getLoggerObject')->willReturn($loggerMock);
 
         $this->_oController = $oControllerMock;
 
@@ -529,7 +538,7 @@ class d3_account_webauthnTest extends UnitTestCase
     /**
      * @test
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\d3_account_webauthn::getLogger
+     * @covers \D3\Webauthn\Application\Controller\d3_account_webauthn::getLoggerObject
      */
     public function getLoggerObjectReturnsRightObject()
     {
@@ -537,7 +546,7 @@ class d3_account_webauthnTest extends UnitTestCase
             LoggerInterface::class,
             $this->callMethod(
                 $this->_oController,
-                'getLogger'
+                'getLoggerObject'
             )
         );
     }

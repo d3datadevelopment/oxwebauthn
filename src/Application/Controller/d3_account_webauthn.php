@@ -16,26 +16,22 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Controller;
 
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
-use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
+use D3\Webauthn\Application\Controller\Traits\helpersTrait;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnCreateException;
-use D3\Webauthn\Application\Model\Webauthn;
-use D3\Webauthn\Application\Model\WebauthnConf;
-use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SeoEncoder;
-use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Log\LoggerInterface;
 
 class d3_account_webauthn extends AccountController
 {
     use accountTrait;
+    use helpersTrait;
 
     protected $_sThisTemplate = 'd3_account_webauthn.tpl';
 
@@ -47,7 +43,7 @@ class d3_account_webauthn extends AccountController
         $sRet = parent::render();
 
         $this->addTplParam('user', $this->getUser());
-        $this->addTplParam('readonly',  (bool) !($this->getWebauthnObject()->isAvailable()));
+        $this->addTplParam('readonly', !($this->getWebauthnObject()->isAvailable()));
 
         return $sRet;
     }
@@ -79,8 +75,8 @@ class d3_account_webauthn extends AccountController
             $this->setAuthnRegister();
             $this->setPageType('requestnew');
         } catch (WebauthnException $e) {
-            $this->getLogger()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
-            $this->getLogger()->debug($e->getTraceAsString());
+            $this->getLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            $this->getLoggerObject()->debug($e->getTraceAsString());
             $this->getUtilsViewObject()->addErrorToDisplay($e);
         }
     }
@@ -130,7 +126,6 @@ class d3_account_webauthn extends AccountController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
-                /** @var Webauthn $webauthn */
                 $webauthn = $this->getWebauthnObject();
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
@@ -146,7 +141,6 @@ class d3_account_webauthn extends AccountController
     {
         $deleteId = Registry::getRequest()->getRequestEscapedParameter('deleteoxid');
         if ($deleteId) {
-            /** @var PublicKeyCredential $credential */
             $credential = $this->getPublicKeyCredentialObject();
             $credential->delete($deleteId);
         }
@@ -172,45 +166,5 @@ class d3_account_webauthn extends AccountController
         $aPaths[] = $aPath;
 
         return $aPaths;
-    }
-
-    /**
-     * @return Webauthn
-     */
-    public function getWebauthnObject(): Webauthn
-    {
-        return oxNew(Webauthn::class);
-    }
-
-    /**
-     * @return PublicKeyCredential
-     */
-    public function getPublicKeyCredentialObject(): PublicKeyCredential
-    {
-        return oxNew(PublicKeyCredential::class);
-    }
-
-    /**
-     * @return PublicKeyCredentialList
-     */
-    public function getPublicKeyCredentialListObject(): PublicKeyCredentialList
-    {
-        return oxNew(PublicKeyCredentialList::class);
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return Registry::getLogger();
-    }
-
-    /**
-     * @return UtilsView
-     */
-    public function getUtilsViewObject(): UtilsView
-    {
-        return Registry::getUtilsView();
     }
 }
