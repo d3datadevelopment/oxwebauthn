@@ -1,6 +1,19 @@
 <?php
 
-namespace D3\Totp\tests\unit\Application\Controller;
+/**
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * https://www.d3data.de
+ *
+ * @copyright (C) D3 Data Development (Inh. Thomas Dartsch)
+ * @author    D3 Data Development - Daniel Seifert <info@shopmodule.com>
+ * @link      https://www.oxidmodule.com
+ */
+
+declare(strict_types=1);
+
+namespace D3\Webauthn\tests\unit\Application\Controller;
 
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
@@ -19,21 +32,7 @@ class d3webauthnloginTest extends TestCase
 {
     use CanAccessRestricted;
 
-    /** @var d3webauthnlogin */
-    protected $subjectUnderTest;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->subjectUnderTest = oxNew(d3webauthnlogin::class);
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        unset($this->subjectUnderTest);
-    }
+    protected $sutClassName = d3webauthnlogin::class;
 
     /**
      * @test
@@ -52,7 +51,7 @@ class d3webauthnloginTest extends TestCase
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetSession', 'd3CallMockableParent'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
@@ -81,7 +80,7 @@ class d3webauthnloginTest extends TestCase
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::render
      * @dataProvider canRenderDataProvider
      */
-    public function canRender($auth, $userFromLogin, $startRedirect)
+    public function canRender($auth, $userFromLogin, $startRedirect, $redirectController = 'start')
     {
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -97,23 +96,23 @@ class d3webauthnloginTest extends TestCase
             ->onlyMethods(['redirect'])
             ->getMock();
         $utilsMock->expects($startRedirect ? $this->once() : $this->never())
-            ->method('redirect')->with('index.php?cl=start')->willReturn(true);
+            ->method('redirect')->with('index.php?cl='.$redirectController)->willReturn(true);
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetSession', 'getUtils', 'd3CallMockableParent',
                 'generateCredentialRequest', 'addTplParam'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
         $sut->method('getUtils')->willReturn($utilsMock);
-        $sut->method('d3CallMockableParent')->willReturn(['defKey1' => 'devValues1']);
+        $sut->method('d3CallMockableParent')->willReturn('myTemplate.tpl');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('generateCredentialRequest');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('addTplParam')->with('navFormParams')->willReturn(true);
 
         $this->assertSame(
-            'd3webauthnlogin.tpl',
+            'myTemplate.tpl',
             $this->callMethod(
                 $sut,
                 'render'
@@ -164,14 +163,14 @@ class d3webauthnloginTest extends TestCase
             ->willReturn('success');
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
-            ->onlyMethods(['d3GetSession', 'd3GetWebauthnObject', 'addTplParam', 'd3GetLogger'])
+        $sut = $this->getMockBuilder($this->sutClassName)
+            ->onlyMethods(['d3GetSession', 'd3GetWebauthnObject', 'addTplParam', 'd3GetLoggerObject'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
         $sut->method('d3GetWebauthnObject')->willReturn($webAuthnMock);
         $sut->expects($this->atLeast(2))
             ->method('addTplParam')->willReturn(true);
-        $sut->method('d3GetLogger')->willReturn($loggerMock);
+        $sut->method('d3GetLoggerObject')->willReturn($loggerMock);
 
         $this->callMethod(
             $sut,
@@ -185,7 +184,7 @@ class d3webauthnloginTest extends TestCase
      * @throws ReflectionException
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::generateCredentialRequest
      */
-    public function generateCredentialRequestFailed()
+    public function generateCredentialRequestFailed($redirectClass = 'start')
     {
         $currUserFixture = 'currentUserFixture';
 
@@ -216,18 +215,18 @@ class d3webauthnloginTest extends TestCase
             ->onlyMethods(['redirect'])
             ->getMock();
         $utilsMock->expects($this->once())->method('redirect')
-            ->with('index.php?cl=start')->willReturn(true);
+            ->with('index.php?cl='.$redirectClass)->willReturn(true);
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetSession', 'd3GetWebauthnObject', 'addTplParam',
-                'd3GetLogger', 'getUtils'])
+                'd3GetLoggerObject', 'getUtils'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
         $sut->method('d3GetWebauthnObject')->willReturn($webAuthnMock);
         $sut->expects($this->never())
             ->method('addTplParam')->willReturn(true);
-        $sut->expects($this->atLeast(2))->method('d3GetLogger')->willReturn($loggerMock);
+        $sut->expects($this->atLeast(2))->method('d3GetLoggerObject')->willReturn($loggerMock);
         $sut->method('getUtils')->willReturn($utilsMock);
 
         $this->callMethod(
@@ -244,10 +243,12 @@ class d3webauthnloginTest extends TestCase
      */
     public function getUtilsReturnsRightInstance()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertInstanceOf(
             Utils::class,
             $this->callMethod(
-                $this->subjectUnderTest,
+                $sut,
                 'getUtils'
             )
         );
@@ -272,7 +273,7 @@ class d3webauthnloginTest extends TestCase
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetSession'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
@@ -306,7 +307,7 @@ class d3webauthnloginTest extends TestCase
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetSession'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
@@ -342,7 +343,7 @@ class d3webauthnloginTest extends TestCase
     public function canGetIsOrderStep($boolean)
     {
         /** @var d3webauthnlogin|MockObject $sut */
-        $sut = $this->getMockBuilder(d3webauthnlogin::class)
+        $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['previousClassIsOrderStep'])
             ->getMock();
         $sut->expects($this->atLeastOnce())->method('previousClassIsOrderStep')->willReturn($boolean);
@@ -375,9 +376,11 @@ class d3webauthnloginTest extends TestCase
      */
     public function canGetBreadCrumb()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertIsArray(
             $this->callMethod(
-                $this->subjectUnderTest,
+                $sut,
                 'getBreadCrumb'
             )
         );
@@ -391,10 +394,12 @@ class d3webauthnloginTest extends TestCase
      */
     public function canGetSession()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertInstanceOf(
             Session::class,
             $this->callMethod(
-                $this->subjectUnderTest,
+                $sut,
                 'd3GetSession'
             )
         );
@@ -408,10 +413,12 @@ class d3webauthnloginTest extends TestCase
      */
     public function canGetWebauthnObject()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertInstanceOf(
             Webauthn::class,
             $this->callMethod(
-                $this->subjectUnderTest,
+                $sut,
                 'd3GetWebauthnObject'
             )
         );
@@ -421,15 +428,17 @@ class d3webauthnloginTest extends TestCase
      * @test
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::d3GetLogger
+     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::d3GetLoggerObject
      */
     public function canGetLogger()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertInstanceOf(
             LoggerInterface::class,
             $this->callMethod(
-                $this->subjectUnderTest,
-                'd3GetLogger'
+                $sut,
+                'd3GetLoggerObject'
             )
         );
     }
@@ -438,15 +447,17 @@ class d3webauthnloginTest extends TestCase
      * @test
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::getControllerClassNameResolver
+     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::d3GetControllerClassNameResolver
      */
     public function canGetClassNameResolver()
     {
+        $sut = oxNew($this->sutClassName);
+
         $this->assertInstanceOf(
             ControllerClassNameResolver::class,
             $this->callMethod(
-                $this->subjectUnderTest,
-                'getControllerClassNameResolver'
+                $sut,
+                'd3GetControllerClassNameResolver'
             )
         );
     }

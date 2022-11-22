@@ -16,23 +16,24 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Controller;
 
 use D3\TestingTools\Production\IsMockable;
+use D3\Webauthn\Application\Controller\Traits\helpersTrait;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
-use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Log\LoggerInterface;
 
 class d3webauthnlogin extends FrontendController
 {
     use IsMockable;
+    use helpersTrait;
 
     protected $_sThisTemplate = 'd3webauthnlogin.tpl';
 
@@ -76,7 +77,7 @@ class d3webauthnlogin extends FrontendController
 
         $this->addTplParam('navFormParams', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
-        return parent::render();
+        return $this->d3CallMockableParent('render');
     }
 
     /**
@@ -98,8 +99,8 @@ class d3webauthnlogin extends FrontendController
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
             $this->d3GetSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
-            $this->d3GetLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
-            $this->d3GetLogger()->debug($e->getTraceAsString());
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
             $this->getUtils()->redirect('index.php?cl=start');
         }
@@ -127,7 +128,7 @@ class d3webauthnlogin extends FrontendController
     public function previousClassIsOrderStep(): bool
     {
         $sClassKey = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
-        $resolvedClass = $this->getControllerClassNameResolver()->getClassNameById($sClassKey);
+        $resolvedClass = $this->d3GetControllerClassNameResolver()->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 
         /** @var FrontendController $oController */
@@ -145,6 +146,55 @@ class d3webauthnlogin extends FrontendController
     }
 
     /**
+     * @return void
+     */
+    public function d3AssertAuthn(): void
+    {
+        /** @var d3_User_Webauthn $user */
+        $user = $this->d3GetUserObject();
+        $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+
+        try {
+            $error = Registry::getRequest()->getRequestEscapedParameter('error');
+            if (strlen((string) $error)) {
+                /** @var WebauthnGetException $e */
+                $e = oxNew(WebauthnGetException::class, $error);
+                throw $e;
+            }
+
+            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            if (strlen((string) $credential)) {
+                $webAuthn = $this->d3GetWebauthnObject();
+                $webAuthn->assertAuthn($credential);
+                $user->load($userId);
+
+                // relogin, don't extract from this try block
+                $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
+                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
+                $this->d3GetSession()->setVariable('usr', $user->getId());
+                $this->setUser(null);
+                $this->setLoginStatus(USER_LOGIN_SUCCESS);
+
+                // cookie must be set ?
+                if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
+                    Registry::getUtilsServer()->setUserCookie(
+                        $user->oxuser__oxusername->value,
+                        $user->oxuser__oxpassword->value,
+                        Registry::getConfig()->getShopId()
+                    );
+                }
+
+                $this->_afterLogin($user);
+            }
+        } catch (WebauthnException $e) {
+            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
+            $user->logout();
+        }
+    }
+
+    /**
      * @return array
      */
     public function getBreadCrumb(): array
@@ -158,37 +208,5 @@ class d3webauthnlogin extends FrontendController
         $aPaths[] = $aPath;
 
         return $aPaths;
-    }
-
-    /**
-     * @return Session
-     */
-    public function d3GetSession(): Session
-    {
-        return Registry::getSession();
-    }
-
-    /**
-     * @return Webauthn
-     */
-    public function d3GetWebauthnObject(): Webauthn
-    {
-        return oxNew(Webauthn::class);
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    public function d3GetLogger(): LoggerInterface
-    {
-        return Registry::getLogger();
-    }
-
-    /**
-     * @return ControllerClassNameResolver
-     */
-    public function getControllerClassNameResolver(): ControllerClassNameResolver
-    {
-        return Registry::getControllerClassNameResolver();
     }
 }

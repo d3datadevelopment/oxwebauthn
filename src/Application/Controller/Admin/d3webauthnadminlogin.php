@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
+use D3\TestingTools\Production\IsMockable;
+use D3\Webauthn\Application\Controller\Traits\helpersTrait;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
@@ -28,12 +30,16 @@ use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
 use OxidEsales\Eshop\Core\Utils;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class d3webauthnadminlogin extends AdminController
 {
+    use helpersTrait;
+    use IsMockable;
+
     protected $_sThisTemplate = 'd3webauthnadminlogin.tpl';
 
     /**
@@ -53,8 +59,8 @@ class d3webauthnadminlogin extends AdminController
      */
     public function render(): string
     {
-        if (Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            !Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+        if ($this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
+            !$this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
             $this->getUtils()->redirect('index.php?cl=admin_start');
             if (!defined('OXID_PHP_UNIT')) {
@@ -66,7 +72,9 @@ class d3webauthnadminlogin extends AdminController
 
         $this->generateCredentialRequest();
 
-        return parent::render();
+        $this->addTplParam('navFormParams', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+
+        return $this->d3CallMockableParent('render');
     }
 
     /**
@@ -78,19 +86,19 @@ class d3webauthnadminlogin extends AdminController
      */
     public function generateCredentialRequest(): void
     {
-        $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         try {
             /** @var Webauthn $webauthn */
-            $webauthn = oxNew(Webauthn::class);
+            $webauthn = $this->d3GetWebauthnObject();
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
-            Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
+            $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
-            Registry::getSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            $this->d3GetSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             Registry::getUtilsView()->addErrorToDisplay($e);
-            Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            Registry::getLogger()->debug($e->getTraceAsString());
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
             $this->getUtils()->redirect('index.php?cl=login');
         }
     }
@@ -101,8 +109,8 @@ class d3webauthnadminlogin extends AdminController
     public function d3AssertAuthn(): ?string
     {
         /** @var d3_User_Webauthn $user */
-        $user = oxNew(User::class);
-        $userId = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $user = $this->d3GetUserObject();
+        $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
         try {
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
@@ -114,19 +122,19 @@ class d3webauthnadminlogin extends AdminController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
-                $webAuthn = oxNew( Webauthn::class );
-                $webAuthn->assertAuthn( $credential );
+                $webAuthn = $this->d3GetWebauthnObject();
+                $webAuthn->assertAuthn($credential);
                 $user->load($userId);
-                Registry::getSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
+                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, true);
 
                 /** @var d3_webauthn_UserComponent $userCmp */
                 $loginController = oxNew(LoginController::class);
                 return $loginController->checklogin();
             }
         } catch (WebauthnException $e) {
-            Registry::getUtilsView()->addErrorToDisplay($e);
-            Registry::getLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            Registry::getLogger()->debug($e->getTraceAsString());
+            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
             $user->logout();
         }
 
@@ -146,7 +154,7 @@ class d3webauthnadminlogin extends AdminController
      */
     public function getPreviousClass(): ?string
     {
-        return Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        return $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
     /**
@@ -154,8 +162,8 @@ class d3webauthnadminlogin extends AdminController
      */
     public function previousClassIsOrderStep(): bool
     {
-        $sClassKey = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
-        $resolvedClass = Registry::getControllerClassNameResolver()->getClassNameById($sClassKey);
+        $sClassKey = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $resolvedClass = $this->d3GetControllerClassNameResolver()->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 
         /** @var FrontendController $oController */
@@ -169,23 +177,5 @@ class d3webauthnadminlogin extends AdminController
     public function getIsOrderStep(): bool
     {
         return $this->previousClassIsOrderStep();
-    }
-
-    /**
-     * Returns Bread Crumb - you are here page1/page2/page3...
-     *
-     * @return array
-     */
-    public function getBreadCrumb(): array
-    {
-        $aPaths = [];
-        $aPath = [];
-        $iBaseLanguage = Registry::getLang()->getBaseLanguage();
-        $aPath['title'] = Registry::getLang()->translateString('D3_WEBAUTHN_BREADCRUMB', $iBaseLanguage, false);
-        $aPath['link'] = $this->getLink();
-
-        $aPaths[] = $aPath;
-
-        return $aPaths;
     }
 }

@@ -43,7 +43,7 @@ class d3_account_webauthn extends AccountController
         $sRet = parent::render();
 
         $this->addTplParam('user', $this->getUser());
-        $this->addTplParam('readonly', !($this->getWebauthnObject()->isAvailable()));
+        $this->addTplParam('readonly', !($this->d3GetWebauthnObject()->isAvailable()));
 
         return $sRet;
     }
@@ -58,7 +58,7 @@ class d3_account_webauthn extends AccountController
     public function getCredentialList(): PublicKeyCredentialList
     {
         $oUser = $this->getUser();
-        $credentialList = $this->getPublicKeyCredentialListObject();
+        $credentialList = $this->d3GetPublicKeyCredentialListObject();
         return $credentialList->getAllFromUser($oUser);
     }
 
@@ -75,9 +75,9 @@ class d3_account_webauthn extends AccountController
             $this->setAuthnRegister();
             $this->setPageType('requestnew');
         } catch (WebauthnException $e) {
-            $this->getLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
-            $this->getLoggerObject()->debug($e->getTraceAsString());
-            $this->getUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
+            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
         }
     }
 
@@ -100,7 +100,7 @@ class d3_account_webauthn extends AccountController
      */
     public function setAuthnRegister(): void
     {
-        $publicKeyCredentialCreationOptions = $this->getWebauthnObject()->getCreationOptions($this->getUser());
+        $publicKeyCredentialCreationOptions = $this->d3GetWebauthnObject()->getCreationOptions($this->getUser());
 
         $this->addTplParam('webauthn_publickey_create', $publicKeyCredentialCreationOptions);
         $this->addTplParam('isAdmin', isAdmin());
@@ -126,11 +126,11 @@ class d3_account_webauthn extends AccountController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
-                $webauthn = $this->getWebauthnObject();
+                $webauthn = $this->d3GetWebauthnObject();
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
-            $this->getUtilsViewObject()->addErrorToDisplay( $e );
+            $this->d3GetUtilsViewObject()->addErrorToDisplay( $e );
         }
     }
 
@@ -141,7 +141,7 @@ class d3_account_webauthn extends AccountController
     {
         $deleteId = Registry::getRequest()->getRequestEscapedParameter('deleteoxid');
         if ($deleteId) {
-            $credential = $this->getPublicKeyCredentialObject();
+            $credential = $this->d3GetPublicKeyCredentialObject();
             $credential->delete($deleteId);
         }
     }

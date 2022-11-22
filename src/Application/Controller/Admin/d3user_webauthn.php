@@ -42,7 +42,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function render(): string
     {
-        $this->addTplParam('readonly', !$this->getWebauthnObject()->isAvailable());
+        $this->addTplParam('readonly', !$this->d3GetWebauthnObject()->isAvailable());
 
         $this->d3CallMockableParent('render');
 
@@ -50,7 +50,7 @@ class d3user_webauthn extends AdminDetailsController
 
         if (isset($soxId) && $soxId != "-1") {
             /** @var d3_User_Webauthn $oUser */
-            $oUser = $this->getUserObject();
+            $oUser = $this->d3GetUserObject();
             if ($oUser->load($soxId)) {
                 $this->addTplParam("oxid", $oUser->getId());
             } else {
@@ -75,10 +75,10 @@ class d3user_webauthn extends AdminDetailsController
             $this->setPageType( 'requestnew' );
             $this->setAuthnRegister();
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
-            $this->getUtilsViewObject()->addErrorToDisplay($e);
-            $this->getLoggerObject()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
-            $this->getLoggerObject()->debug($e->getTraceAsString());
-            $this->getUtilsObject()->redirect('index.php?cl=d3user_webauthn');
+            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetLoggerObject()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
+            $this->d3GetUtilsObject()->redirect('index.php?cl=d3user_webauthn');
         }
     }
 
@@ -97,13 +97,13 @@ class d3user_webauthn extends AdminDetailsController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if ( strlen((string) $credential) ) {
-                $webauthn = $this->getWebauthnObject();
+                $webauthn = $this->d3GetWebauthnObject();
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
             }
         } catch (WebauthnException|Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
-            $this->getLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
-            $this->getLoggerObject()->debug($e->getTraceAsString());
-            $this->getUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
+            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
+            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
         }
     }
 
@@ -122,9 +122,9 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function setAuthnRegister(): void
     {
-        $authn = $this->getWebauthnObject();
+        $authn = $this->d3GetWebauthnObject();
 
-        $user = $this->getUserObject();
+        $user = $this->d3GetUserObject();
         $user->load($this->getEditObjectId());
         $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
 
@@ -148,10 +148,10 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function getCredentialList($userId): array
     {
-        $oUser = $this->getUserObject();
+        $oUser = $this->d3GetUserObject();
         $oUser->load($userId);
 
-        $publicKeyCredentials = $this->getPublicKeyCredentialListObject();
+        $publicKeyCredentials = $this->d3GetPublicKeyCredentialListObject();
         return $publicKeyCredentials->getAllFromUser($oUser)->getArray();
     }
 
@@ -160,7 +160,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function deleteKey(): void
     {
-        $credential = $this->getPublicKeyCredentialObject();
+        $credential = $this->d3GetPublicKeyCredentialObject();
         $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
     }
 }
