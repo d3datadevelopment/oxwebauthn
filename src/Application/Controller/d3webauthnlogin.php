@@ -127,7 +127,7 @@ class d3webauthnlogin extends FrontendController
      */
     public function previousClassIsOrderStep(): bool
     {
-        $sClassKey = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $sClassKey = $this->getPreviousClass();
         $resolvedClass = $this->d3GetControllerClassNameResolver()->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 
@@ -171,7 +171,7 @@ class d3webauthnlogin extends FrontendController
                 // relogin, don't extract from this try block
                 $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
                 $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
-                $this->d3GetSession()->setVariable('usr', $user->getId());
+                $this->d3GetSession()->setVariable(WebauthnConf::OXID_FRONTEND_AUTH, $user->getId());
                 $this->setUser(null);
                 $this->setLoginStatus(USER_LOGIN_SUCCESS);
 

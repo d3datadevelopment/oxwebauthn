@@ -39,6 +39,13 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_LOGIN_OBJECT);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS);
+
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
 
         return $return;

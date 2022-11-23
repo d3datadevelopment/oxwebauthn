@@ -203,7 +203,11 @@ class Webauthn
 
         /** @var User $user */
         $user = oxNew(User::class);
-        $user->load(Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER));
+        $user->load(
+            isAdmin() ?
+                Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) :
+                Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+        );
         /** @var UserEntity $userEntity */
         $userEntity = oxNew(UserEntity::class, $user);
 

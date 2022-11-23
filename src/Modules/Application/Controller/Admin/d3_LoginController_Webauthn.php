@@ -45,7 +45,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     public function checklogin()
     {
         $lgn_user = Registry::getRequest()->getRequestParameter('user') ?:
-            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
+            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
         $password = Registry::getRequest()->getRequestParameter('pwd');
 
         /** @var d3_User_Webauthn $user */
@@ -53,24 +53,24 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         $userId = $user->d3GetLoginUserId($lgn_user, 'malladmin');
 
         if ($lgn_user && $userId &&
-            false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
+            false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH) &&
             (!strlen(trim((string) $password)))
         ) {
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($userId)
-                && !Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH)
             ) {
                 Registry::getSession()->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
+                    WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS,
                     $this->getClassKey() != 'd3webauthnadminlogin' ? $this->getClassKey() : 'admin_start'
                 );
                 Registry::getSession()->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
+                    WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER,
                     $userId
                 );
                 Registry::getSession()->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_LOGINUSER,
+                    WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER,
                     $lgn_user
                 );
 
