@@ -21,4 +21,6 @@
     <input type="hidden" name="fnc" value="d3AssertAuthn">
     <input type="hidden" name="credential" value=''>
     <input type="hidden" name="error" value=''>
+    <input type="hidden" name="profile" value="[{$currentProfile}]">
+    <input type="hidden" name="chlanguage" value="[{$currentChLanguage}]">
 </form>

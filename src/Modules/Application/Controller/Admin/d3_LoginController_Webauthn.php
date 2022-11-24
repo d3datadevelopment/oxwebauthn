@@ -109,8 +109,16 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             $myUtilsServer->setOxCookie("oxidadminprofile", "", time() - 3600, "/");
         }
 
+        $this->d3WebauthnAfterLoginChangeLanguage();
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+    }
+
+    public function d3WebauthnAfterLoginChangeLanguage()
+    {
+        $myUtilsServer = Registry::getUtilsServer();
         // languages
-        $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage');
+        $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage') ?:
+            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
         $aLanguages = Registry::getLang()->getAdminTplLanguageArray();
         if (!isset($aLanguages[$iLang])) {
@@ -119,7 +127,6 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 
         $myUtilsServer->setOxCookie("oxidadminlanguage", $aLanguages[$iLang]->abbr, time() + 31536000, "/");
         Registry::getLang()->setTplLanguage($iLang);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
     }
 
     /**

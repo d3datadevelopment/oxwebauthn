@@ -65,12 +65,11 @@ class d3webauthnadminlogin extends AdminController
             !$this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
         ) {
             $this->getUtils()->redirect('index.php?cl=admin_start');
-            if (!defined('OXID_PHP_UNIT')) {
-                // @codeCoverageIgnoreStart
-                exit;
-                // @codeCoverageIgnoreEnd
-            }
         }
+
+        /** @var d3_LoginController_Webauthn $loginController */
+        $loginController = oxNew(LoginController::class);
+        $loginController->d3WebauthnAfterLoginChangeLanguage();
 
         $this->generateCredentialRequest();
 
