@@ -75,6 +75,10 @@ class d3webauthnadminlogin extends AdminController
         $this->generateCredentialRequest();
 
         $this->addTplParam('navFormParams', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+        $this->addTplParam('currentProfile', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE));
+        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+        $this->addTplParam('currentChLanguage', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE));
+        $this->d3GetSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
         return $this->d3CallMockableParent('render');
     }
@@ -114,7 +118,7 @@ class d3webauthnadminlogin extends AdminController
         /** @var d3_User_Webauthn $user */
         $user = $this->d3GetUserObject();
         $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER);
-        $selectedProfile = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+        $selectedProfile = Registry::getRequest()->getRequestEscapedParameter('profile');
 
         try {
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
@@ -132,12 +136,9 @@ class d3webauthnadminlogin extends AdminController
                 $user->load($userId);
                 $session = $this->d3GetSession();
                 $adminProfiles = $session->getVariable("aAdminProfiles");
-                $selectedLanguage = $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
                 $session->initNewSession();
                 $session->setVariable("aAdminProfiles", $adminProfiles);
                 $session->setVariable(WebauthnConf::OXID_ADMIN_AUTH, $userId);
-                $session->setVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE, $selectedProfile);
-                $session->setVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE, $selectedLanguage);
 
                 $cookie = Registry::getUtilsServer()->getOxCookie();
                 if ($cookie === null) {

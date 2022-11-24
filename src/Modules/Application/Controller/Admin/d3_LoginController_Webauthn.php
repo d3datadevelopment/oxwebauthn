@@ -93,7 +93,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     public function d3webauthnAfterLogin()
     {
         $myUtilsServer = Registry::getUtilsServer();
-        $sProfile = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+        $sProfile = Registry::getRequest()->getRequestEscapedParameter('profile');
 
         // #533
         if (isset($sProfile)) {
@@ -110,7 +110,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         }
 
         // languages
-        $iLang = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+        $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage');
 
         $aLanguages = Registry::getLang()->getAdminTplLanguageArray();
         if (!isset($aLanguages[$iLang])) {

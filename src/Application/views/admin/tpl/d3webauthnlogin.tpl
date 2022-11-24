@@ -23,6 +23,8 @@
 
             <input type="hidden" name="fnc" value="">
             <input type="hidden" name="cl" value="login">
+            <input type="hidden" name="profile" value="[{$currentProfile}]">
+            <input type="hidden" name="chlanguage" value="[{$currentChLanguage}]">
 
             [{if !empty($Errors.default)}]
                 [{include file="inc_error.tpl" Errorlist=$Errors.default}]
