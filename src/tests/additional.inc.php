@@ -11,8 +11,6 @@
  * @link      https://www.oxidmodule.com
  */
 
-// Include totp test config
-
 namespace D3\Webauthn\tests;
 
 use D3\ModCfg\Tests\additional_abstract;

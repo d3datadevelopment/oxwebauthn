@@ -31,6 +31,8 @@ class WebauthnConf
     public const WEBAUTHN_ADMIN_SESSION_CURRENTUSER = 'd3webauthn_be_currentUser'; // oxid assigned to user from entered username
     public const WEBAUTHN_ADMIN_SESSION_LOGINUSER   = 'd3webauthn_be_loginUser';   // username entered in login form
     public const WEBAUTHN_ADMIN_SESSION_CURRENTCLASS= 'd3webauthn_be_currentClass';    // no usage
+    public const WEBAUTHN_ADMIN_PROFILE             = 'd3webauthn_be_profile';
+    public const WEBAUTHN_ADMIN_CHLANGUAGE          = 'd3webauthn_be_chlanguage';
 
     public const WEBAUTHN_SESSION_NAVFORMPARAMS     = 'd3webauthn_navFormParams';   // no usage
     public const WEBAUTHN_SESSION_NAVPARAMS         = 'd3webauthn_navigationParams';   // no usage

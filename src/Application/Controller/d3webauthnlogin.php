@@ -146,55 +146,6 @@ class d3webauthnlogin extends FrontendController
     }
 
     /**
-     * @return void
-     */
-    public function d3AssertAuthn(): void
-    {
-        /** @var d3_User_Webauthn $user */
-        $user = $this->d3GetUserObject();
-        $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-
-        try {
-            $error = Registry::getRequest()->getRequestEscapedParameter('error');
-            if (strlen((string) $error)) {
-                /** @var WebauthnGetException $e */
-                $e = oxNew(WebauthnGetException::class, $error);
-                throw $e;
-            }
-
-            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
-            if (strlen((string) $credential)) {
-                $webAuthn = $this->d3GetWebauthnObject();
-                $webAuthn->assertAuthn($credential);
-                $user->load($userId);
-
-                // relogin, don't extract from this try block
-                $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
-                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
-                $this->d3GetSession()->setVariable(WebauthnConf::OXID_FRONTEND_AUTH, $user->getId());
-                $this->setUser(null);
-                $this->setLoginStatus(USER_LOGIN_SUCCESS);
-
-                // cookie must be set ?
-                if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
-                    Registry::getUtilsServer()->setUserCookie(
-                        $user->oxuser__oxusername->value,
-                        $user->oxuser__oxpassword->value,
-                        Registry::getConfig()->getShopId()
-                    );
-                }
-
-                $this->_afterLogin($user);
-            }
-        } catch (WebauthnException $e) {
-            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
-            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
-            $user->logout();
-        }
-    }
-
-    /**
      * @return array
      */
     public function getBreadCrumb(): array

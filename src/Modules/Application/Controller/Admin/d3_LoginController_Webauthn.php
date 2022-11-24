@@ -56,6 +56,15 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH) &&
             (!strlen(trim((string) $password)))
         ) {
+            Registry::getSession()->setVariable(
+                WebauthnConf::WEBAUTHN_ADMIN_PROFILE,
+                Registry::getRequest()->getRequestEscapedParameter('profile')
+            );
+            Registry::getSession()->setVariable(
+                WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE,
+                Registry::getRequest()->getRequestEscapedParameter('chlanguage')
+            );
+
             $webauthn = $this->d3GetWebauthnObject();
 
             if ($webauthn->isActive($userId)
@@ -79,6 +88,38 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         }
 
         return parent::checklogin();
+    }
+
+    public function d3webauthnAfterLogin()
+    {
+        $myUtilsServer = Registry::getUtilsServer();
+        $sProfile = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+
+        // #533
+        if (isset($sProfile)) {
+            $aProfiles = Registry::getSession()->getVariable("aAdminProfiles");
+            if ($aProfiles && isset($aProfiles[$sProfile])) {
+                // setting cookie to store last locally used profile
+                $myUtilsServer->setOxCookie("oxidadminprofile", $sProfile . "@" . implode("@", $aProfiles[$sProfile]), time() + 31536000, "/");
+                Registry::getSession()->setVariable("profile", $aProfiles[$sProfile]);
+                Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+            }
+        } else {
+            //deleting cookie info, as setting profile to default
+            $myUtilsServer->setOxCookie("oxidadminprofile", "", time() - 3600, "/");
+        }
+
+        // languages
+        $iLang = Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+
+        $aLanguages = Registry::getLang()->getAdminTplLanguageArray();
+        if (!isset($aLanguages[$iLang])) {
+            $iLang = key($aLanguages);
+        }
+
+        $myUtilsServer->setOxCookie("oxidadminlanguage", $aLanguages[$iLang]->abbr, time() + 31536000, "/");
+        Registry::getLang()->setTplLanguage($iLang);
+        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
     }
 
     /**

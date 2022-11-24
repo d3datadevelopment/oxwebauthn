@@ -21,16 +21,18 @@ use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
-use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
+use D3\Webauthn\Modules\Application\Controller\Admin\d3_LoginController_Webauthn;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminController;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
-use OxidEsales\Eshop\Application\Model\User;
+use OxidEsales\Eshop\Core\Exception\ConnectionException;
+use OxidEsales\Eshop\Core\Exception\CookieException;
+use OxidEsales\Eshop\Core\Exception\UserException;
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
+use OxidEsales\Eshop\Core\SystemEventHandler;
 use OxidEsales\Eshop\Core\Utils;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -108,9 +110,11 @@ class d3webauthnadminlogin extends AdminController
      */
     public function d3AssertAuthn(): ?string
     {
+        $myUtilsView = Registry::getUtilsView();
         /** @var d3_User_Webauthn $user */
         $user = $this->d3GetUserObject();
         $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER);
+        $selectedProfile = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
 
         try {
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
@@ -124,13 +128,58 @@ class d3webauthnadminlogin extends AdminController
             if (strlen((string) $credential)) {
                 $webAuthn = $this->d3GetWebauthnObject();
                 $webAuthn->assertAuthn($credential);
-                $user->load($userId);
-                $this->d3GetSession()->setVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH, true);
 
-                /** @var d3_webauthn_UserComponent $userCmp */
+                $user->load($userId);
+                $session = $this->d3GetSession();
+                $adminProfiles = $session->getVariable("aAdminProfiles");
+                $selectedLanguage = $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+                $session->initNewSession();
+                $session->setVariable("aAdminProfiles", $adminProfiles);
+                $session->setVariable(WebauthnConf::OXID_ADMIN_AUTH, $userId);
+                $session->setVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE, $selectedProfile);
+                $session->setVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE, $selectedLanguage);
+
+                $cookie = Registry::getUtilsServer()->getOxCookie();
+                if ($cookie === null) {
+                    throw oxNew(CookieException::class, 'ERROR_MESSAGE_COOKIE_NOCOOKIE');
+                }
+
+                if ($user->oxuser__oxrights->value === 'user') {
+                    throw oxNew(UserException::class, 'ERROR_MESSAGE_USER_NOVALIDLOGIN');
+                }
+                $iSubshop = (int) $user->oxuser__oxrights->value;
+                if ($iSubshop) {
+                    Registry::getSession()->setVariable("shp", $iSubshop);
+                    Registry::getSession()->setVariable('currentadminshop', $iSubshop);
+                    Registry::getConfig()->setShopId($iSubshop);
+                }
+
+                //execute onAdminLogin() event
+                $oEvenHandler = oxNew(SystemEventHandler::class);
+                $oEvenHandler->onAdminLogin(Registry::getConfig()->getShopId());
+
+                /** @var d3_LoginController_Webauthn $loginController */
                 $loginController = oxNew(LoginController::class);
-                return $loginController->checklogin();
+                $loginController->d3webauthnAfterLogin();
+
+                return "admin_start";
             }
+        } catch (UserException $oEx) {
+            $myUtilsView->addErrorToDisplay('LOGIN_ERROR');
+            $oStr = getStr();
+            $this->addTplParam('user', $oStr->htmlspecialchars($userId));
+            $this->addTplParam('profile', $oStr->htmlspecialchars($selectedProfile));
+
+            return null;
+        } catch (CookieException $oEx) {
+            $myUtilsView->addErrorToDisplay('LOGIN_NO_COOKIE_SUPPORT');
+            $oStr = getStr();
+            $this->addTplParam('user', $oStr->htmlspecialchars($userId));
+            $this->addTplParam('profile', $oStr->htmlspecialchars($selectedProfile));
+
+            return null;
+        } catch (ConnectionException $oEx) {
+            $myUtilsView->addErrorToDisplay($oEx);
         } catch (WebauthnException $e) {
             $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
             $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
