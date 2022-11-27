@@ -17,11 +17,9 @@ namespace D3\Webauthn\Application\Controller;
 
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Traits\helpersTrait;
-use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
-use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
@@ -66,11 +64,6 @@ class d3webauthnlogin extends FrontendController
             !$this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
             $this->getUtils()->redirect('index.php?cl=start');
-            if (!defined('OXID_PHP_UNIT')) {
-                // @codeCoverageIgnoreStart
-                exit;
-                // @codeCoverageIgnoreEnd
-            }
         }
 
         $this->generateCredentialRequest();
@@ -117,7 +110,7 @@ class d3webauthnlogin extends FrontendController
     /**
      * @return string|null
      */
-    public function getPreviousClass(): ?string
+    public function d3GetPreviousClass(): ?string
     {
         return $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
@@ -127,7 +120,7 @@ class d3webauthnlogin extends FrontendController
      */
     public function previousClassIsOrderStep(): bool
     {
-        $sClassKey = $this->getPreviousClass();
+        $sClassKey = $this->d3GetPreviousClass();
         $resolvedClass = $this->d3GetControllerClassNameResolver()->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 

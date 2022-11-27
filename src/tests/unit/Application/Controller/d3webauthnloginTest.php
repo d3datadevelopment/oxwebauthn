@@ -23,12 +23,13 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
+use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-class d3webauthnloginTest extends TestCase
+class d3webauthnloginTest extends UnitTestCase
 {
     use CanAccessRestricted;
 
@@ -80,7 +81,7 @@ class d3webauthnloginTest extends TestCase
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::render
      * @dataProvider canRenderDataProvider
      */
-    public function canRender($auth, $userFromLogin, $startRedirect, $redirectController = 'start')
+    public function canRender($auth, $userFromLogin, $startRedirect, $redirectController)
     {
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -126,9 +127,9 @@ class d3webauthnloginTest extends TestCase
     public function canRenderDataProvider(): array
     {
         return [
-            'has request'   => [false, true, false],
-            'has auth'   => [true, true, true],
-            'missing user'   => [false, false, true],
+            'has request'   => [false, true, false, 'start'],
+            'has auth'   => [true, true, true, 'start'],
+            'missing user'   => [false, false, true, 'start'],
         ];
     }
 
@@ -138,7 +139,7 @@ class d3webauthnloginTest extends TestCase
      * @throws ReflectionException
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::generateCredentialRequest
      */
-    public function canGenerateCredentialRequest()
+    public function canGenerateCredentialRequest($userSessionVarName = WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
     {
         $currUserFixture = 'currentUserFixture';
 
@@ -152,7 +153,7 @@ class d3webauthnloginTest extends TestCase
             ->onlyMethods(['getVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $currUserFixture]
+            [$userSessionVarName, $currUserFixture]
         ]);
 
         /** @var Webauthn|MockObject $webAuthnMock */
@@ -184,7 +185,7 @@ class d3webauthnloginTest extends TestCase
      * @throws ReflectionException
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::generateCredentialRequest
      */
-    public function generateCredentialRequestFailed($redirectClass = 'start')
+    public function generateCredentialRequestFailed($redirectClass = 'start', $userVarName = WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
     {
         $currUserFixture = 'currentUserFixture';
 
@@ -198,7 +199,7 @@ class d3webauthnloginTest extends TestCase
             ->onlyMethods(['getVariable', 'setVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $currUserFixture]
+            [$userVarName, $currUserFixture]
         ]);
         $sessionMock->expects($this->once())->method('setVariable')->with(WebauthnConf::GLOBAL_SWITCH)
             ->willReturn(true);
@@ -258,9 +259,9 @@ class d3webauthnloginTest extends TestCase
      * @test
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::getPreviousClass
+     * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::d3GetPreviousClass
      */
-    public function canGetPreviousClass()
+    public function canGetPreviousClass($sessionVarName = WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS)
     {
         $currClassFixture = 'currentClassFixture';
 
@@ -269,7 +270,7 @@ class d3webauthnloginTest extends TestCase
             ->onlyMethods(['getVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS, $currClassFixture]
+            [$sessionVarName, $currClassFixture]
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
@@ -282,7 +283,7 @@ class d3webauthnloginTest extends TestCase
             $currClassFixture,
             $this->callMethod(
                 $sut,
-                'getPreviousClass'
+                'd3GetPreviousClass'
             )
         );
     }
@@ -298,19 +299,11 @@ class d3webauthnloginTest extends TestCase
      */
     public function canPreviousClassIsOrderStep($currClass, $isOrderStep)
     {
-        /** @var Session|MockObject $sessionMock */
-        $sessionMock = $this->getMockBuilder(Session::class)
-            ->onlyMethods(['getVariable'])
-            ->getMock();
-        $sessionMock->method('getVariable')->willReturnMap([
-            [WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS, $currClass]
-        ]);
-
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetSession'])
+            ->onlyMethods(['d3GetPreviousClass'])
             ->getMock();
-        $sut->method('d3GetSession')->willReturn($sessionMock);
+        $sut->method('d3GetPreviousClass')->willReturn($currClass);
 
         $this->assertSame(
             $isOrderStep,

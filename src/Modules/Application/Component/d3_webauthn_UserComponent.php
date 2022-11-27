@@ -24,6 +24,7 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
@@ -41,8 +42,8 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function login()
     {
-        $lgn_user = Registry::getRequest()->getRequestParameter('lgn_usr');
-        $password = Registry::getRequest()->getRequestParameter('lgn_pwd');
+        $lgn_user = $this->d3WebAuthnGetRequest()->getRequestParameter('lgn_usr');
+        $password = $this->d3WebAuthnGetRequest()->getRequestParameter('lgn_pwd');
         /** @var d3_User_Webauthn $user */
         $user = oxNew(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
@@ -112,21 +113,21 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $userId = $this->d3WebauthnGetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
         try {
-            $error = Registry::getRequest()->getRequestEscapedParameter('error');
+            $error = $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('error');
             if (strlen((string) $error)) {
                 /** @var WebauthnGetException $e */
                 $e = oxNew(WebauthnGetException::class, $error);
                 throw $e;
             }
 
-            $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
+            $credential = $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
                 $webAuthn = $this->d3GetWebauthnObject();
                 $webAuthn->assertAuthn($credential);
                 $user->load($userId);
 
                 // relogin, don't extract from this try block
-                $setSessionCookie = Registry::getRequest()->getRequestParameter('lgn_cook');
+                $setSessionCookie = $this->d3WebAuthnGetRequest()->getRequestParameter('lgn_cook');
                 $this->d3WebauthnGetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
                 $this->d3WebauthnGetSession()->setVariable(WebauthnConf::OXID_FRONTEND_AUTH, $user->getId());
                 $this->setUser(null);
@@ -181,5 +182,13 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function d3GetLoggerObject(): LoggerInterface
     {
         return Registry::getLogger();
+    }
+
+    /**
+     * @return Request
+     */
+    public function d3WebAuthnGetRequest(): Request
+    {
+        return Registry::getRequest();
     }
 }
