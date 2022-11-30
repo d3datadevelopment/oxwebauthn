@@ -17,8 +17,10 @@ namespace D3\Webauthn\Modules\Application\Component;
 
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnLoginErrorException;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
@@ -108,48 +110,27 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function d3AssertAuthn(): void
     {
-        /** @var d3_User_Webauthn $user */
-        $user = $this->d3WebauthnGetUserObject();
-        $userId = $this->d3WebauthnGetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-
         try {
-            $error = $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('error');
-            if (strlen((string) $error)) {
-                /** @var WebauthnGetException $e */
-                $e = oxNew(WebauthnGetException::class, $error);
-                throw $e;
-            }
+            $login = $this->getWebauthnLoginObject(
+                $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('credential'),
+                $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('error')
+            );
+            $login->frontendLogin($this, (bool)$this->d3WebAuthnGetRequest()->getRequestParameter('lgn_cook'));
+            $this->_afterLogin($this->getUser());
+        } catch (WebauthnGetException $e) {
+            Registry::getUtilsView()->addErrorToDisplay($e);
+        } catch (WebauthnLoginErrorException $e) {}
+    }
 
-            $credential = $this->d3WebAuthnGetRequest()->getRequestEscapedParameter('credential');
-            if (strlen((string) $credential)) {
-                $webAuthn = $this->d3GetWebauthnObject();
-                $webAuthn->assertAuthn($credential);
-                $user->load($userId);
-
-                // relogin, don't extract from this try block
-                $setSessionCookie = $this->d3WebAuthnGetRequest()->getRequestParameter('lgn_cook');
-                $this->d3WebauthnGetSession()->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $credential);
-                $this->d3WebauthnGetSession()->setVariable(WebauthnConf::OXID_FRONTEND_AUTH, $user->getId());
-                $this->setUser(null);
-                $this->setLoginStatus(USER_LOGIN_SUCCESS);
-
-                // cookie must be set ?
-                if ($setSessionCookie && Registry::getConfig()->getConfigParam('blShowRememberMe')) {
-                    Registry::getUtilsServer()->setUserCookie(
-                        $user->oxuser__oxusername->value,
-                        $user->oxuser__oxpassword->value,
-                        Registry::getConfig()->getShopId()
-                    );
-                }
-
-                $this->_afterLogin($user);
-            }
-        } catch (WebauthnException $e) {
-            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
-            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
-            $user->logout();
-        }
+    /**
+     * @param string $credential
+     * @param string|null $error
+     * @throws WebauthnGetException
+     * @return WebauthnLogin
+     */
+    public function getWebauthnLoginObject(string $credential, ?string $error): WebauthnLogin
+    {
+        return oxNew(WebauthnLogin::class, $credential, $error);
     }
 
     /**

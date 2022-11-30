@@ -90,45 +90,6 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         return parent::checklogin();
     }
 
-    public function d3webauthnAfterLogin()
-    {
-        $myUtilsServer = Registry::getUtilsServer();
-        $sProfile = Registry::getRequest()->getRequestEscapedParameter('profile');
-
-        // #533
-        if (isset($sProfile)) {
-            $aProfiles = Registry::getSession()->getVariable("aAdminProfiles");
-            if ($aProfiles && isset($aProfiles[$sProfile])) {
-                // setting cookie to store last locally used profile
-                $myUtilsServer->setOxCookie("oxidadminprofile", $sProfile . "@" . implode("@", $aProfiles[$sProfile]), time() + 31536000, "/");
-                Registry::getSession()->setVariable("profile", $aProfiles[$sProfile]);
-                Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
-            }
-        } else {
-            //deleting cookie info, as setting profile to default
-            $myUtilsServer->setOxCookie("oxidadminprofile", "", time() - 3600, "/");
-        }
-
-        $this->d3WebauthnAfterLoginChangeLanguage();
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
-    }
-
-    public function d3WebauthnAfterLoginChangeLanguage()
-    {
-        $myUtilsServer = Registry::getUtilsServer();
-        // languages
-        $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage') ?:
-            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
-
-        $aLanguages = Registry::getLang()->getAdminTplLanguageArray();
-        if (!isset($aLanguages[$iLang])) {
-            $iLang = key($aLanguages);
-        }
-
-        $myUtilsServer->setOxCookie("oxidadminlanguage", $aLanguages[$iLang]->abbr, time() + 31536000, "/");
-        Registry::getLang()->setTplLanguage($iLang);
-    }
-
     /**
      * @return void
      */

@@ -19,8 +19,11 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\Application\Model\WebauthnAfterLogin;
 use D3\Webauthn\Application\Model\WebauthnConf;
+use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\tests\unit\Application\Controller\d3webauthnloginTest;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Model\User;
@@ -73,12 +76,6 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
      */
     public function canRender($auth, $userFromLogin, $startRedirect, $redirectController)
     {
-        /** @var LoginController|MockObject $loginControllerMock */
-        $loginControllerMock = $this->getMockBuilder(LoginController::class)
-            ->onlyMethods(['d3WebauthnAfterLoginChangeLanguage'])
-            ->getMock();
-        $loginControllerMock->expects($this->once())->method('d3WebauthnAfterLoginChangeLanguage')->willReturn(true);
-
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
             ->onlyMethods(['hasVariable'])
@@ -95,10 +92,16 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
         $utilsMock->expects($startRedirect ? $this->once() : $this->never())
             ->method('redirect')->with('index.php?cl='.$redirectController)->willReturn(true);
 
+        /** @var WebauthnAfterLogin|MockObject $afterLoginMock */
+        $afterLoginMock = $this->getMockBuilder(WebauthnAfterLogin::class)
+            ->onlyMethods(['changeLanguage'])
+            ->getMock();
+        $afterLoginMock->expects($this->once())->method('changeLanguage');
+
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetSession', 'getUtils', 'd3CallMockableParent',
-                'generateCredentialRequest', 'addTplParam', 'd3WebauthnGetLoginController'])
+            ->onlyMethods(['d3GetSession', 'getUtils', 'd3CallMockableParent', 'd3WebauthnGetAfterLogin',
+                'generateCredentialRequest', 'addTplParam'])
             ->getMock();
         $sut->method('d3GetSession')->willReturn($sessionMock);
         $sut->method('getUtils')->willReturn($utilsMock);
@@ -108,7 +111,7 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
             ->method('generateCredentialRequest');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('addTplParam')->willReturn(true);
-        $sut->method('d3WebauthnGetLoginController')->willReturn($loginControllerMock);
+        $sut->method('d3WebauthnGetAfterLogin')->willReturn($afterLoginMock);
 
         $this->assertSame(
             'myTemplate.tpl',
@@ -209,113 +212,32 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
      * @test
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebauthnGetLoginController
-     */
-    public function canGetLoginController()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            LoginController::class,
-            $this->callMethod(
-                $sut,
-                'd3WebauthnGetLoginController'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @param $error
-     * @param $credential
-     * @param $canAssert
-     * @param $return
-     * @param $showErrorMsg
-     * @return void
-     * @throws ReflectionException
-     * @dataProvider canAssertAuthnDataProvider
      * @covers       \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3AssertAuthn
      */
-    public function canAssertAuthn($error, $credential, $canAssert, $return, $showErrorMsg)
+    public function canAssertAuthn()
     {
+        /** @var WebauthnLogin|MockObject $loginMock */
+        $loginMock = $this->getMockBuilder(WebauthnLogin::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['adminLogin'])
+            ->getMock();
+        $loginMock->expects($this->once())->method('adminLogin')->willReturn('expected');
+
         /** @var Request|MockObject $requestMock */
         $requestMock = $this->getMockBuilder(Request::class)
             ->onlyMethods(['getRequestEscapedParameter'])
             ->getMock();
-        $requestMock->method('getRequestEscapedParameter')->willReturnCallback(
-            function () use ($error, $credential) {
-                $args = func_get_args();
-                if ($args[0] === 'error')
-                    return $error;
-                elseif ($args[0] === 'credential')
-                    return $credential;
-                return null;
-            }
-        );
-
-        /** @var Webauthn|MockObject $webauthnMock */
-        $webauthnMock = $this->getMockBuilder(Webauthn::class)
-            ->onlyMethods(['assertAuthn'])
-            ->getMock();
-        if ($canAssert) {
-            $webauthnMock->expects($error || !$credential ? $this->never() : $this->once())->method('assertAuthn');
-        } else {
-            $webauthnMock->expects($error || !$credential ? $this->never() : $this->once())->method('assertAuthn')
-                ->willThrowException(oxNew(WebauthnException::class));
-        }
-
-        /** @var Session|MockObject $sessionMock */
-        $sessionMock = $this->getMockBuilder(Session::class)
-            ->onlyMethods(['initNewSession', 'setVariable'])
-            ->getMock();
-        $sessionMock->expects($canAssert ? $this->once() : $this->never())->method('initNewSession');
-        $sessionMock->expects($canAssert ? $this->atLeast(2) : $this->never())->method('setVariable');
-
-        /** @var SystemEventHandler|MockObject $eventHandlerMock */
-        $eventHandlerMock = $this->getMockBuilder(SystemEventHandler::class)
-            ->onlyMethods(['onAdminLogin'])
-            ->getMock();
-        $eventHandlerMock->expects($canAssert ? $this->once() : $this->never())->method('onAdminLogin');
-
-        /** @var LoginController|MockObject $loginControllerMock */
-        $loginControllerMock = $this->getMockBuilder(LoginController::class)
-            ->onlyMethods(['d3webauthnAfterLogin'])
-            ->getMock();
-        $loginControllerMock->expects($canAssert ? $this->once() : $this->never())->method('d3webauthnAfterLogin');
-
-        /** @var UtilsView|MockObject $utilsViewMock */
-        $utilsViewMock = $this->getMockBuilder(UtilsView::class)
-            ->onlyMethods(['addErrorToDisplay'])
-            ->getMock();
-        $utilsViewMock->expects($showErrorMsg ? $this->once() : $this->never())->method('addErrorToDisplay');
-
-        /** @var UtilsServer|MockObject $utilsServerMock */
-        $utilsServerMock = $this->getMockBuilder(UtilsServer::class)
-            ->onlyMethods(['getOxCookie'])
-            ->getMock();
-        $utilsServerMock->method('getOxCookie')->willReturn('cookie');
-
-        /** @var LoggerInterface|MockObject $loggerMock */
-        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
-        $loggerMock->method('error')->willReturn(true);
-        $loggerMock->method('debug')->willReturn(true);
+        $requestMock->expects($this->exactly(3))->method('getRequestEscapedParameter')->willReturn('abc');
 
         /** @var d3webauthnadminlogin|MockObject $sut */
         $sut = $this->getMockBuilder(d3webauthnadminlogin::class)
-            ->onlyMethods(['d3WebAuthnGetRequest', 'd3GetWebauthnObject', 'd3GetSession', 'd3WebauthnGetEventHandler',
-                'd3WebauthnGetLoginController', 'd3GetUtilsViewObject', 'd3GetLoggerObject', 'd3WebauthnGetUtilsServer'])
+            ->onlyMethods(['getWebauthnLoginObject', 'd3WebAuthnGetRequest'])
             ->getMock();
+        $sut->method('getWebauthnLoginObject')->willReturn($loginMock);
         $sut->method('d3WebAuthnGetRequest')->willReturn($requestMock);
-        $sut->method('d3GetWebauthnObject')->willReturn($webauthnMock);
-        $sut->method('d3GetSession')->willReturn($sessionMock);
-        $sut->method('d3WebauthnGetEventHandler')->willReturn($eventHandlerMock);
-        $sut->method('d3WebauthnGetLoginController')->willReturn($loginControllerMock);
-        $sut->method('d3GetUtilsViewObject')->willReturn($utilsViewMock);
-        $sut->method('d3GetLoggerObject')->willReturn($loggerMock);
-        $sut->method('d3WebauthnGetUtilsServer')->willReturn($utilsServerMock);
 
         $this->assertSame(
-            $return,
+            'expected',
             $this->callMethod(
                 $sut,
                 'd3AssertAuthn'
@@ -324,111 +246,35 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
     }
 
     /**
-     * @return array
-     */
-    public function canAssertAuthnDataProvider(): array
-    {
-        return [
-            'has error' => ['errorFixture', null, false, 'login', true],
-            'missing credential' => [null, null, false, 'login', true],
-            'assertion failed' => [null, 'credential', false, 'login', true],
-            'assertion succ' => [null, 'credential', true, 'admin_start', false],
-        ];
-    }
-
-    /**
      * @test
-     * @param $return
-     * @param $showErrorMsg
-     * @param $cookie
      * @return void
      * @throws ReflectionException
-     * @dataProvider canAssertAuthnCookieSubshopDataProvider
      * @covers       \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3AssertAuthn
      */
-    public function canAssertAuthnCookieSubshop($return, $showErrorMsg, $cookie, $rights)
+    public function cannotAssertAuthn()
     {
-        /** @var Request|MockObject $requestMock */
-        $requestMock = $this->getMockBuilder(Request::class)
-            ->onlyMethods(['getRequestEscapedParameter'])
-            ->getMock();
-        $requestMock->method('getRequestEscapedParameter')->willReturnCallback(
-            function () {
-                $args = func_get_args();
-                if ($args[0] === 'error')
-                    return null;
-                elseif ($args[0] === 'credential')
-                    return 'credential';
-                return null;
-            }
-        );
-
-        /** @var Webauthn|MockObject $webauthnMock */
-        $webauthnMock = $this->getMockBuilder(Webauthn::class)
-            ->onlyMethods(['assertAuthn'])
-            ->getMock();
-        $webauthnMock->expects($this->once())->method('assertAuthn');
-
-        /** @var Session|MockObject $sessionMock */
-        $sessionMock = $this->getMockBuilder(Session::class)
-            ->onlyMethods(['initNewSession', 'setVariable'])
-            ->getMock();
-        $sessionMock->expects($this->once())->method('initNewSession');
-        $sessionMock->expects($this->atLeast(is_int($rights) ? 4 : 2))->method('setVariable');
-
-        /** @var SystemEventHandler|MockObject $eventHandlerMock */
-        $eventHandlerMock = $this->getMockBuilder(SystemEventHandler::class)
-            ->onlyMethods(['onAdminLogin'])
-            ->getMock();
-        $eventHandlerMock->expects($cookie && $rights != 'user' ? $this->once() : $this->never())->method('onAdminLogin');
-
-        /** @var LoginController|MockObject $loginControllerMock */
-        $loginControllerMock = $this->getMockBuilder(LoginController::class)
-            ->onlyMethods(['d3webauthnAfterLogin'])
-            ->getMock();
-        $loginControllerMock->expects($cookie && $rights != 'user' ? $this->once() : $this->never())->method('d3webauthnAfterLogin');
-
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
-        $utilsViewMock->expects($showErrorMsg ? $this->once() : $this->never())->method('addErrorToDisplay');
+        $utilsViewMock->expects($this->once())->method('addErrorToDisplay');
 
-        /** @var UtilsServer|MockObject $utilsServerMock */
-        $utilsServerMock = $this->getMockBuilder(UtilsServer::class)
-            ->onlyMethods(['getOxCookie'])
+        /** @var Request|MockObject $requestMock */
+        $requestMock = $this->getMockBuilder(Request::class)
+            ->onlyMethods(['getRequestEscapedParameter'])
             ->getMock();
-        $utilsServerMock->method('getOxCookie')->willReturn($cookie);
-
-        /** @var LoggerInterface|MockObject $loggerMock */
-        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
-        $loggerMock->method('error')->willReturn(true);
-        $loggerMock->method('debug')->willReturn(true);
-
-        /** @var User|MockObject $userMock */
-        $userMock = $this->getMockBuilder(User::class)
-            ->onlyMethods(['getFieldData'])
-            ->getMock();
-        $userMock->method('getFieldData')->willReturn($rights);
+        $requestMock->expects($this->atLeast(2))->method('getRequestEscapedParameter')->willReturn('abc');
 
         /** @var d3webauthnadminlogin|MockObject $sut */
         $sut = $this->getMockBuilder(d3webauthnadminlogin::class)
-            ->onlyMethods(['d3WebAuthnGetRequest', 'd3GetWebauthnObject', 'd3GetSession', 'd3WebauthnGetEventHandler',
-                'd3WebauthnGetLoginController', 'd3GetUtilsViewObject', 'd3GetLoggerObject', 'd3WebauthnGetUtilsServer',
-                'd3GetUserObject'])
+            ->onlyMethods(['getWebauthnLoginObject', 'd3WebAuthnGetRequest', 'd3GetUtilsViewObject'])
             ->getMock();
+        $sut->method('getWebauthnLoginObject')->willThrowException(oxNew(WebauthnGetException::class));
         $sut->method('d3WebAuthnGetRequest')->willReturn($requestMock);
-        $sut->method('d3GetWebauthnObject')->willReturn($webauthnMock);
-        $sut->method('d3GetSession')->willReturn($sessionMock);
-        $sut->method('d3WebauthnGetEventHandler')->willReturn($eventHandlerMock);
-        $sut->method('d3WebauthnGetLoginController')->willReturn($loginControllerMock);
         $sut->method('d3GetUtilsViewObject')->willReturn($utilsViewMock);
-        $sut->method('d3GetLoggerObject')->willReturn($loggerMock);
-        $sut->method('d3WebauthnGetUtilsServer')->willReturn($utilsServerMock);
-        $sut->method('d3GetUserObject')->willReturn($userMock);
 
         $this->assertSame(
-            $return,
+            'login',
             $this->callMethod(
                 $sut,
                 'd3AssertAuthn'
@@ -502,6 +348,45 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
             $this->callMethod(
                 $sut,
                 'd3WebauthnGetUtilsServer'
+            )
+        );
+    }
+
+    /**
+     * @test
+     * @return void
+     * @throws ReflectionException
+     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::getWebauthnLoginObject
+     */
+    public function canGetWebauthnLoginObject()
+    {
+        $sut = oxNew(d3webauthnadminlogin::class);
+
+        $this->assertInstanceOf(
+            WebauthnLogin::class,
+            $this->callMethod(
+                $sut,
+                'getWebauthnLoginObject',
+                ['credential', 'error']
+            )
+        );
+    }
+
+    /**
+     * @test
+     * @return void
+     * @throws ReflectionException
+     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebauthnGetAfterLogin
+     */
+    public function canGetWebauthnAfterLoginObject()
+    {
+        $sut = oxNew(d3webauthnadminlogin::class);
+
+        $this->assertInstanceOf(
+            WebauthnAfterLogin::class,
+            $this->callMethod(
+                $sut,
+                'd3WebauthnGetAfterLogin'
             )
         );
     }

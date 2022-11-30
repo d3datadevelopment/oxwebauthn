@@ -25,7 +25,7 @@
                 [{$oViewConf->getHiddenSid()}]
 
                 <input type="hidden" name="fnc" value="d3CancelWebauthnlogin">
-                <input type="hidden" name="cl" value="[{$oView->getPreviousClass()}]">
+                <input type="hidden" name="cl" value="[{$oView->d3GetPreviousClass()}]">
                 [{$navFormParams}]
 
                 <button class="btn btn_cancel btn-outline-danger btn-sm" type="submit">
