@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller\Traits;
 
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception;
@@ -27,6 +28,8 @@ use Psr\Container\NotFoundExceptionInterface;
 
 trait checkoutGetUserTrait
 {
+    use IsMockable;
+
     /**
      * @return false|User
      * @throws ContainerExceptionInterface
@@ -36,7 +39,7 @@ trait checkoutGetUserTrait
      */
     public function getUser()
     {
-        $user = parent::getUser();
+        $user = $this->d3CallMockableParent('getUser');
 
         if ($user && $user->getId()) {
             $webauthn = $this->d3GetWebauthnObject();

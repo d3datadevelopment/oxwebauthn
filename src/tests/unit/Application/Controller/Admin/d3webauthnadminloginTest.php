@@ -18,15 +18,11 @@ namespace D3\Webauthn\tests\unit\Application\Controller\Admin;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
-use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
-use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnAfterLogin;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\tests\unit\Application\Controller\d3webauthnloginTest;
-use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
-use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\SystemEventHandler;
@@ -34,7 +30,6 @@ use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsServer;
 use OxidEsales\Eshop\Core\UtilsView;
 use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Log\LoggerInterface;
 use ReflectionException;
 
 class d3webauthnadminloginTest extends d3webauthnloginTest

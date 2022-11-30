@@ -15,20 +15,80 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use D3\TestingTools\Production\IsMockable;
+use OxidEsales\Eshop\Application\Model\Shop;
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Registry;
 use Webauthn\PublicKeyCredentialRpEntity;
 
 class RelyingPartyEntity extends PublicKeyCredentialRpEntity
 {
+    use IsMockable;
+
     public function __construct()
     {
-        $shopUrl = is_string(Registry::getConfig()->getConfigParam('d3webauthn_diffshopurl')) ?
-            trim(Registry::getConfig()->getConfigParam('d3webauthn_diffshopurl')) :
-            null;
-
-        parent::__construct(
-            Registry::getConfig()->getActiveShop()->getFieldData('oxname'),
-            $shopUrl ?: preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST'])
+        $this->d3CallMockableParent(
+            '__construct',
+            [
+                $this->getActiveShop()->getFieldData('oxname'),
+                $this->getRPShopUrl()
+            ]
         );
+/**
+        parent::__construct(
+            $this->getActiveShop()->getFieldData('oxname'),
+            $this->getRPShopUrl()
+        );
+ */
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasConfiguredShopUrl(): bool
+    {
+        return (bool) strlen(trim((string) $this->getConfiguredShopUrl()));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConfiguredShopUrl()
+    {
+        return $this->getConfig()->getConfigParam('d3webauthn_diffshopurl');
+    }
+
+    /**
+     * @return string
+     */
+    public function getShopUrlByHost(): string
+    {
+        return preg_replace('/(^www\.)(.*)/mi', '$2', $_SERVER['HTTP_HOST']);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRPShopUrl(): ?string
+    {
+        return $this->hasConfiguredShopUrl() ?
+            trim($this->getConfiguredShopUrl()) :
+            $this->getShopUrlByHost();
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return Registry::getConfig();
+    }
+
+    /**
+     * @return Shop
+     */
+    public function getActiveShop(): Shop
+    {
+        return Registry::getConfig()->getActiveShop();
     }
 }
