@@ -20,6 +20,7 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Exception;
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Model\BaseModel;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
@@ -125,7 +126,7 @@ class PublicKeyCredential extends BaseModel
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
         // item exist already
-        if ((oxNew(PublicKeyCredentialList::class))
+        if ($this->getPublicKeyCredentialListObject()
             ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
         ) {
             return;
@@ -144,6 +145,14 @@ class PublicKeyCredential extends BaseModel
         $this->setCredential($publicKeyCredentialSource);
         $this->setName($keyName ?: $this->getName() ?: (new DateTime())->format('Y-m-d H:i:s'));
         $this->save();
+    }
+
+    /**
+     * @return PublicKeyCredentialList
+     */
+    protected function getPublicKeyCredentialListObject(): PublicKeyCredentialList
+    {
+        return oxNew(PublicKeyCredentialList::class);
     }
 
     /**
@@ -169,12 +178,20 @@ class PublicKeyCredential extends BaseModel
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                        $qb->createNamedParameter($this->d3GetConfig()->getShopId())
                     )
                 )
             );
         $oxid = $qb->execute()->fetchOne();
 
         return strlen((string) $oxid) ? $oxid : null;
+    }
+
+    /**
+     * @return Config
+     */
+    public function d3GetConfig(): Config
+    {
+        return Registry::getConfig();
     }
 }

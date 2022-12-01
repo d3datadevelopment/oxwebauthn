@@ -15,13 +15,15 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
 use Webauthn\PublicKeyCredentialUserEntity;
 
 class UserEntity extends PublicKeyCredentialUserEntity
 {
+    use IsMockable;
+
     /**
      * @param User $user
      * @throws WebauthnException
@@ -34,10 +36,13 @@ class UserEntity extends PublicKeyCredentialUserEntity
             throw $e;
         }
 
-        parent::__construct(
-            strtolower($user->getFieldData('oxusername')),
-            $user->getId(),
-            $user->getFieldData('oxfname') . ' ' . $user->getFieldData('oxlname')
+        $this->d3CallMockableParent(
+            '__construct',
+            [
+                strtolower($user->getFieldData('oxusername')),
+                $user->getId(),
+                $user->getFieldData('oxfname') . ' ' . $user->getFieldData('oxlname')
+            ]
         );
     }
 }
