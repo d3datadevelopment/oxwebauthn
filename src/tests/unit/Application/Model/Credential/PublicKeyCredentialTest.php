@@ -222,7 +222,7 @@ class PublicKeyCredentialTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        /** @var PublicKeyCredentialList|MockObject $pkcListObjectMock */
+        /** @var PublicKeyCredentialListTest|MockObject $pkcListObjectMock */
         $pkcListObjectMock = $this->getMockBuilder(PublicKeyCredentialList::class)
             ->onlyMethods(['findOneByCredentialId'])
             ->getMock();

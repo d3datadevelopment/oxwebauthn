@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use D3\TestingTools\Production\IsMockable;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
+use OxidEsales\Eshop\Core\Config as Config;
 use OxidEsales\Eshop\Core\Model\ListModel;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
@@ -31,11 +33,13 @@ use Webauthn\PublicKeyCredentialUserEntity;
 
 class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSourceRepository
 {
+    use IsMockable;
+
     protected $_sObjectsInListName = PublicKeyCredential::class;
 
     public function __construct()
     {
-        parent::__construct(PublicKeyCredential::class);
+        $this->d3CallMockableParent('__construct', [PublicKeyCredential::class]);
     }
 
     /**
@@ -60,7 +64,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
                     )
                 )
             );
@@ -97,7 +101,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
                     )
                 )
             );
@@ -134,7 +138,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
                     )
                 )
             );
@@ -156,5 +160,13 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {
         $this->getBaseObject()->saveCredentialSource($publicKeyCredentialSource);
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfigObject(): Config
+    {
+        return Registry::getConfig();
     }
 }

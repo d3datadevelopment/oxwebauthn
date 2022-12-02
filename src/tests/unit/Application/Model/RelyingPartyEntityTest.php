@@ -21,9 +21,10 @@ use OxidEsales\Eshop\Application\Model\Shop;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
-class RelyingPartyEntityTest extends UnitTestCase
+class RelyingPartyEntityTest extends TestCase
 {
     use CanAccessRestricted;
 
@@ -223,11 +224,12 @@ class RelyingPartyEntityTest extends UnitTestCase
      */
     public function canGetConfig()
     {
-        /** @var RelyingPartyEntity $sut */
-        //$sut = oxNew(RelyingPartyEntity::class);
+        /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['hasConfiguredShopUrl']) // required for code coverage
             ->getMock();
+        $sut->method('hasConfiguredShopUrl')->willReturn(true);
 
         $this->assertInstanceOf(
             Config::class,
@@ -246,11 +248,12 @@ class RelyingPartyEntityTest extends UnitTestCase
      */
     public function canGetActiveShop()
     {
-        /** @var RelyingPartyEntity $sut */
-        //$sut = oxNew(RelyingPartyEntity::class);
+        /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['hasConfiguredShopUrl']) // required for code coverage
             ->getMock();
+        $sut->method('hasConfiguredShopUrl')->willReturn(true);
 
         $this->assertInstanceOf(
             Shop::class,
