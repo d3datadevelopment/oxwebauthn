@@ -34,12 +34,6 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
                 $this->getRPShopUrl()
             ]
         );
-/**
-        parent::__construct(
-            $this->getActiveShop()->getFieldData('oxname'),
-            $this->getRPShopUrl()
-        );
- */
     }
 
     /**

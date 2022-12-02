@@ -224,7 +224,10 @@ class RelyingPartyEntityTest extends UnitTestCase
     public function canGetConfig()
     {
         /** @var RelyingPartyEntity $sut */
-        $sut = oxNew(RelyingPartyEntity::class);
+        //$sut = oxNew(RelyingPartyEntity::class);
+        $sut = $this->getMockBuilder(RelyingPartyEntity::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->assertInstanceOf(
             Config::class,
@@ -244,7 +247,10 @@ class RelyingPartyEntityTest extends UnitTestCase
     public function canGetActiveShop()
     {
         /** @var RelyingPartyEntity $sut */
-        $sut = oxNew(RelyingPartyEntity::class);
+        //$sut = oxNew(RelyingPartyEntity::class);
+        $sut = $this->getMockBuilder(RelyingPartyEntity::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->assertInstanceOf(
             Shop::class,

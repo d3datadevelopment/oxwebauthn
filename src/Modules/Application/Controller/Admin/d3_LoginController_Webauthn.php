@@ -22,19 +22,12 @@ use Doctrine\DBAL\Driver\Exception as DoctrineException;
 use Doctrine\DBAL\Exception;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Request;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
 {
-    /**
-     * @return Webauthn
-     */
-    public function d3GetWebauthnObject(): Webauthn
-    {
-        return oxNew(Webauthn::class);
-    }
-
     /**
      * @return mixed|string
      * @throws ContainerExceptionInterface
@@ -44,25 +37,21 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function checklogin()
     {
-        $lgn_user = Registry::getRequest()->getRequestParameter('user') ?:
+        $lgn_user = $this->d3WebauthnGetRequestObject()->getRequestParameter( 'user') ?:
             Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
-        $password = Registry::getRequest()->getRequestParameter('pwd');
 
         /** @var d3_User_Webauthn $user */
         $user = $this->d3WebauthnGetUserObject();
         $userId = $user->d3GetLoginUserId($lgn_user, 'malladmin');
 
-        if ($lgn_user && $userId &&
-            false === Registry::getSession()->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH) &&
-            (!strlen(trim((string) $password)))
-        ) {
+        if ( $this->d3CanUseWebauthn( $lgn_user, $userId)) {
             Registry::getSession()->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_PROFILE,
-                Registry::getRequest()->getRequestEscapedParameter('profile')
+                $this->d3WebauthnGetRequestObject()->getRequestEscapedParameter( 'profile')
             );
             Registry::getSession()->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE,
-                Registry::getRequest()->getRequestEscapedParameter('chlanguage')
+                $this->d3WebauthnGetRequestObject()->getRequestEscapedParameter( 'chlanguage')
             );
 
             $webauthn = $this->d3GetWebauthnObject();
@@ -91,6 +80,14 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     }
 
     /**
+     * @return Webauthn
+     */
+    public function d3GetWebauthnObject(): Webauthn
+    {
+        return oxNew(Webauthn::class);
+    }
+
+    /**
      * @return void
      */
     public function d3WebauthnCancelLogin(): void
@@ -105,5 +102,29 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     public function d3WebauthnGetUserObject(): User
     {
         return oxNew(User::class);
+    }
+
+    /**
+     * @return Request
+     */
+    public function d3WebauthnGetRequestObject(): Request
+    {
+        return Registry::getRequest();
+    }
+
+    /**
+     * @param             $lgn_user
+     * @param string|null $userId
+     *
+     * @return bool
+     */
+    protected function d3CanUseWebauthn( $lgn_user, ?string $userId): bool
+    {
+        $password = $this->d3WebauthnGetRequestObject()->getRequestParameter( 'pwd');
+
+        return $lgn_user &&
+               $userId &&
+               false === Registry::getSession()->hasVariable( WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH ) &&
+               ( ! strlen( trim( (string) $password ) ) );
     }
 }
