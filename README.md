@@ -44,9 +44,16 @@ Zur Verwendung der registrierten FIDO2-Keys wird bei der Anmeldung einfach das P
 
 Die Keys können einfach im Mein-Konto-Bereich des Frontends und auch im Kundenkonto im Backend verwaltet werden. Die Verwaltung umfasst das Registrieren neuer Keys (mehrfache Keys pro Konto sind möglich und empfohlen). Jedem Key kann ein Freitextname zugeordnet werden. Weiterhin werden alle registrierten Keys mit ihrem Namen dargestellt. Ebenso sind registrierte Keys dort löschbar.
 
-Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können USB-Tokens (z.B. Solokey oder YubiKey), NFC- oder Bluetoothsender, Smartphones (Android ab Version 7, iOS ab Version 14) oder Smartcards sein.
+Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können sein:
+- USB-Tokens (z.B. Solokey oder YubiKey), 
+- NFC-Sender
+- Bluetoothsender
+- Smartphones mit Touch ID (Android ab Version 7, iOS ab Version 14),
+- Smartcards
+- Face ID Geräte
+- Windows Hello Geräte
 
-Da bei einer FIDO2-basierten Anmeldung kein Passwort mehr benötigt wird, kann das Kennwort auch komplexer als alltagstaugliche Passworte sein.
+Da bei einer FIDO2-basierten Anmeldung kein Passwort mehr benötigt wird, kann das Backupkennwort auch komplexer als alltagstaugliche Passworte sein.
 
 ## Changelog
 

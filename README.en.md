@@ -44,9 +44,16 @@ To use the registered FIDO2 keys, simply leave the password field blank when log
 
 The keys can be easily managed in the My Account area of the frontend and also in the customer account in the backend. The administration includes the registration of new keys (multiple keys per account are possible and recommended). A free text name can be assigned to each key. Furthermore, all registered keys are displayed with their names. Registered keys can also be deleted there.
 
-Any FIDO2-certified hardware can be used for registration. This can be USB tokens (e.g. Solokey or YubiKey), NFC or Bluetooth transmitters, smartphones (Android from version 7, iOS from version 14) or smartcards.
+Any FIDO2-certified hardware can be used for registration. This can be:
+- USB tokens (e.g. Solokey or YubiKey), 
+- NFC transmitters
+- Bluetooth transmitter
+- Smartphones with Touch ID (Android from version 7, iOS from version 14),
+- smart cards
+- Face ID devices
+- Windows Hello devices
 
-Since a password is no longer required with a FIDO2-based login, the password can also be more complex than passwords suitable for everyday use.
+Since a password is no longer required with a FIDO2-based login, the backup password can also be more complex than passwords suitable for everyday use.
 
 ## Changelog
 
