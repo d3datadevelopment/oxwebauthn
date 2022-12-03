@@ -15,23 +15,26 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller;
 
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
-use D3\Webauthn\Application\Controller\Traits\helpersTrait;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnCreateException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use D3\Webauthn\Application\Model\Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SeoEncoder;
+use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class d3_account_webauthn extends AccountController
 {
     use accountTrait;
-    use helpersTrait;
+    use IsMockable;
 
     protected $_sThisTemplate = 'd3_account_webauthn.tpl';
 
@@ -43,7 +46,7 @@ class d3_account_webauthn extends AccountController
         $sRet = parent::render();
 
         $this->addTplParam('user', $this->getUser());
-        $this->addTplParam('readonly', !($this->d3GetWebauthnObject()->isAvailable()));
+        $this->addTplParam('readonly', !($this->d3GetMockableOxNewObject(Webauthn::class)->isAvailable()));
 
         return $sRet;
     }
@@ -58,7 +61,7 @@ class d3_account_webauthn extends AccountController
     public function getCredentialList(): PublicKeyCredentialList
     {
         $oUser = $this->getUser();
-        $credentialList = $this->d3GetPublicKeyCredentialListObject();
+        $credentialList = $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class);
         return $credentialList->getAllFromUser($oUser);
     }
 
@@ -75,9 +78,9 @@ class d3_account_webauthn extends AccountController
             $this->setAuthnRegister();
             $this->setPageType('requestnew');
         } catch (WebauthnException $e) {
-            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
-            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
         }
     }
 
@@ -100,7 +103,8 @@ class d3_account_webauthn extends AccountController
      */
     public function setAuthnRegister(): void
     {
-        $publicKeyCredentialCreationOptions = $this->d3GetWebauthnObject()->getCreationOptions($this->getUser());
+        $publicKeyCredentialCreationOptions = $this->d3GetMockableOxNewObject(Webauthn::class)
+            ->getCreationOptions($this->getUser());
 
         $this->addTplParam('webauthn_publickey_create', $publicKeyCredentialCreationOptions);
         $this->addTplParam('isAdmin', isAdmin());
@@ -126,11 +130,11 @@ class d3_account_webauthn extends AccountController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
-                $webauthn = $this->d3GetWebauthnObject();
+                $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
-            $this->d3GetUtilsViewObject()->addErrorToDisplay( $e );
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay( $e );
         }
     }
 
@@ -141,7 +145,7 @@ class d3_account_webauthn extends AccountController
     {
         $deleteId = Registry::getRequest()->getRequestEscapedParameter('deleteoxid');
         if ($deleteId) {
-            $credential = $this->d3GetPublicKeyCredentialObject();
+            $credential = $this->d3GetMockableOxNewObject(PublicKeyCredential::class);
             $credential->delete($deleteId);
         }
     }

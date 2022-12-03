@@ -21,7 +21,6 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -42,31 +41,16 @@ trait checkoutGetUserTrait
         $user = $this->d3CallMockableParent('getUser');
 
         if ($user && $user->getId()) {
-            $webauthn = $this->d3GetWebauthnObject();
+            $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
 
             if ($webauthn->isActive($user->getId())
-                && !$this->d3WebauthnGetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
+                && !$this->d3GetMockableRegistryObject(Session::class)
+                         ->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 return false;
             }
         }
 
         return $user;
-    }
-
-    /**
-     * @return Webauthn
-     */
-    public function d3GetWebauthnObject(): Webauthn
-    {
-        return oxNew(Webauthn::class);
-    }
-
-    /**
-     * @return Session
-     */
-    public function d3WebauthnGetSessionObject(): Session
-    {
-        return Registry::getSession();
     }
 }

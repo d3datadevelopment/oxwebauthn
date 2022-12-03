@@ -58,6 +58,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
      * @param $sClass
      * @param $sId
      * @param array $aFields
+     * @param bool $blAdmin
      * @throws Exception
      */
     public function createObject($sClass, $sId, $aFields = [], $blAdmin = false)
@@ -112,6 +113,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
     /**
      * @param $sId
      * @param array $aFields
+     * @param bool $blAdmin
      * @throws Exception
      */
     public function createUser($sId, $aFields = [], $blAdmin = false)

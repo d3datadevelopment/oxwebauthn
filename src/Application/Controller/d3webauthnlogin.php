@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Controller;
 
 use D3\TestingTools\Production\IsMockable;
-use D3\Webauthn\Application\Controller\Traits\helpersTrait;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
@@ -24,6 +23,8 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
+use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -31,7 +32,6 @@ use Psr\Container\NotFoundExceptionInterface;
 class d3webauthnlogin extends FrontendController
 {
     use IsMockable;
-    use helpersTrait;
 
     protected $_sThisTemplate = 'd3webauthnlogin.tpl';
 
@@ -39,8 +39,8 @@ class d3webauthnlogin extends FrontendController
      * @return array
      */
     public function getNavigationParams(): array
-    {;
-        $navparams = $this->d3GetSession()->getVariable(
+    {
+        $navparams = $this->d3GetMockableRegistryObject(Session::class)->getVariable(
             WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS
         );
 
@@ -60,15 +60,18 @@ class d3webauthnlogin extends FrontendController
      */
     public function render(): string
     {
-        if ($this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            !$this->d3GetSession()->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+        if ($this->d3GetMockableRegistryObject(Session::class)
+                 ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
+            !$this->d3GetMockableRegistryObject(Session::class)
+                  ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
-            $this->getUtils()->redirect('index.php?cl=start');
+            $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=start');
         }
 
         $this->generateCredentialRequest();
 
-        $this->addTplParam('navFormParams', $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+        $this->addTplParam('navFormParams', $this->d3GetMockableRegistryObject(Session::class)
+                                                 ->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
         return $this->d3CallMockableParent('render');
     }
@@ -82,29 +85,23 @@ class d3webauthnlogin extends FrontendController
      */
     public function generateCredentialRequest(): void
     {
-        $userId = $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $userId = $this->d3GetMockableRegistryObject(Session::class)
+                       ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
         try {
             /** @var Webauthn $webauthn */
-            $webauthn = $this->d3GetWebauthnObject();
+            $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
-            $this->d3GetSession()->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
-            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
+            $this->d3GetMockableRegistryObject(Session::class)
+                 ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
+            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
-            $this->getUtils()->redirect('index.php?cl=start');
+            $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=start');
         }
-    }
-
-    /**
-     * @return Utils
-     */
-    public function getUtils(): Utils
-    {
-        return Registry::getUtils();
     }
 
     /**
@@ -112,7 +109,8 @@ class d3webauthnlogin extends FrontendController
      */
     public function d3GetPreviousClass(): ?string
     {
-        return $this->d3GetSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        return $this->d3GetMockableRegistryObject(Session::class)
+                    ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
     /**
@@ -121,7 +119,8 @@ class d3webauthnlogin extends FrontendController
     public function previousClassIsOrderStep(): bool
     {
         $sClassKey = $this->d3GetPreviousClass();
-        $resolvedClass = $this->d3GetControllerClassNameResolver()->getClassNameById($sClassKey);
+        $resolvedClass = $this->d3GetMockableRegistryObject(ControllerClassNameResolver::class)
+                              ->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 
         /** @var FrontendController $oController */

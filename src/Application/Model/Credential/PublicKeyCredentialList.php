@@ -20,9 +20,8 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Config as Config;
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Model\ListModel;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
@@ -64,7 +63,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
+                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
                     )
                 )
             );
@@ -101,7 +100,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
+                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
                     )
                 )
             );
@@ -138,7 +137,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->getConfigObject()->getShopId())
+                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
                     )
                 )
             );
@@ -160,13 +159,5 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {
         $this->getBaseObject()->saveCredentialSource($publicKeyCredentialSource);
-    }
-
-    /**
-     * @return Config
-     */
-    public function getConfigObject(): Config
-    {
-        return Registry::getConfig();
     }
 }

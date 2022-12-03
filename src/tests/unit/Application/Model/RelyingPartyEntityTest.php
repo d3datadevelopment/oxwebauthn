@@ -19,7 +19,7 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\RelyingPartyEntity;
 use OxidEsales\Eshop\Application\Model\Shop;
 use OxidEsales\Eshop\Core\Config;
-use OxidEsales\TestingLibrary\UnitTestCase;
+use OxidEsales\Eshop\Core\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -120,9 +120,19 @@ class RelyingPartyEntityTest extends TestCase
         /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getConfig'])
+            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getConfig')->willReturn($configMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($configMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Config::class:
+                        return $configMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         $this->assertSame(
             $fixture,
@@ -214,30 +224,6 @@ class RelyingPartyEntityTest extends TestCase
             'configured'    => [true, ' subd.mydomain.com', 'www.myhost.de', 'subd.mydomain.com'],
             'not configured'=> [false, ' subd.mydomain.com', 'www.myhost.de', 'www.myhost.de']
         ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\RelyingPartyEntity::getConfig
-     */
-    public function canGetConfig()
-    {
-        /** @var RelyingPartyEntity|MockObject $sut */
-        $sut = $this->getMockBuilder(RelyingPartyEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['hasConfiguredShopUrl']) // required for code coverage
-            ->getMock();
-        $sut->method('hasConfiguredShopUrl')->willReturn(true);
-
-        $this->assertInstanceOf(
-            Config::class,
-            $this->callMethod(
-                $sut,
-                'getConfig'
-            )
-        );
     }
 
     /**

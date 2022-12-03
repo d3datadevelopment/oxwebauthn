@@ -19,6 +19,7 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
@@ -75,7 +76,8 @@ class PublicKeyCredentialTest extends UnitTestCase
     /**
      * @param $fieldName
      * @param $sutMethod
-     * @param $value
+     * @param $setValue
+     * @param $getValue
      * @return void
      * @throws ReflectionException
      */
@@ -232,9 +234,19 @@ class PublicKeyCredentialTest extends UnitTestCase
 
         /** @var PublicKeyCredential|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->onlyMethods(['getPublicKeyCredentialListObject', 'exists', 'getIdByCredentialId', 'load', 'save'])
+            ->onlyMethods(['d3GetMockableOxNewObject', 'exists', 'getIdByCredentialId', 'load', 'save'])
             ->getMock();
-        $sut->method('getPublicKeyCredentialListObject')->willReturn($pkcListObjectMock);
+        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
+            function () use ($pkcListObjectMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case PublicKeyCredentialList::class:
+                        return $pkcListObjectMock;
+                    default:
+                        return call_user_func_array("oxNew", $args);
+                }
+            }
+        );
         $sut->method('exists')->willReturn($credIdExist);
         $sut->expects($this->exactly((int) $doSave))->method('getIdByCredentialId');
         $sut->expects($this->exactly((int) ($doSave && $credIdExist)))->method('load');
@@ -270,28 +282,6 @@ class PublicKeyCredentialTest extends UnitTestCase
      * @test
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\Credential\PublicKeyCredential::getPublicKeyCredentialListObject
-     */
-    public function canGetPublicKeyCredentialListObject()
-    {
-        /** @var PublicKeyCredential|MockObject $sut */
-        $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->assertInstanceOf(
-            PublicKeyCredentialList::class,
-            $this->callMethod(
-                $sut,
-                'getPublicKeyCredentialListObject'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
      * @dataProvider canGetIdByCredentialIdDataProvider
      * @covers \D3\Webauthn\Application\Model\Credential\PublicKeyCredential::getIdByCredentialId
      */
@@ -309,9 +299,19 @@ class PublicKeyCredentialTest extends UnitTestCase
 
         /** @var PublicKeyCredential|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->onlyMethods(['d3GetConfig', 'allowDerivedDelete'])
+            ->onlyMethods(['d3GetMockableRegistryObject', 'allowDerivedDelete'])
             ->getMock();
-        $sut->method('d3GetConfig')->willReturn($configMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($configMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Config::class:
+                        return $configMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
         $sut->method('allowDerivedDelete')->willReturn(true);
 
         if ($doCreate) {
@@ -346,25 +346,5 @@ class PublicKeyCredentialTest extends UnitTestCase
             'item exists'       => [true, 'idFixture'],
             'item not exists'   => [false, null]
         ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\Credential\PublicKeyCredential::d3GetConfig
-     */
-    public function canGetConfig()
-    {
-        /** @var PublicKeyCredential $sut */
-        $sut = oxNew(PublicKeyCredential::class);
-
-        $this->assertInstanceOf(
-            Config::class,
-            $this->callMethod(
-                $sut,
-                'd3GetConfig'
-            )
-        );
     }
 }

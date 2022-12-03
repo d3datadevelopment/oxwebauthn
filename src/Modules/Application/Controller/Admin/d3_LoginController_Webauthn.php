@@ -22,7 +22,6 @@ use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineException;
 use Doctrine\DBAL\Exception;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use Psr\Container\ContainerExceptionInterface;
@@ -41,33 +40,36 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function checklogin()
     {
-        $lgn_user = $this->d3WebauthnGetRequestObject()->getRequestParameter( 'user') ?:
-            $this->d3WebauthnGetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
+        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'user') ?:
+            $this->d3GetMockableRegistryObject(Session::class)
+                 ->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
 
         /** @var d3_User_Webauthn $user */
-        $user = $this->d3WebauthnGetUserObject();
+        $user = $this->d3GetMockableOxNewObject(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user, 'malladmin');
 
         if ( $this->d3CanUseWebauthn( $lgn_user, $userId)) {
-            $this->d3WebauthnGetSessionObject()->setVariable(
+            $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_PROFILE,
-                $this->d3WebauthnGetRequestObject()->getRequestEscapedParameter( 'profile')
+                $this->d3GetMockableRegistryObject(Request::class)
+                     ->getRequestEscapedParameter( 'profile')
             );
-            $this->d3WebauthnGetSessionObject()->setVariable(
+            $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE,
-                $this->d3WebauthnGetRequestObject()->getRequestEscapedParameter( 'chlanguage')
+                $this->d3GetMockableRegistryObject(Request::class)
+                     ->getRequestEscapedParameter( 'chlanguage')
             );
 
             if ($this->hasWebauthnButNotLoggedin($userId)) {
-                $this->d3WebauthnGetSessionObject()->setVariable(
+                $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                     WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS,
                     $this->getClassKey() != 'd3webauthnadminlogin' ? $this->getClassKey() : 'admin_start'
                 );
-                $this->d3WebauthnGetSessionObject()->setVariable(
+                $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                     WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER,
                     $userId
                 );
-                $this->d3WebauthnGetSessionObject()->setVariable(
+                $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                     WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER,
                     $lgn_user
                 );
@@ -80,44 +82,12 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
     }
 
     /**
-     * @return Webauthn
-     */
-    public function d3GetWebauthnObject(): Webauthn
-    {
-        return oxNew(Webauthn::class);
-    }
-
-    /**
      * @return void
      */
     public function d3WebauthnCancelLogin(): void
     {
-        $oUser = $this->d3WebauthnGetUserObject();
-        $oUser->logout();
-    }
-
-    /**
-     * @return User
-     */
-    public function d3WebauthnGetUserObject(): User
-    {
-        return oxNew(User::class);
-    }
-
-    /**
-     * @return Request
-     */
-    public function d3WebauthnGetRequestObject(): Request
-    {
-        return Registry::getRequest();
-    }
-
-    /**
-     * @return Session
-     */
-    public function d3WebauthnGetSessionObject(): Session
-    {
-        return Registry::getSession();
+        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user->logout();
     }
 
     /**
@@ -128,11 +98,12 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     protected function d3CanUseWebauthn( $lgn_user, ?string $userId): bool
     {
-        $password = $this->d3WebauthnGetRequestObject()->getRequestParameter( 'pwd');
+        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'pwd');
 
         return $lgn_user &&
                $userId &&
-               false === $this->d3WebauthnGetSessionObject()->hasVariable( WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH ) &&
+               false === $this->d3GetMockableRegistryObject(Session::class)
+                              ->hasVariable( WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH ) &&
                ( ! strlen( trim( (string) $password ) ) );
     }
 
@@ -144,9 +115,10 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     protected function hasWebauthnButNotLoggedin($userId): bool
     {
-        $webauthn = $this->d3GetWebauthnObject();
+        $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
 
         return $webauthn->isActive($userId)
-            && !$this->d3WebauthnGetSessionObject()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH);
+            && !$this->d3GetMockableRegistryObject(Session::class)
+                     ->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH);
     }
 }

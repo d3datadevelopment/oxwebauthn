@@ -18,7 +18,6 @@ namespace D3\Webauthn\Application\Model;
 use D3\TestingTools\Production\IsMockable;
 use OxidEsales\Eshop\Application\Model\Shop;
 use OxidEsales\Eshop\Core\Config;
-use OxidEsales\Eshop\Core\Registry;
 use Webauthn\PublicKeyCredentialRpEntity;
 
 class RelyingPartyEntity extends PublicKeyCredentialRpEntity
@@ -49,7 +48,7 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
      */
     public function getConfiguredShopUrl()
     {
-        return $this->getConfig()->getConfigParam('d3webauthn_diffshopurl');
+        return $this->d3GetMockableRegistryObject(Config::class)->getConfigParam('d3webauthn_diffshopurl');
     }
 
     /**
@@ -71,18 +70,10 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
     }
 
     /**
-     * @return Config
-     */
-    public function getConfig(): Config
-    {
-        return Registry::getConfig();
-    }
-
-    /**
      * @return Shop
      */
     public function getActiveShop(): Shop
     {
-        return Registry::getConfig()->getActiveShop();
+        return $this->d3GetMockableRegistryObject(Config::class)->getActiveShop();
     }
 }

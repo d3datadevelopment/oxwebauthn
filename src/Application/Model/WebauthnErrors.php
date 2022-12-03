@@ -55,7 +55,7 @@ class WebauthnErrors
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT', null, true);
         }
 
-        switch ($msg) {
+        switch (strtoupper($msg)) {
             case self::UNSECURECONNECTION:
                 return $lang->translateString($msg);
         }

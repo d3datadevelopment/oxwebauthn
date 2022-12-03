@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use D3\TestingTools\Production\IsMockable;
 use DateTime;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -31,6 +32,8 @@ use Webauthn\PublicKeyCredentialSource;
 
 class PublicKeyCredential extends BaseModel
 {
+    use IsMockable;
+
     protected $_sCoreTable = 'd3wa_usercredentials';
 
     public function __construct()
@@ -126,7 +129,7 @@ class PublicKeyCredential extends BaseModel
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
         // item exist already
-        if ($this->getPublicKeyCredentialListObject()
+        if ($this->d3GetMockableOxNewObject(PublicKeyCredentialList::class)
             ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
         ) {
             return;
@@ -145,14 +148,6 @@ class PublicKeyCredential extends BaseModel
         $this->setCredential($publicKeyCredentialSource);
         $this->setName($keyName ?: $this->getName() ?: (new DateTime())->format('Y-m-d H:i:s'));
         $this->save();
-    }
-
-    /**
-     * @return PublicKeyCredentialList
-     */
-    protected function getPublicKeyCredentialListObject(): PublicKeyCredentialList
-    {
-        return oxNew(PublicKeyCredentialList::class);
     }
 
     /**
@@ -178,20 +173,12 @@ class PublicKeyCredential extends BaseModel
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetConfig()->getShopId())
+                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
                     )
                 )
             );
         $oxid = $qb->execute()->fetchOne();
 
         return strlen((string) $oxid) ? $oxid : null;
-    }
-
-    /**
-     * @return Config
-     */
-    public function d3GetConfig(): Config
-    {
-        return Registry::getConfig();
     }
 }

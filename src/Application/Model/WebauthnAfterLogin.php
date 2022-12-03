@@ -15,10 +15,14 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use D3\TestingTools\Production\IsMockable;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\UtilsServer;
 
 class WebauthnAfterLogin
 {
+    use IsMockable;
+
     public function setDisplayProfile()
     {
         $sProfile = Registry::getRequest()->getRequestEscapedParameter('profile') ?:
@@ -26,7 +30,7 @@ class WebauthnAfterLogin
 
         Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
 
-        $myUtilsServer = Registry::getUtilsServer();
+        $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
 
         if (isset($sProfile)) {
             $aProfiles = Registry::getSession()->getVariable("aAdminProfiles");
@@ -46,7 +50,7 @@ class WebauthnAfterLogin
      */
     public function changeLanguage()
     {
-        $myUtilsServer = Registry::getUtilsServer();
+        $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
         // languages
         $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage') ?:
             Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);

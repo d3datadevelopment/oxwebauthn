@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace D3\Webauthn\tests\unit\Application\Controller\Admin;
 
 use D3\TestingTools\Development\CanAccessRestricted;
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
@@ -23,17 +24,17 @@ use D3\Webauthn\Application\Model\WebauthnAfterLogin;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\tests\unit\Application\Controller\d3webauthnloginTest;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
-use OxidEsales\Eshop\Core\SystemEventHandler;
 use OxidEsales\Eshop\Core\Utils;
-use OxidEsales\Eshop\Core\UtilsServer;
 use OxidEsales\Eshop\Core\UtilsView;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
 class d3webauthnadminloginTest extends d3webauthnloginTest
 {
+    use IsMockable;
     use CanAccessRestricted;
 
     protected $sutClassName = d3webauthnadminlogin::class;
@@ -95,18 +96,39 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
 
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetSession', 'getUtils', 'd3CallMockableParent', 'd3WebauthnGetAfterLogin',
+            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableParent', 'd3GetMockableOxNewObject',
                 'generateCredentialRequest', 'addTplParam'])
             ->getMock();
-        $sut->method('d3GetSession')->willReturn($sessionMock);
-        $sut->method('getUtils')->willReturn($utilsMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($utilsMock, $sessionMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Utils::class:
+                        return $utilsMock;
+                    case Session::class:
+                        return $sessionMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
         $sut->method('d3CallMockableParent')->willReturn('myTemplate.tpl');
         // "any" because redirect doesn't stop execution
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('generateCredentialRequest');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('addTplParam')->willReturn(true);
-        $sut->method('d3WebauthnGetAfterLogin')->willReturn($afterLoginMock);
+        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
+            function () use ($afterLoginMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case WebauthnAfterLogin::class:
+                        return $afterLoginMock;
+                    default:
+                        return call_user_func_array("oxNew", $args);
+                }
+            }
+        );
 
         $this->assertSame(
             'myTemplate.tpl',
@@ -149,17 +171,6 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
     public function generateCredentialRequestFailed($redirectClass = 'login', $userVarName = WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
     {
         parent::generateCredentialRequestFailed($redirectClass, $userVarName);
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::getUtils
-     */
-    public function getUtilsReturnsRightInstance()
-    {
-        parent::getUtilsReturnsRightInstance();
     }
 
     /**
@@ -226,10 +237,30 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
 
         /** @var d3webauthnadminlogin|MockObject $sut */
         $sut = $this->getMockBuilder(d3webauthnadminlogin::class)
-            ->onlyMethods(['getWebauthnLoginObject', 'd3WebAuthnGetRequest'])
+            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getWebauthnLoginObject')->willReturn($loginMock);
-        $sut->method('d3WebAuthnGetRequest')->willReturn($requestMock);
+        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
+            function () use ($loginMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case WebauthnLogin::class:
+                        return $loginMock;
+                    default:
+                        return call_user_func_array("oxNew", $args);
+                }
+            }
+        );
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($requestMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Request::class:
+                        return $requestMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         $this->assertSame(
             'expected',
@@ -262,11 +293,22 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
 
         /** @var d3webauthnadminlogin|MockObject $sut */
         $sut = $this->getMockBuilder(d3webauthnadminlogin::class)
-            ->onlyMethods(['getWebauthnLoginObject', 'd3WebAuthnGetRequest', 'd3GetUtilsViewObject'])
+            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getWebauthnLoginObject')->willThrowException(oxNew(WebauthnGetException::class));
-        $sut->method('d3WebAuthnGetRequest')->willReturn($requestMock);
-        $sut->method('d3GetUtilsViewObject')->willReturn($utilsViewMock);
+        $sut->method('d3GetMockableOxNewObject')->willThrowException(oxNew(WebauthnGetException::class));
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($utilsViewMock, $requestMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case UtilsView::class:
+                        return $utilsViewMock;
+                    case Request::class:
+                        return $requestMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         $this->assertSame(
             'login',
@@ -288,101 +330,5 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
             'assertion succ malladmin' => ['admin_start', false, 'cookie', 'malladmin'],
             'assertion succ shop1' => ['admin_start', false, 'cookie', 1],
         ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebauthnGetEventHandler
-     */
-    public function canGetSystemEventHandler()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            SystemEventHandler::class,
-            $this->callMethod(
-                $sut,
-                'd3WebauthnGetEventHandler'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebAuthnGetRequest
-     */
-    public function canGetRequest()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            Request::class,
-            $this->callMethod(
-                $sut,
-                'd3WebAuthnGetRequest'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebauthnGetUtilsServer
-     */
-    public function canGetUtilsServer()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            UtilsServer::class,
-            $this->callMethod(
-                $sut,
-                'd3WebauthnGetUtilsServer'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::getWebauthnLoginObject
-     */
-    public function canGetWebauthnLoginObject()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            WebauthnLogin::class,
-            $this->callMethod(
-                $sut,
-                'getWebauthnLoginObject',
-                ['credential', 'error']
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::d3WebauthnGetAfterLogin
-     */
-    public function canGetWebauthnAfterLoginObject()
-    {
-        $sut = oxNew(d3webauthnadminlogin::class);
-
-        $this->assertInstanceOf(
-            WebauthnAfterLogin::class,
-            $this->callMethod(
-                $sut,
-                'd3WebauthnGetAfterLogin'
-            )
-        );
     }
 }

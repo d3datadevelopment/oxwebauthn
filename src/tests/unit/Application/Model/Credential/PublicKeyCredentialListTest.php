@@ -21,11 +21,11 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\UserEntity;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use Webauthn\PublicKeyCredentialSource;
-use Webauthn\PublicKeyCredentialUserEntity;
 
 class PublicKeyCredentialListTest extends UnitTestCase
 {
@@ -77,9 +77,19 @@ class PublicKeyCredentialListTest extends UnitTestCase
         /** @var PublicKeyCredentialList|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredentialList::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getConfigObject'])
+            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getConfigObject')->willReturn($configMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($configMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Config::class:
+                        return $configMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         if ($doCreate) {
             $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
@@ -145,9 +155,19 @@ class PublicKeyCredentialListTest extends UnitTestCase
         /** @var PublicKeyCredentialList|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredentialList::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getConfigObject'])
+            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getConfigObject')->willReturn($configMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($configMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Config::class:
+                        return $configMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         if ($doCreate) {
             $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
@@ -214,9 +234,19 @@ class PublicKeyCredentialListTest extends UnitTestCase
         /** @var PublicKeyCredentialList|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredentialList::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getConfigObject'])
+            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('getConfigObject')->willReturn($configMock);
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($configMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Config::class:
+                        return $configMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
@@ -302,30 +332,6 @@ class PublicKeyCredentialListTest extends UnitTestCase
             $sut,
             'saveCredentialSource',
             [$pkcsMock]
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList::getConfigObject()
-     */
-    public function canGetConfigObject()
-    {
-        /** @var PublicKeyCredentialList|MockObject $sut */
-        $sut = $this->getMockBuilder(PublicKeyCredentialList::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['saveCredentialSource']) // required for code coverage
-            ->getMock();
-        $sut->method('saveCredentialSource');
-
-        $this->assertInstanceOf(
-            Config::class,
-            $this->callMethod(
-                $sut,
-                'getConfigObject'
-            )
         );
     }
 }

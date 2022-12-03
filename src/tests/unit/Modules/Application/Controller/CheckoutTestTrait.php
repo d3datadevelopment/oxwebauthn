@@ -22,6 +22,7 @@ use OxidEsales\Eshop\Application\Controller\OrderController;
 use OxidEsales\Eshop\Application\Controller\PaymentController;
 use OxidEsales\Eshop\Application\Controller\UserController;
 use OxidEsales\Eshop\Application\Model\User;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
@@ -72,10 +73,30 @@ trait CheckoutTestTrait
 
         /** @var PaymentController|OrderController|UserController|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClass)
-            ->onlyMethods(['d3GetWebauthnObject', 'd3WebauthnGetSessionObject', 'd3CallMockableParent'])
+            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject', 'd3CallMockableParent'])
             ->getMock();
-        $sut->method('d3GetWebauthnObject')->willReturn($webauthnMock);
-        $sut->method('d3WebauthnGetSessionObject')->willReturn($sessionMock);
+        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
+            function () use ($webauthnMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Webauthn::class:
+                        return $webauthnMock;
+                    default:
+                        return call_user_func_array("oxNew", $args);
+                }
+            }
+        );
+        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
+            function () use ($sessionMock) {
+                $args = func_get_args();
+                switch ($args[0]) {
+                    case Session::class:
+                        return $sessionMock;
+                    default:
+                        return Registry::get($args[0]);
+                }
+            }
+        );
         $sut->method('d3CallMockableParent')->willReturn($userMock);
 
         $return = $this->callMethod(
@@ -102,51 +123,5 @@ trait CheckoutTestTrait
             'has webauthn auth'     => [true, 'userIdFixture', true, 'userIdFixture', 'parent'],
             'no webauthn auth'      => [true, 'userIdFixture', true, null, false],
         ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Traits\checkoutGetUserTrait::d3GetWebauthnObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController::d3GetWebauthnObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::d3GetWebauthnObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::d3GetWebauthnObject
-     */
-    public function canGetWebauthnObject()
-    {
-        /** @var PaymentController|OrderController|UserController $sut */
-        $sut = oxNew($this->sutClass);
-
-        $this->assertInstanceOf(
-            Webauthn::class,
-            $this->callMethod(
-                $sut,
-                'd3GetWebauthnObject'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Controller\Traits\checkoutGetUserTrait::d3WebauthnGetSessionObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController::d3WebauthnGetSessionObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::d3WebauthnGetSessionObject
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::d3WebauthnGetSessionObject
-     */
-    public function canGetSessionObject()
-    {
-        /** @var PaymentController|OrderController|UserController $sut */
-        $sut = oxNew($this->sutClass);
-
-        $this->assertInstanceOf(
-            Session::class,
-            $this->callMethod(
-                $sut,
-                'd3WebauthnGetSessionObject'
-            )
-        );
     }
 }

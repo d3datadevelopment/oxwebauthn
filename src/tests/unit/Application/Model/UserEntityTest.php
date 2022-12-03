@@ -65,7 +65,7 @@ class UserEntityTest extends UnitTestCase
 
         if (!$runParent) {
             $this->expectException(WebauthnException::class);
-        };
+        }
 
         $this->callMethod(
             $sut,

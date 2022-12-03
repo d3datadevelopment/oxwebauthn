@@ -99,11 +99,10 @@ class Webauthn
     }
 
     /**
+     * @param string $userId
      * @return string
      * @throws DoctrineDriverException
      * @throws DoctrineException
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     public function getRequestOptions(string $userId): string
     {

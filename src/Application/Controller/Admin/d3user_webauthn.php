@@ -16,22 +16,26 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Controller\Admin;
 
 use D3\TestingTools\Production\IsMockable;
-use D3\Webauthn\Application\Controller\Traits\helpersTrait;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
+use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnCreateException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
+use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Exception;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminDetailsController;
+use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Utils;
+use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class d3user_webauthn extends AdminDetailsController
 {
     use IsMockable;
-    use helpersTrait;
 
     protected $_sSaveError = null;
 
@@ -42,7 +46,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function render(): string
     {
-        $this->addTplParam('readonly', !$this->d3GetWebauthnObject()->isAvailable());
+        $this->addTplParam('readonly', !$this->d3GetMockableOxNewObject(Webauthn::class)->isAvailable());
 
         $this->d3CallMockableParent('render');
 
@@ -50,7 +54,7 @@ class d3user_webauthn extends AdminDetailsController
 
         if (isset($soxId) && $soxId != "-1") {
             /** @var d3_User_Webauthn $oUser */
-            $oUser = $this->d3GetUserObject();
+            $oUser = $this->d3GetMockableOxNewObject(User::class);
             if ($oUser->load($soxId)) {
                 $this->addTplParam("oxid", $oUser->getId());
             } else {
@@ -75,10 +79,10 @@ class d3user_webauthn extends AdminDetailsController
             $this->setPageType( 'requestnew' );
             $this->setAuthnRegister();
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
-            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
-            $this->d3GetLoggerObject()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
-            $this->d3GetUtilsObject()->redirect('index.php?cl=d3user_webauthn');
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
+            $this->d3GetMockableLogger()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
+            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=d3user_webauthn');
         }
     }
 
@@ -97,13 +101,13 @@ class d3user_webauthn extends AdminDetailsController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if ( strlen((string) $credential) ) {
-                $webauthn = $this->d3GetWebauthnObject();
+                $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
             }
         } catch (WebauthnException|Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
-            $this->d3GetLoggerObject()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
-            $this->d3GetLoggerObject()->debug($e->getTraceAsString());
-            $this->d3GetUtilsViewObject()->addErrorToDisplay($e);
+            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
+            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
         }
     }
 
@@ -122,9 +126,9 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function setAuthnRegister(): void
     {
-        $authn = $this->d3GetWebauthnObject();
+        $authn = $this->d3GetMockableOxNewObject(Webauthn::class);
 
-        $user = $this->d3GetUserObject();
+        $user = $this->d3GetMockableOxNewObject(User::class);
         $user->load($this->getEditObjectId());
         $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
 
@@ -148,10 +152,10 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function getCredentialList($userId): array
     {
-        $oUser = $this->d3GetUserObject();
+        $oUser = $this->d3GetMockableOxNewObject(User::class);
         $oUser->load($userId);
 
-        $publicKeyCredentials = $this->d3GetPublicKeyCredentialListObject();
+        $publicKeyCredentials = $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class);
         return $publicKeyCredentials->getAllFromUser($oUser)->getArray();
     }
 
@@ -160,7 +164,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function deleteKey(): void
     {
-        $credential = $this->d3GetPublicKeyCredentialObject();
+        $credential = $this->d3GetMockableOxNewObject(PublicKeyCredential::class);
         $credential->delete(Registry::getRequest()->getRequestEscapedParameter('deleteoxid'));
     }
 }
