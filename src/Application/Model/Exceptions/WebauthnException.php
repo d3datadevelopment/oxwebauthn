@@ -15,23 +15,37 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Exceptions;
 
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use Exception;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 
 class WebauthnException extends StandardException
 {
+    use IsMockable;
+
     public $detailedErrorMessage = null;
 
     public function __construct( $sMessage = "not set", $iCode = 0, Exception $previous = null )
     {
         $this->setDetailedErrorMessage($sMessage);
 
-        parent::__construct(
-            (oxNew(WebauthnErrors::class))->translateError($sMessage, $this->getRequestType()),
-            $iCode,
-            $previous
+        $this->d3CallMockableParent(
+            '__construct',
+            [
+                $this->getErrorMessageTranslator()->translateError($sMessage, $this->getRequestType()),
+                $iCode,
+                $previous
+            ]
         );
+    }
+
+    /**
+     * @return WebauthnErrors
+     */
+    protected function getErrorMessageTranslator(): WebauthnErrors
+    {
+        return oxNew(WebauthnErrors::class);
     }
 
     /**

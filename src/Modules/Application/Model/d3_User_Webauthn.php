@@ -15,12 +15,14 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Modules\Application\Model;
 
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Core\Exception\UserException;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Session;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
@@ -30,23 +32,26 @@ use ReflectionException;
 
 class d3_User_Webauthn extends d3_User_Webauthn_parent
 {
+    use IsMockable;
+
     public function logout()
     {
-        $return = parent::logout();
+        $return = $this->d3CallMockableParent('logout');
 
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
+        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
 
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_LOGIN_OBJECT);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_LOGIN_OBJECT);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS);
 
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
 
         return $return;
     }
@@ -61,8 +66,10 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
      */
     public function login($userName, $password, $setSessionCookie = false)
     {
-        if (Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
-            $userName = $userName ?: Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
+        $session = $this->d3GetMockableRegistryObject(Session::class);
+
+        if ($session->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
+            $userName = $userName ?: $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
             $config = Registry::getConfig();
             $shopId = $config->getShopId();
 
@@ -73,7 +80,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
             $method->invokeArgs(
                 $this,
                 [
-                    Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER),
+                    $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER),
                     $shopId
                 ]
             );

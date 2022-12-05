@@ -29,6 +29,7 @@ use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
+use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -82,6 +83,9 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         return parent::login();
     }
 
+    /**
+     * @return void
+     */
     public function d3CancelWebauthnLogin(): void
     {
         $this->d3WebauthnClearSessionVariables();
@@ -113,7 +117,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                                                     ->getRequestParameter('lgn_cook'));
             $this->_afterLogin($this->getUser());
         } catch (WebauthnGetException $e) {
-            Registry::getUtilsView()->addErrorToDisplay($e);
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
         } catch (WebauthnLoginErrorException $e) {}
     }
 }
