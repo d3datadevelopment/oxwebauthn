@@ -78,7 +78,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
             }
         }
 
-        return $this->d3CallMockableParent('checklogin');
+        return $this->d3CallMockableFunction([d3_LoginController_Webauthn_parent::class, 'checklogin']);
     }
 
     /**

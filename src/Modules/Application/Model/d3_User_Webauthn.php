@@ -36,7 +36,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
 
     public function logout()
     {
-        $return = $this->d3CallMockableParent('logout');
+        $return = $this->d3CallMockableFunction([d3_User_Webauthn_parent::class, 'logout']);
 
         $session = $this->d3GetMockableRegistryObject(Session::class);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);

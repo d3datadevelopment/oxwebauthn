@@ -52,7 +52,7 @@ class d3webauthnloginTest extends UnitTestCase
 
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableParent'])
+            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableFunction'])
             ->getMock();
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
             function () use ($sessionMock) {
@@ -65,7 +65,7 @@ class d3webauthnloginTest extends UnitTestCase
                 }
             }
         );
-        $sut->method('d3CallMockableParent')->willReturn(['defKey1' => 'devValues1']);
+        $sut->method('d3CallMockableFunction')->willReturn(['defKey1' => 'devValues1']);
 
         $this->assertSame(
             [
@@ -111,7 +111,7 @@ class d3webauthnloginTest extends UnitTestCase
 
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableParent',
+            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableFunction',
                 'generateCredentialRequest', 'addTplParam'])
             ->getMock();
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
@@ -127,7 +127,7 @@ class d3webauthnloginTest extends UnitTestCase
                 }
             }
         );
-        $sut->method('d3CallMockableParent')->willReturn('myTemplate.tpl');
+        $sut->method('d3CallMockableFunction')->willReturn('myTemplate.tpl');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('generateCredentialRequest');
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())

@@ -247,12 +247,12 @@ class LoginControllerWebauthnTest extends UnitTestCase
 
         /** @var LoginController|MockObject $sut */
         $sut = $this->getMockBuilder(LoginController::class)
-            ->onlyMethods(['d3CanUseWebauthn', 'd3CallMockableParent', 'hasWebauthnButNotLoggedin',
+            ->onlyMethods(['d3CanUseWebauthn', 'd3CallMockableFunction', 'hasWebauthnButNotLoggedin',
                 'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject'
             ])
             ->getMock();
         $sut->method('d3CanUseWebauthn')->willReturn($canUseWebauthn);
-        $sut->method('d3CallMockableParent')->willReturn('parentReturn');
+        $sut->method('d3CallMockableFunction')->willReturn('parentReturn');
         $sut->method('hasWebauthnButNotLoggedin')->willReturn($loggedin);
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
             function () use ($userMock) {

@@ -30,8 +30,11 @@ class WebauthnException extends StandardException
     {
         $this->setDetailedErrorMessage($sMessage);
 
-        $this->d3CallMockableParent(
-            '__construct',
+        $this->d3CallMockableFunction(
+            [
+                StandardException::class,
+                '__construct'
+            ],
             [
                 $this->getErrorMessageTranslator()->translateError($sMessage, $this->getRequestType()),
                 $iCode,

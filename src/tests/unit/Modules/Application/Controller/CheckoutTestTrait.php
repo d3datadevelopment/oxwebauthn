@@ -31,6 +31,25 @@ trait CheckoutTestTrait
 {
     use CanAccessRestricted;
 
+    protected $userFixtureId = 'userIdFixture1';
+
+    /** @var User */
+    protected $userFixture;
+
+    public function setUp(): void
+    {
+        $this->userFixture = oxNew(User::class);
+        $this->userFixture->setId($this->userFixtureId);
+        $this->userFixture->assign(['oxlname'    => __METHOD__]);
+        $this->userFixture->save();
+        $this->userFixture->load($this->userFixtureId);
+    }
+
+    public function tearDown(): void
+    {
+        $this->userFixture->delete($this->userFixtureId);
+    }
+
     /**
      * @test
      * @param $hasUser
@@ -46,18 +65,8 @@ trait CheckoutTestTrait
      * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::getUser
      * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::getUser
      */
-    public function canGetUser($hasUser, $userId, $isActive, $sessionAuth, $expected)
+    public function canGetUser($hasUser, $isActive, $sessionAuth, $expected)
     {
-        if ($hasUser) {
-            /** @var User|MockObject $userMock */
-            $userMock = $this->getMockBuilder(User::class)
-                ->onlyMethods(['getId'])
-                ->getMock();
-            $userMock->method('getId')->willReturn($userId);
-        } else {
-            $userMock = false;
-        }
-
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
             ->onlyMethods(['getVariable'])
@@ -73,7 +82,7 @@ trait CheckoutTestTrait
 
         /** @var PaymentController|OrderController|UserController|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClass)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject', 'd3CallMockableParent'])
+            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
             ->getMock();
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
             function () use ($webauthnMock) {
@@ -97,15 +106,19 @@ trait CheckoutTestTrait
                 }
             }
         );
-        $sut->method('d3CallMockableParent')->willReturn($userMock);
+        if ($hasUser) {
+            $sut->setUser($this->userFixture);
+        }
 
         $return = $this->callMethod(
             $sut,
             'getUser'
         );
 
+        $sut->setUser(null);
+
         if ($expected === 'parent') {
-            $this->assertSame($return, $userMock);
+            $this->assertSame($return, $hasUser ? $this->userFixture : false);
         } else {
             $this->assertSame($return, $expected);
         }
@@ -117,11 +130,10 @@ trait CheckoutTestTrait
     public function canGetUserDataProvider(): array
     {
         return [
-            'no user'               => [false, null, false, null, 'parent'],
-            'no user id'            => [true, 'null', false, null, 'parent'],
-            'webauthn not active'   => [true, 'userIdFixture', false, null, 'parent'],
-            'has webauthn auth'     => [true, 'userIdFixture', true, 'userIdFixture', 'parent'],
-            'no webauthn auth'      => [true, 'userIdFixture', true, null, false],
+            'no (valid) user'       => [false, false, null, 'parent'],
+            'webauthn not active'   => [true, false, null, 'parent'],
+            'has webauthn auth'     => [true, true, 'userIdFixture', 'parent'],
+            'no webauthn auth'      => [true, true, null, false],
         ];
     }
 }

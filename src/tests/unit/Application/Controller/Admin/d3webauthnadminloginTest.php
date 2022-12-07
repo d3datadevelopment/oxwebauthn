@@ -96,7 +96,7 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
 
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableParent', 'd3GetMockableOxNewObject',
+            ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableFunction', 'd3GetMockableOxNewObject',
                 'generateCredentialRequest', 'addTplParam'])
             ->getMock();
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
@@ -112,7 +112,7 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
                 }
             }
         );
-        $sut->method('d3CallMockableParent')->willReturn('myTemplate.tpl');
+        $sut->method('d3CallMockableFunction')->willReturn('myTemplate.tpl');
         // "any" because redirect doesn't stop execution
         $sut->expects($startRedirect ? $this->any() : $this->atLeastOnce())
             ->method('generateCredentialRequest');

@@ -48,7 +48,7 @@ class d3user_webauthn extends AdminDetailsController
     {
         $this->addTplParam('readonly', !$this->d3GetMockableOxNewObject(Webauthn::class)->isAvailable());
 
-        $this->d3CallMockableParent('render');
+        $this->d3CallMockableFunction([AdminDetailsController::class, 'render']);
 
         $soxId = $this->getEditObjectId();
 

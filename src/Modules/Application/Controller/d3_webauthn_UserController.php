@@ -20,4 +20,6 @@ use D3\Webauthn\Application\Controller\Traits\checkoutGetUserTrait;
 class d3_webauthn_UserController extends d3_webauthn_UserController_parent
 {
     use checkoutGetUserTrait;
+
+    private $parentClass = d3_webauthn_UserController_parent::class;
 }

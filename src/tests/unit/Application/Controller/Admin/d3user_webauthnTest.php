@@ -68,12 +68,12 @@ class d3user_webauthnTest extends TestCase
         /** @var d3user_webauthn|MockObject $sutMock */
         $sutMock = $this->getMockBuilder(d3user_webauthn::class)
             ->onlyMethods([
-                'd3CallMockableParent',
+                'd3CallMockableFunction',
                 'getEditObjectId',
                 'd3GetMockableOxNewObject'
             ])
             ->getMock();
-        $sutMock->method('d3CallMockableParent')->willReturn(true);
+        $sutMock->method('d3CallMockableFunction')->willReturn(true);
         $sutMock->method('getEditObjectId')->willReturn('editObjectId');
         $sutMock->method('d3GetMockableOxNewObject')->willReturnCallback(
             function () use ($userMock, $webauthnMock) {

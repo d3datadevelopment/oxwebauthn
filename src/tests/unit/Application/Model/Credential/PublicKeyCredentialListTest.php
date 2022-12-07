@@ -42,9 +42,9 @@ class PublicKeyCredentialListTest extends UnitTestCase
         /** @var PublicKeyCredentialList|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredentialList::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3CallMockableParent'])
+            ->onlyMethods(['d3CallMockableFunction'])
             ->getMock();
-        $sut->expects($this->once())->method('d3CallMockableParent')->with(
+        $sut->expects($this->once())->method('d3CallMockableFunction')->with(
             $this->anything(),
             $this->containsIdentical(PublicKeyCredential::class)
         );

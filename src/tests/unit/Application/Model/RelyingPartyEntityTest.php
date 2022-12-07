@@ -45,9 +45,9 @@ class RelyingPartyEntityTest extends TestCase
         /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3CallMockableParent', 'getActiveShop', 'getRPShopUrl'])
+            ->onlyMethods(['d3CallMockableFunction', 'getActiveShop', 'getRPShopUrl'])
             ->getMock();
-        $sut->expects($this->once())->method('d3CallMockableParent')->with(
+        $sut->expects($this->once())->method('d3CallMockableFunction')->with(
             $this->anything(),
             $this->identicalTo(['myShopName', 'myShopUrl'])
         );
@@ -156,9 +156,9 @@ class RelyingPartyEntityTest extends TestCase
 
         /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
-            ->onlyMethods(['d3CallMockableParent']) // must mock, because can't disable constructor
+            ->onlyMethods(['d3CallMockableFunction']) // must mock, because can't disable constructor
             ->getMock();
-        $sut->method('d3CallMockableParent')->willReturn(true);
+        $sut->method('d3CallMockableFunction')->willReturn(true);
 
         $this->assertSame(
             $expected,

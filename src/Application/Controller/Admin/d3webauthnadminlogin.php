@@ -81,7 +81,7 @@ class d3webauthnadminlogin extends AdminController
         $afterLogin = $this->d3GetMockableOxNewObject(WebauthnAfterLogin::class);
         $afterLogin->changeLanguage();
 
-        return $this->d3CallMockableParent('render');
+        return $this->d3CallMockableFunction([AdminController::class, 'render']);
     }
 
     /**

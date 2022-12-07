@@ -36,8 +36,11 @@ class UserEntity extends PublicKeyCredentialUserEntity
             throw $e;
         }
 
-        $this->d3CallMockableParent(
-            '__construct',
+        $this->d3CallMockableFunction(
+            [
+                PublicKeyCredentialUserEntity::class,
+                '__construct'
+            ],
             [
                 strtolower($user->getFieldData('oxusername')),
                 $user->getId(),

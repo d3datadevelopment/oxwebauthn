@@ -38,7 +38,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
 
     public function __construct()
     {
-        $this->d3CallMockableParent('__construct', [PublicKeyCredential::class]);
+        $this->d3CallMockableFunction([ListModel::class, '__construct'], [PublicKeyCredential::class]);
     }
 
     /**

@@ -52,9 +52,9 @@ class UserEntityTest extends UnitTestCase
         /** @var UserEntity|MockObject $sut */
         $sut = $this->getMockBuilder(UserEntity::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3CallMockableParent'])
+            ->onlyMethods(['d3CallMockableFunction'])
             ->getMock();
-        $sut->expects($runParent ? $this->once() : $this->never())->method('d3CallMockableParent')->with(
+        $sut->expects($runParent ? $this->once() : $this->never())->method('d3CallMockableFunction')->with(
             $this->anything(),
             $this->identicalTo([
                 'usernamefixture',

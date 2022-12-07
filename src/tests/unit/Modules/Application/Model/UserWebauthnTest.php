@@ -43,9 +43,9 @@ class UserWebauthnTest extends UnitTestCase
 
         /** @var User|MockObject $sut */
         $sut = $this->getMockBuilder(User::class)
-            ->onlyMethods(['d3CallMockableParent', 'd3GetMockableRegistryObject'])
+            ->onlyMethods(['d3CallMockableFunction', 'd3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('d3CallMockableParent')->willReturn(true);
+        $sut->method('d3CallMockableFunction')->willReturn(true);
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
             function () use ($sessionMock) {
                 $args = func_get_args();

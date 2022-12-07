@@ -38,9 +38,10 @@ trait checkoutGetUserTrait
      */
     public function getUser()
     {
-        $user = $this->d3CallMockableParent('getUser');
+        /** @var User|null $user */
+        $user = $this->d3CallMockableFunction([$this->parentClass, 'getUser']);
 
-        if ($user && $user->getId()) {
+        if ($user && $user->isLoaded() && $user->getId()) {
             $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
 
             if ($webauthn->isActive($user->getId())

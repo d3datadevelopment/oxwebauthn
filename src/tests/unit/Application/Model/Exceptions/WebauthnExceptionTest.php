@@ -47,13 +47,13 @@ class WebauthnExceptionTest extends UnitTestCase
         /** @var WebauthnException|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnException::class)
             ->onlyMethods(['setDetailedErrorMessage', 'getErrorMessageTranslator', 'getRequestType',
-                'd3CallMockableParent'])
+                'd3CallMockableFunction'])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->expects($this->once())->method('setDetailedErrorMessage');
         $sut->method('getErrorMessageTranslator')->willReturn($translatorMock);
         $sut->method('getRequestType')->willReturn('requestType');
-        $sut->expects($this->once())->method('d3CallMockableParent')->with(
+        $sut->expects($this->once())->method('d3CallMockableFunction')->with(
             $this->anything(),
             $this->identicalTo(['translatedError', 255, $previousMock])
         );

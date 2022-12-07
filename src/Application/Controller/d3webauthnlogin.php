@@ -45,7 +45,7 @@ class d3webauthnlogin extends FrontendController
         );
 
         return array_merge(
-            $this->d3CallMockableParent('getNavigationParams'),
+            $this->d3CallMockableFunction([FrontendController::class, 'getNavigationParams']),
             $navparams,
             ['cl' => $navparams['actcontrol']]
         );
@@ -73,7 +73,7 @@ class d3webauthnlogin extends FrontendController
         $this->addTplParam('navFormParams', $this->d3GetMockableRegistryObject(Session::class)
                                                  ->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
-        return $this->d3CallMockableParent('render');
+        return $this->d3CallMockableFunction([FrontendController::class, 'render']);
     }
 
     /**
