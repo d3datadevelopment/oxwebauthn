@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Model;
 
 use Assert\AssertionFailedException;
+use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
@@ -27,16 +28,22 @@ use Exception;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Session;
+use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 use Webauthn\PublicKeyCredentialCreationOptions;
+use Webauthn\PublicKeyCredentialDescriptor;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialSource;
 use Webauthn\Server;
 
 class Webauthn
 {
+    use IsMockable;
+
     public const SESSION_CREATIONS_OPTIONS = 'd3WebAuthnCreationOptions';
     public const SESSION_ASSERTION_OPTIONS = 'd3WebAuthnAssertionOptions';
 
@@ -49,14 +56,14 @@ class Webauthn
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ||
             !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on' ||
             in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) ||      // is localhost
-            preg_match('/.*\.localhost$/mi', $_SERVER['REMOTE_ADDR'])   // localhost is TLD
+            (isset($_SERVER['REMOTE_ADDR']) && preg_match('/.*\.localhost$/mi', $_SERVER['REMOTE_ADDR']) )  // localhost is TLD
         ) {
             return true;
         }
 
         $e = oxNew(WebauthnException::class, 'D3_WEBAUTHN_ERR_UNSECURECONNECTION');
-        Registry::getLogger()->info($e->getDetailedErrorMessage());
-        Registry::getUtilsView()->addErrorToDisplay($e);
+        $this->d3GetMockableLogger()->info($e->getDetailedErrorMessage());
+        $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
 
         return false;
     }
@@ -71,31 +78,52 @@ class Webauthn
      */
     public function getCreationOptions(User $user): string
     {
-        $userEntity = oxNew(UserEntity::class, $user);
+        $userEntity = $this->d3GetMockableOxNewObject(UserEntity::class, $user);
 
-        /** @var PublicKeyCredentialList $credentialSourceRepository */
-        $credentialSourceRepository = oxNew(PublicKeyCredentialList::class);
-        $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
-        $excludeCredentials = array_map(function (PublicKeyCredentialSource $credential) {
-            return $credential->getPublicKeyCredentialDescriptor();
-        }, $credentialSources);
-
-        $server = $this->getServer();
-        $publicKeyCredentialCreationOptions = $server->generatePublicKeyCredentialCreationOptions(
+        $publicKeyCredentialCreationOptions = $this->getServer()->generatePublicKeyCredentialCreationOptions(
             $userEntity,
             PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
-            $excludeCredentials
+            $this->getExistingCredentials($userEntity)
         );
 
-        Registry::getSession()->setVariable(self::SESSION_CREATIONS_OPTIONS, $publicKeyCredentialCreationOptions);
+        $this->d3GetMockableRegistryObject(Session::class)
+            ->setVariable(self::SESSION_CREATIONS_OPTIONS, $publicKeyCredentialCreationOptions);
 
-        $json = json_encode($publicKeyCredentialCreationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = $this->jsonEncode($publicKeyCredentialCreationOptions);
 
         if ($json === false) {
             throw oxNew(Exception::class, "can't encode creation options");
         }
 
         return $json;
+    }
+
+    /**
+     * @param UserEntity $userEntity
+     * @return PublicKeyCredentialDescriptor[]
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
+     */
+    public function getExistingCredentials(UserEntity $userEntity): array
+    {
+        // Get the list of authenticators associated to the user
+        /** @var PublicKeyCredentialList $credentialSourceRepository */
+        $credentialList = $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class);
+        $credentialSources = $credentialList->findAllForUserEntity($userEntity);
+
+        // Convert the Credential Sources into Public Key Credential Descriptors
+        return array_map(function (PublicKeyCredentialSource $credential) {
+            return $credential->getPublicKeyCredentialDescriptor();
+        }, $credentialSources);
+    }
+
+    /**
+     * @param PublicKeyCredentialCreationOptions|PublicKeyCredentialRequestOptions $creationOptions
+     * @return false|string
+     */
+    protected function jsonEncode($creationOptions)
+    {
+        return json_encode($creationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -107,30 +135,20 @@ class Webauthn
     public function getRequestOptions(string $userId): string
     {
         /** @var d3_User_Webauthn $user */
-        $user = oxNew(User::class);
+        $user = $this->d3GetMockableOxNewObject(User::class);
         $user->load($userId);
-        $userEntity = oxNew(UserEntity::class, $user);
-
-        // Get the list of authenticators associated to the user
-        $credentialList = oxNew(PublicKeyCredentialList::class);
-        $credentialSources = $credentialList->findAllForUserEntity($userEntity);
-
-        // Convert the Credential Sources into Public Key Credential Descriptors
-        $allowedCredentials = array_map(function (PublicKeyCredentialSource $credential) {
-            return $credential->getPublicKeyCredentialDescriptor();
-        }, $credentialSources);
-
-        $server = $this->getServer();
+        $userEntity = $this->d3GetMockableOxNewObject(UserEntity::class, $user);
 
         // We generate the set of options.
-        $publicKeyCredentialRequestOptions = $server->generatePublicKeyCredentialRequestOptions(
+        $publicKeyCredentialRequestOptions = $this->getServer()->generatePublicKeyCredentialRequestOptions(
             PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_PREFERRED, // Default value
-            $allowedCredentials
+            $this->getExistingCredentials($userEntity)
         );
 
-        Registry::getSession()->setVariable(self::SESSION_ASSERTION_OPTIONS, $publicKeyCredentialRequestOptions);
+        $this->d3GetMockableRegistryObject(Session::class)
+            ->setVariable(self::SESSION_ASSERTION_OPTIONS, $publicKeyCredentialRequestOptions);
 
-        $json = json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = $this->jsonEncode($publicKeyCredentialRequestOptions);
 
         if ($json === false) {
             throw oxNew(Exception::class, "can't encode request options");
@@ -142,25 +160,28 @@ class Webauthn
     /**
      * @return Server
      */
-    public function getServer(): Server
+    protected function getServer(): Server
     {
         /** @var RelyingPartyEntity $rpEntity */
-        $rpEntity = oxNew(RelyingPartyEntity::class);
+        $rpEntity = $this->d3GetMockableOxNewObject(RelyingPartyEntity::class);
         /** @var Server $server */
-        $server = oxNew(Server::class, $rpEntity, oxNew(PublicKeyCredentialList::class));
-        $server->setLogger(Registry::getLogger());
+        $server = $this->d3GetMockableOxNewObject(
+            Server::class,
+            $rpEntity,
+            $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class)
+        );
+        $server->setLogger($this->d3GetMockableLogger());
         return $server;
     }
 
     /**
-     * @param string      $credential
+     * @param string $credential
      * @param string|null $keyName
      *
-     * @throws ContainerExceptionInterface
+     * @throws AssertionFailedException
      * @throws DoctrineDriverException
      * @throws DoctrineException
-     * @throws NotFoundExceptionInterface
-     * @throws Exception
+     * @throws Throwable
      */
     public function saveAuthn(string $credential, string $keyName = null): void
     {
@@ -175,11 +196,11 @@ class Webauthn
 
         $publicKeyCredentialSource = $this->getServer()->loadAndCheckAttestationResponse(
             html_entity_decode($credential),
-            Registry::getSession()->getVariable(self::SESSION_CREATIONS_OPTIONS),
+            $this->d3GetMockableRegistryObject(Session::class)->getVariable(self::SESSION_CREATIONS_OPTIONS),
             $serverRequest
         );
 
-        $pkCredential = oxNew(PublicKeyCredential::class);
+        $pkCredential = $this->d3GetMockableOxNewObject(PublicKeyCredential::class);
         $pkCredential->saveCredentialSource($publicKeyCredentialSource, $keyName);
     }
 
@@ -200,20 +221,13 @@ class Webauthn
         );
         $serverRequest = $creator->fromGlobals();
 
-        /** @var User $user */
-        $user = oxNew(User::class);
-        $user->load(
-            isAdmin() ?
-                Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) :
-                Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
-        );
-        /** @var UserEntity $userEntity */
-        $userEntity = oxNew(UserEntity::class, $user);
+        $userEntity = $this->getUserEntityFrom($this->getSavedUserIdFromSession());
 
         try {
             $this->getServer()->loadAndCheckAssertionResponse(
                 html_entity_decode( $response ),
-                Registry::getSession()->getVariable( self::SESSION_ASSERTION_OPTIONS ),
+                $this->d3GetMockableRegistryObject(Session::class)
+                    ->getVariable( self::SESSION_ASSERTION_OPTIONS ),
                 $userEntity,
                 $serverRequest
             );
@@ -228,6 +242,39 @@ class Webauthn
 
     /**
      * @param $userId
+     * @return UserEntity
+     */
+    protected function getUserEntityFrom($userId): UserEntity
+    {
+        /** @var User $user */
+        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user->load($userId);
+        /** @var UserEntity $userEntity */
+        return $this->d3GetMockableOxNewObject(UserEntity::class, $user);
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getSavedUserIdFromSession(): ?string
+    {
+        $session = $this->d3GetMockableRegistryObject(Session::class);
+
+        return $this->isAdmin() ?
+            $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) :
+            $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return isAdmin();
+    }
+
+    /**
+     * @param $userId
      * @return bool
      * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
@@ -236,8 +283,10 @@ class Webauthn
      */
     public function isActive($userId): bool
     {
-        return !Registry::getConfig()->getConfigParam(WebauthnConf::GLOBAL_SWITCH)
-            && !Registry::getSession()->getVariable(WebauthnConf::GLOBAL_SWITCH)
+        return !$this->d3GetMockableRegistryObject(Config::class)
+                ->getConfigParam(WebauthnConf::GLOBAL_SWITCH)
+            && !$this->d3GetMockableRegistryObject(Session::class)
+                ->getVariable(WebauthnConf::GLOBAL_SWITCH)
             && $this->UserUseWebauthn($userId);
     }
 
@@ -251,14 +300,10 @@ class Webauthn
      */
     public function UserUseWebauthn($userId): bool
     {
-        /** @var User $user */
-        $user = oxNew(User::class);
-        $user->load($userId);
-        /** @var UserEntity $entity */
-        $entity = oxNew(UserEntity::class, $user);
+        $entity = $this->getUserEntityFrom($userId);
 
         /** @var PublicKeyCredentialList $credentialList */
-        $credentialList = oxNew(PublicKeyCredentialList::class);
+        $credentialList = $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class);
         $list = $credentialList->findAllForUserEntity($entity);
 
         return is_array($list) && count($list);
