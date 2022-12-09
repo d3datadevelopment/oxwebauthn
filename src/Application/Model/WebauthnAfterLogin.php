@@ -16,28 +16,36 @@ declare(strict_types=1);
 namespace D3\Webauthn\Application\Model;
 
 use D3\TestingTools\Production\IsMockable;
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Language;
+use OxidEsales\Eshop\Core\Request;
+use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\UtilsServer;
 
 class WebauthnAfterLogin
 {
     use IsMockable;
 
-    public function setDisplayProfile()
+    /**
+     * @return void
+     */
+    public function setDisplayProfile(): void
     {
-        $sProfile = Registry::getRequest()->getRequestEscapedParameter('profile') ?:
-            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+        $session = $this->d3GetMockableRegistryObject(Session::class);
 
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+        $sProfile = $this->d3GetMockableRegistryObject(Request::class)
+            ->getRequestEscapedParameter('profile') ?:
+            $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
+
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
 
         $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
 
         if (isset($sProfile)) {
-            $aProfiles = Registry::getSession()->getVariable("aAdminProfiles");
+            $aProfiles = $session->getVariable("aAdminProfiles");
             if ($aProfiles && isset($aProfiles[$sProfile])) {
                 // setting cookie to store last locally used profile
                 $myUtilsServer->setOxCookie("oxidadminprofile", $sProfile . "@" . implode("@", $aProfiles[$sProfile]), time() + 31536000);
-                Registry::getSession()->setVariable("profile", $aProfiles[$sProfile]);
+                $session->setVariable("profile", $aProfiles[$sProfile]);
             }
         } else {
             //deleting cookie info, as setting profile to default
@@ -48,21 +56,26 @@ class WebauthnAfterLogin
     /**
      * @return void
      */
-    public function changeLanguage()
+    public function changeLanguage(): void
     {
         $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
+        $session = $this->d3GetMockableRegistryObject(Session::class);
+
         // languages
-        $iLang = Registry::getRequest()->getRequestEscapedParameter('chlanguage') ?:
-            Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+        $iLang = $this->d3GetMockableRegistryObject(Request::class)
+            ->getRequestEscapedParameter('chlanguage') ?:
+            $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
-        Registry::getSession()->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
+        $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
-        $aLanguages = Registry::getLang()->getAdminTplLanguageArray();
+        $language = $this->d3GetMockableRegistryObject(Language::class);
+        $aLanguages = $language->getAdminTplLanguageArray();
+
         if (!isset($aLanguages[$iLang])) {
             $iLang = key($aLanguages);
         }
 
         $myUtilsServer->setOxCookie("oxidadminlanguage", $aLanguages[$iLang]->abbr, time() + 31536000);
-        Registry::getLang()->setTplLanguage($iLang);
+        $language->setTplLanguage($iLang);
     }
 }

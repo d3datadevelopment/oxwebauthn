@@ -15,10 +15,13 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
-use OxidEsales\Eshop\Core\Registry;
+use D3\TestingTools\Production\IsMockable;
+use OxidEsales\Eshop\Core\Language;
 
 class WebauthnErrors
 {
+    use IsMockable;
+
     public const INVALIDSTATE       = 'invalidstateerror';
     public const NOTALLWED          = 'notallowederror';
     public const ABORT              = 'aborterror';
@@ -35,7 +38,7 @@ class WebauthnErrors
      */
     public function translateError($msg, $type = null): string
     {
-        $lang = Registry::getLang();
+        $lang = $this->d3GetMockableRegistryObject(Language::class);
         $type = $type ? '_'.$type : null;
 
         switch ($this->getErrIdFromMessage($msg)) {
