@@ -15,6 +15,7 @@ Die Schlüsselverwaltung erfolgt im Adminbereich sowie im "Mein Konto" des Benut
 
 - [Installation](#installation)
 - [Verwendung](#verwendung)
+- [Konfiguration](#konfiguration)
 - [Changelog](#changelog)
 - [Beitragen](#beitragen)
 - [Lizenz](#lizenz)
@@ -54,6 +55,10 @@ Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können sein:
 - Windows Hello Geräte
 
 Da bei einer FIDO2-basierten Anmeldung kein Passwort mehr benötigt wird, kann das Backupkennwort auch komplexer als alltagstaugliche Passworte sein.
+
+## Konfiguration
+
+Die angelegten FIDO2-Zugänge sind auf den jeweiligen Shop festgeschrieben und können nicht zwischen unterschiedlichen Shops ausgetauscht werden. Basis für die Zugänge ist die aktuelle URL des Shops. Wenn Ihr Shop unter verschiedenen URLs erreichbar ist oder auf eine neue Adresse umzieht, können Sie die Vorgabe in den Moduleinstellungen überschreiben. So werden bestehende Zugänge mit dem Wechsel nicht ungültig.
 
 ## Changelog
 

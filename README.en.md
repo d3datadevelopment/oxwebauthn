@@ -15,6 +15,7 @@ The key management is done in the admin area and in the user's "My Account".
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Configuration](#configuration)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
@@ -54,6 +55,10 @@ Any FIDO2-certified hardware can be used for registration. This can be:
 - Windows Hello devices
 
 Since a password is no longer required with a FIDO2-based login, the backup password can also be more complex than passwords suitable for everyday use.
+
+## Configuration
+
+The FIDO2 accesses created are fixed to the respective shop and cannot be exchanged between different shops. The basis for the accesses is the current URL of the shop. If your shop is accessible under different URLs or moves to a new address, you can overwrite the default value in the module settings. This way, existing accesses do not become invalid with the change.
 
 ## Changelog
 
