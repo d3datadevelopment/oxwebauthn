@@ -25,7 +25,7 @@ use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
@@ -46,41 +46,79 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function login()
     {
-        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_usr');
-        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_pwd');
+        $this->d3WebauthnLogin();
+
+        return $this->d3CallMockableFunction([d3_webauthn_UserComponent_parent::class, 'login']);
+    }
+
+    /**
+     * @return void
+     * @throws DoctrineDriverException
+     * @throws Exception
+     */
+    public function d3WebauthnLogin(): void
+    {
+        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'lgn_usr');
         /** @var d3_User_Webauthn $user */
-        $user = oxNew(User::class);
+        $user = $this->d3GetMockableOxNewObject(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
 
-        if ($lgn_user && $userId && !strlen(trim((string) $password))) {
-            $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
-
-            if ($webauthn->isActive($userId)
-                && !Registry::getSession()->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
-            ) {
-                Registry::getSession()->setVariable(
+        if ( $this->d3CanUseWebauthn( $lgn_user, $userId)) {
+            if ($this->d3HasWebauthnButNotLoggedin($userId)) {
+                $session = $this->d3GetMockableRegistryObject(Session::class);
+                $session->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
-                    $this->getParent()->getClassKey() != 'd3webauthnlogin' ? $this->getParent()->getClassKey() : 'start');
-                Registry::getSession()->setVariable(
+                    $this->getClassKey() != 'd3webauthnlogin' ? $this->getClassKey() : 'start'
+                );
+                $session->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
                     $userId
                 );
-
-                Registry::getSession()->setVariable(
+                $session->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS,
                     $this->getParent()->getNavigationParams()
                 );
-                Registry::getSession()->setVariable(
+                $session->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
                     $this->getParent()->getViewConfig()->getNavFormParams()
                 );
 
-                $sUrl = Registry::getConfig()->getShopHomeUrl() . 'cl=d3webauthnlogin';
+                $sUrl = $this->d3GetMockableRegistryObject(Config::class)->getShopHomeUrl() . 'cl=d3webauthnlogin';
                 $this->d3GetMockableRegistryObject(Utils::class)->redirect($sUrl);
             }
         }
+    }
 
-        return parent::login();
+    /**
+     * @param             $lgn_user
+     * @param string|null $userId
+     *
+     * @return bool
+     */
+    protected function d3CanUseWebauthn( $lgn_user, ?string $userId): bool
+    {
+        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'lgn_pwd');
+
+        return $lgn_user &&
+            $userId &&
+            false === $this->d3GetMockableRegistryObject(Session::class)
+                ->hasVariable( WebauthnConf::WEBAUTHN_SESSION_AUTH ) &&
+            ( ! strlen( trim( (string) $password ) ) );
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     * @throws DoctrineDriverException
+     * @throws Exception
+     */
+    protected function d3HasWebauthnButNotLoggedin($userId): bool
+    {
+        $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
+
+        return $webauthn->isActive($userId)
+            && !$this->d3GetMockableRegistryObject(Session::class)
+                ->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
     }
 
     /**

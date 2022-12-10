@@ -20,8 +20,7 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
-use OxidEsales\Eshop\Core\Exception\UserException;
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
@@ -37,7 +36,16 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
     public function logout()
     {
         $return = $this->d3CallMockableFunction([d3_User_Webauthn_parent::class, 'logout']);
+        $this->d3WebauthnLogout();
 
+        return $return;
+    }
+
+    /**
+     * @return void
+     */
+    protected function d3WebauthnLogout(): void
+    {
         $session = $this->d3GetMockableRegistryObject(Session::class);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
@@ -52,26 +60,36 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
         $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTCLASS);
 
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
-
-        return $return;
     }
 
     /**
      * @param $userName
      * @param $password
-     * @param $setSessionCookie
+     * @param bool $setSessionCookie
      * @return bool
-     * @throws UserException
      * @throws ReflectionException
      */
     public function login($userName, $password, $setSessionCookie = false)
     {
+        $userName = $this->d3WebauthnLogin($userName);
+
+        return $this->d3CallMockableFunction([d3_User_Webauthn_parent::class, 'login'], [$userName, $password, $setSessionCookie]);
+    }
+
+    /**
+     * @param string $userName
+     * @return mixed|string|null
+     * @throws ReflectionException
+     */
+    protected function d3WebauthnLogin(string $userName)
+    {
         $session = $this->d3GetMockableRegistryObject(Session::class);
 
-        if ($session->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)) {
+        if ($session->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
+            $userName === $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER)
+        ) {
             $userName = $userName ?: $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
-            $config = Registry::getConfig();
-            $shopId = $config->getShopId();
+            $shopId = $this->d3GetMockableRegistryObject(Config::class)->getShopId();
 
             /** private method is out of scope */
             $class = new ReflectionClass($this);
@@ -80,17 +98,16 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
             $method->invokeArgs(
                 $this,
                 [
-                    $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER),
+                    $userName,
                     $shopId
                 ]
             );
         }
-
-        return parent::login($userName, $password, $setSessionCookie);
+        return $userName;
     }
 
     /**
-     * @param string $username
+     * @param string|null $username
      * @param string|null $rights
      * @return string|null
      * @throws ContainerExceptionInterface
@@ -98,7 +115,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
      * @throws Exception
      * @throws NotFoundExceptionInterface
      */
-    public function d3GetLoginUserId(string $username, string $rights = null): ?string
+    public function d3GetLoginUserId(?string $username, string $rights = null): ?string
     {
         if (empty($username)) {
             return null;
@@ -116,12 +133,13 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
+                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
                     ),
-                    $rights ? $qb->expr()->eq(
-                        'oxrights',
-                        $qb->createNamedParameter($rights)
-                    ) : '1'
+                    $rights ?
+                        $qb->expr()->eq(
+                            'oxrights',
+                            $qb->createNamedParameter($rights)
+                        ) : '1'
                 )
             )->setMaxResults(1);
 
