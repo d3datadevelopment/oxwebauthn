@@ -15,23 +15,35 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Setup;
 
+use D3\TestingTools\Production\IsMockable;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
-use Doctrine\DBAL\Exception as DoctrineException;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Exception;
+use OxidEsales\Eshop\Application\Controller\FrontendController;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\DbMetaDataHandler;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\SeoEncoder;
+use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsView;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
-use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ModuleConfigurationNotFoundException;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class Actions
 {
+    use IsMockable;
+
+    public $seo_de = 'sicherheitsschluessel';
+    public $seo_en = 'en/key-authentication';
+    public $stdClassName = 'd3_account_webauthn';
+
     /**
      * SQL statement, that will be executed only at the first time of module installation.
      *
@@ -73,9 +85,17 @@ class Actions
      */
     public function tableExists(string $sTableName): bool
     {
-        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
-
+        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
         return $oDbMetaDataHandler->tableExists($sTableName);
+    }
+
+    /**
+     * @return DatabaseInterface|null
+     * @throws DatabaseConnectionException
+     */
+    protected function d3GetDb(): ?DatabaseInterface
+    {
+        return DatabaseProvider::getDb();
     }
 
     /**
@@ -87,7 +107,7 @@ class Actions
      */
     public function executeSQL(string $sSQL)
     {
-        DatabaseProvider::getDb()->execute($sSQL);
+        $this->d3GetDb()->execute($sSQL);
     }
 
     /**
@@ -100,8 +120,7 @@ class Actions
      */
     public function fieldExists(string $sFieldName, string $sTableName): bool
     {
-        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
-
+        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
         return $oDbMetaDataHandler->fieldExists($sFieldName, $sTableName);
     }
 
@@ -110,7 +129,7 @@ class Actions
      */
     public function regenerateViews()
     {
-        $oDbMetaDataHandler = oxNew(DbMetaDataHandler::class );
+        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
         $oDbMetaDataHandler->updateViews();
     }
 
@@ -119,17 +138,64 @@ class Actions
      */
     public function clearCache()
     {
-        /** @var UtilsView $oUtilsView */
-        $oUtilsView = Registry::getUtilsView();
-        $sSmartyDir = $oUtilsView->getSmartyDir();
-
-        if ($sSmartyDir && is_readable($sSmartyDir)) {
-            foreach (glob($sSmartyDir . '*') as $sFile) {
-                if (!is_dir($sFile)) {
-                    @unlink($sFile);
-                }
-            }
+        try {
+            $oUtils = $this->d3GetMockableRegistryObject( Utils::class );
+            $oUtils->resetTemplateCache( $this->getModuleTemplates() );
+            $oUtils->resetLanguageCache();
+        } catch (ContainerExceptionInterface|NotFoundExceptionInterface|ModuleConfigurationNotFoundException $e) {
+            $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
         }
+    }
+
+    /**
+     * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ModuleConfigurationNotFoundException
+     */
+    protected function getModuleTemplates(): array
+    {
+        $container = $this->getDIContainer();
+        $shopConfiguration = $container->get(ShopConfigurationDaoBridgeInterface::class)->get();
+        $moduleConfiguration = $shopConfiguration->getModuleConfiguration('d3webauthn');
+
+        return array_unique(array_merge(
+            $this->getModuleTemplatesFromTemplates($moduleConfiguration),
+            $this->getModuleTemplatesFromBlocks($moduleConfiguration)
+        ));
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    protected function getModuleTemplatesFromTemplates(ModuleConfiguration $moduleConfiguration): array
+    {
+        /** @var $template ModuleConfiguration\Template */
+        return array_map(
+            function($template) {
+                return $template->getTemplateKey();
+            },
+            $moduleConfiguration->getTemplates()
+        );
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    protected function getModuleTemplatesFromBlocks(ModuleConfiguration $moduleConfiguration): array
+    {
+        /** @var $templateBlock ModuleConfiguration\TemplateBlock */
+        return array_map(
+            function($templateBlock) {
+                return basename($templateBlock->getShopTemplatePath());
+            },
+            $moduleConfiguration->getTemplateBlocks()
+        );
     }
 
     /**
@@ -138,45 +204,28 @@ class Actions
     public function seoUrl()
     {
         try {
-            if (!self::hasSeoUrl()) {
-                self::createSeoUrl();
+            if (!$this->hasSeoUrl()) {
+                $this->createSeoUrl();
             }
         } catch (Exception|NotFoundExceptionInterface|DoctrineDriverException|ContainerExceptionInterface $e) {
-            Registry::getUtilsView()->addErrorToDisplay('error wile creating SEO URLs: '.$e->getMessage());
+            $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
+            $this->d3GetMockableRegistryObject(UtilsView::class)
+                 ->addErrorToDisplay('error wile creating SEO URLs: '.$e->getMessage());
         }
     }
 
     /**
      * @return bool
-     * @throws DoctrineDriverException
-     * @throws DoctrineException
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     public function hasSeoUrl(): bool
     {
-        /** @var QueryBuilder $qb */
-        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
-        $qb->select('1')
-            ->from('oxseo')
-            ->where(
-                $qb->expr()->and(
-                    $qb->expr()->eq(
-                        'oxstdurl',
-                        $qb->createNamedParameter('index.php?cl=d3_account_webauthn')
-                    ),
-                    $qb->expr()->eq(
-                        'oxshopid',
-                        $qb->createNamedParameter(Registry::getConfig()->getShopId())
-                    ),
-                    $qb->expr()->eq(
-                        'oxlang',
-                        $qb->createNamedParameter('1')
-                    )
-                )
-            )
-            ->setMaxResults(1);
-        return (bool) $qb->execute()->fetchOne();
+        $seoEncoder = $this->d3GetMockableOxNewObject(SeoEncoder::class);
+        $seoUrl = $seoEncoder->getStaticUrl(
+            $this->d3GetMockableOxNewObject(FrontendController::class)->getViewConfig()->getSelfLink() .
+            "cl=".$this->stdClassName
+        );
+
+        return (bool) strlen($seoUrl);
     }
 
     /**
@@ -186,10 +235,32 @@ class Actions
      */
     public function createSeoUrl()
     {
-        $query = "INSERT INTO `oxseo` (`OXOBJECTID`, `OXIDENT`, `OXSHOPID`, `OXLANG`, `OXSTDURL`, `OXSEOURL`, `OXTYPE`, `OXFIXED`, `OXEXPIRED`, `OXPARAMS`, `OXTIMESTAMP`) VALUES
-            ('ff57646b47249ee33c6b672741ac371a', 'bd3b6183c9a2f94682f4c62e714e4d6b', 1, 1, 'index.php?cl=d3_account_webauthn', 'en/key-authentication/', 'static', 0, 0, '', NOW()),
-            ('ff57646b47249ee33c6b672741ac371a', '94d0d3ec07f10e8838a71e54084be885', 1, 0, 'index.php?cl=d3_account_webauthn', 'sicherheitsschluessel/', 'static', 0, 0, '', NOW());";
+        $seoEncoder = $this->d3GetMockableOxNewObject(SeoEncoder::class);
+        $seoEncoder->addSeoEntry(
+            'ff57646b47249ee33c6b672741ac371a',
+            $this->d3GetMockableRegistryObject(Config::class)->getShopId(),
+            0,
+            'index.php?cl='.$this->stdClassName,
+            $this->seo_de,
+            'static',
+            0
+        );
+        $seoEncoder->addSeoEntry(
+            'ff57646b47249ee33c6b672741ac371a',
+            $this->d3GetMockableRegistryObject(Config::class)->getShopId(),
+            1,
+            'index.php?cl='.$this->stdClassName,
+            $this->seo_en,
+            'static',
+            0
+        );
+    }
 
-        DatabaseProvider::getDb()->execute($query);
+    /**
+     * @return ContainerInterface|null
+     */
+    protected function getDIContainer(): ?ContainerInterface
+    {
+        return ContainerFactory::getInstance()->getContainer();
     }
 }
