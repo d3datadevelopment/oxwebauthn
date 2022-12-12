@@ -47,9 +47,9 @@ class Actions
     /**
      * SQL statement, that will be executed only at the first time of module installation.
      *
-     * @var array
+     * @var string
      */
-    protected  $createCredentialSql =
+    protected $createCredentialSql =
         "CREATE TABLE `d3wa_usercredentials` (
             `OXID` char(32) NOT NULL,
             `OXUSERID` char(32) NOT NULL,
@@ -144,7 +144,7 @@ class Actions
             $oUtils->resetLanguageCache();
         } catch (ContainerExceptionInterface|NotFoundExceptionInterface|ModuleConfigurationNotFoundException $e) {
             $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
-            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e->getMessage());
         }
     }
 
@@ -230,8 +230,6 @@ class Actions
 
     /**
      * @return void
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
      */
     public function createSeoUrl()
     {
@@ -243,7 +241,7 @@ class Actions
             'index.php?cl='.$this->stdClassName,
             $this->seo_de,
             'static',
-            0
+            false
         );
         $seoEncoder->addSeoEntry(
             'ff57646b47249ee33c6b672741ac371a',
@@ -252,7 +250,7 @@ class Actions
             'index.php?cl='.$this->stdClassName,
             $this->seo_en,
             'static',
-            0
+            false
         );
     }
 

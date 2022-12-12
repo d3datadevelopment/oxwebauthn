@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller;
 
+use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
@@ -30,6 +31,7 @@ use OxidEsales\Eshop\Core\SeoEncoder;
 use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 class d3_account_webauthn extends AccountController
 {
@@ -94,7 +96,6 @@ class d3_account_webauthn extends AccountController
     }
 
     /**
-     * @throws WebauthnException
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
@@ -113,10 +114,10 @@ class d3_account_webauthn extends AccountController
 
     /**
      * @return void
-     * @throws ContainerExceptionInterface
      * @throws DoctrineDriverException
      * @throws DoctrineException
-     * @throws NotFoundExceptionInterface
+     * @throws AssertionFailedException
+     * @throws Throwable
      */
     public function saveAuthn(): void
     {
@@ -161,11 +162,19 @@ class d3_account_webauthn extends AccountController
         $iBaseLanguage = Registry::getLang()->getBaseLanguage();
         /** @var SeoEncoder $oSeoEncoder */
         $oSeoEncoder = Registry::getSeoEncoder();
-        $aPath['title'] = Registry::getLang()->translateString('MY_ACCOUNT', $iBaseLanguage, false);
+        $aPath['title'] = Registry::getLang()->translateString(
+            'MY_ACCOUNT',
+            (int) $iBaseLanguage,
+            false
+        );
         $aPath['link'] = $oSeoEncoder->getStaticUrl($this->getViewConfig()->getSelfLink() . "cl=account");
         $aPaths[] = $aPath;
 
-        $aPath['title'] = Registry::getLang()->translateString('D3_WEBAUTHN_ACCOUNT', $iBaseLanguage, false);
+        $aPath['title'] = Registry::getLang()->translateString(
+            'D3_WEBAUTHN_ACCOUNT',
+            (int) $iBaseLanguage,
+            false
+        );
         $aPath['link'] = $this->getLink();
         $aPaths[] = $aPath;
 

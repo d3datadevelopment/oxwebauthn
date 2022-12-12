@@ -987,25 +987,23 @@ class WebauthnLoginTest extends UnitTestCase
 
     /**
      * @test
-     * @param $canGetBasket
      * @return void
      * @throws ReflectionException
-     * @dataProvider canUpdateBasketDataProvider
      * @covers \D3\Webauthn\Application\Model\WebauthnLogin::updateBasket
      */
-    public function canUpdateBasket($canGetBasket)
+    public function canUpdateBasket()
     {
         /** @var Basket|MockObject $basketMock */
         $basketMock = $this->getMockBuilder(Basket::class)
             ->onlyMethods(['onUpdate'])
             ->getMock();
-        $basketMock->expects($this->exactly((int) $canGetBasket))->method('onUpdate');
+        $basketMock->expects($this->once())->method('onUpdate');
 
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
             ->onlyMethods(['getBasket'])
             ->getMock();
-        $sessionMock->method('getBasket')->willReturn($canGetBasket ? $basketMock : null);
+        $sessionMock->method('getBasket')->willReturn($basketMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
@@ -1028,17 +1026,6 @@ class WebauthnLoginTest extends UnitTestCase
             $sut,
             'updateBasket'
         );
-    }
-
-    /**
-     * @return array
-     */
-    public function canUpdateBasketDataProvider(): array
-    {
-        return [
-            'can get basket'    => [true],
-            'cant get basket'   => [false],
-        ];
     }
 
     /**

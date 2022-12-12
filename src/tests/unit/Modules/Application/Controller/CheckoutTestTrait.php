@@ -53,17 +53,16 @@ trait CheckoutTestTrait
     /**
      * @test
      * @param $hasUser
-     * @param $userId
      * @param $isActive
      * @param $sessionAuth
      * @param $expected
      * @return void
      * @throws ReflectionException
      * @dataProvider canGetUserDataProvider
-     * @covers \D3\Webauthn\Application\Controller\Traits\checkoutGetUserTrait::getUser
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController::getUser
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::getUser
-     * @covers \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::getUser
+     * @covers       \D3\Webauthn\Application\Controller\Traits\checkoutGetUserTrait::getUser
+     * @covers       \D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController::getUser
+     * @covers       \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::getUser
+     * @covers       \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::getUser
      */
     public function canGetUser($hasUser, $isActive, $sessionAuth, $expected)
     {
@@ -115,13 +114,20 @@ trait CheckoutTestTrait
             'getUser'
         );
 
-        $sut->setUser(null);
+        $sut->setUser(oxNew(User::class));
 
         if ($expected === 'parent') {
-            $this->assertSame($return, $hasUser ? $this->userFixture : false);
+            $this->assertSame( $return, $hasUser ? $this->userFixture : false);
         } else {
             $this->assertSame($return, $expected);
         }
+
+        // reset cache
+        $this->setValue(
+            $sut,
+            '_oActUser',
+            null
+        );
     }
 
     /**

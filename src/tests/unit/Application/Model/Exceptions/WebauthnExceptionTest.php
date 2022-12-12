@@ -18,6 +18,7 @@ namespace D3\Webauthn\tests\unit\Application\Model\Exceptions;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use Exception;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
@@ -34,8 +35,8 @@ class WebauthnExceptionTest extends UnitTestCase
      */
     public function canConstruct()
     {
-        /** @var \Exception|MockObject $previousMock */
-        $previousMock = $this->getMockBuilder(\Exception::class)
+        /** @var Exception|MockObject $previousMock */
+        $previousMock = $this->getMockBuilder(Exception::class)
             ->getMock();
 
         /** @var WebauthnErrors|MockObject $translatorMock */

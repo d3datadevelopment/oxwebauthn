@@ -145,7 +145,11 @@ class d3webauthnlogin extends FrontendController
         $aPaths = [];
         $aPath = [];
         $iBaseLanguage = Registry::getLang()->getBaseLanguage();
-        $aPath['title'] = Registry::getLang()->translateString('D3_WEBAUTHN_BREADCRUMB', $iBaseLanguage, false);
+        $aPath['title'] = Registry::getLang()->translateString(
+            'D3_WEBAUTHN_BREADCRUMB',
+            (int) $iBaseLanguage,
+            false
+        );
         $aPath['link'] = $this->getLink();
 
         $aPaths[] = $aPath;

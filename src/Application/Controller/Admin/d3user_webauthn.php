@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
+use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
@@ -32,6 +33,7 @@ use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsView;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 class d3user_webauthn extends AdminDetailsController
 {
@@ -52,7 +54,7 @@ class d3user_webauthn extends AdminDetailsController
 
         $soxId = $this->getEditObjectId();
 
-        if (isset($soxId) && $soxId != "-1") {
+        if ($soxId != "-1") {
             /** @var d3_User_Webauthn $oUser */
             $oUser = $this->d3GetMockableOxNewObject(User::class);
             if ($oUser->load($soxId)) {
@@ -79,7 +81,7 @@ class d3user_webauthn extends AdminDetailsController
             $this->setPageType( 'requestnew' );
             $this->setAuthnRegister();
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
-            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e->getMessage());
             $this->d3GetMockableLogger()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
             $this->d3GetMockableLogger()->debug($e->getTraceAsString());
             $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=d3user_webauthn');
@@ -88,6 +90,8 @@ class d3user_webauthn extends AdminDetailsController
 
     /**
      * @return void
+     * @throws AssertionFailedException
+     * @throws Throwable
      */
     public function saveAuthn(): void
     {
@@ -104,10 +108,14 @@ class d3user_webauthn extends AdminDetailsController
                 $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
             }
-        } catch (WebauthnException|Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
+        } catch (WebauthnException $e) {
             $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
             $this->d3GetMockableLogger()->debug($e->getTraceAsString());
             $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
+            $this->d3GetMockableLogger()->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
+            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e->getMessage());
         }
     }
 

@@ -17,6 +17,7 @@ namespace D3\Webauthn\tests\unit\Setup;
 
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Setup\Actions;
+use Exception;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\Database\Adapter\Doctrine\Database;
@@ -474,7 +475,7 @@ class ActionsTest extends UnitTestCase
         $sut->method('hasSeoUrl')->willReturn($hasSeoUrl);
         $sut->expects($hasSeoUrl ? $this->never() : $this->once())->method('createSeoUrl')->will(
             $throwException ?
-                $this->throwException(oxNew(\Exception::class)) :
+                $this->throwException(oxNew(Exception::class)) :
                 $this->returnValue(true)
         );
         $sut->method('d3GetMockableLogger')->willReturn($loggerMock);

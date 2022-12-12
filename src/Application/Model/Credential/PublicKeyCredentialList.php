@@ -158,6 +158,8 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {
-        $this->getBaseObject()->saveCredentialSource($publicKeyCredentialSource);
+        /** @var PublicKeyCredential $base */
+        $base = $this->getBaseObject();
+        $base->saveCredentialSource($publicKeyCredentialSource);
     }
 }

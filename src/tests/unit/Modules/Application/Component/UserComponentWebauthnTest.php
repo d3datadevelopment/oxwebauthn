@@ -24,7 +24,6 @@ use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent;
 use D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent_parent;
 use OxidEsales\Eshop\Application\Component\UserComponent;
-use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Controller\BaseController;
 use OxidEsales\Eshop\Core\Registry;
@@ -68,10 +67,11 @@ class UserComponentWebauthnTest extends UnitTestCase
      * @param $canUseWebauthn
      * @param $loggedin
      * @param $setVariableCount
+     * @param $doRedirect
      * @return void
      * @throws ReflectionException
      * @dataProvider canCheckloginDataProvider
-     * @covers \D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent::d3WebauthnLogin
+     * @covers       \D3\Webauthn\Modules\Application\Component\d3_webauthn_UserComponent::d3WebauthnLogin
      */
     public function canWebauthnLogin($canUseWebauthn, $loggedin, $setVariableCount, $doRedirect)
     {

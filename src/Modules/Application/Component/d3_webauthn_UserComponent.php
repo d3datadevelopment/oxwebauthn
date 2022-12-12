@@ -151,8 +151,10 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('credential'),
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('error')
             );
-            $login->frontendLogin($this, (bool)$this->d3GetMockableRegistryObject(Request::class)
-                                                    ->getRequestParameter('lgn_cook'));
+            $login->frontendLogin(
+                $this,
+                (bool)$this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_cook')
+            );
             $this->_afterLogin($this->getUser());
         } catch (WebauthnGetException $e) {
             $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);

@@ -21,6 +21,7 @@ use D3\ModCfg\Application\Model\DependencyInjectionContainer\d3DicHandler;
 use D3\ModCfg\Tests\unit\d3ModCfgUnitTestCase;
 use Exception;
 use OxidEsales\Eshop\Application\Model\Article;
+use OxidEsales\Eshop\Application\Model\Rights;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Model\BaseModel;
 
@@ -61,7 +62,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
      * @param bool $blAdmin
      * @throws Exception
      */
-    public function createObject($sClass, $sId, $aFields = [], $blAdmin = false)
+    public function createObject($sClass, $sId, array $aFields = [], bool $blAdmin = false)
     {
         /** @var BaseModel $oObject */
         $oObject = oxNew($sClass);
@@ -83,7 +84,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
      * @param array $aFields
      * @throws Exception
      */
-    public function createBaseModelObject($sTableName, $sId, $aFields = [])
+    public function createBaseModelObject($sTableName, $sId, array $aFields = [])
     {
         /** @var BaseModel $oObject */
         $oObject = oxNew(BaseModel::class);
@@ -98,7 +99,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
      * @param array $aFields
      * @throws Exception
      */
-    public function createArticle($sId, $aFields = [])
+    public function createArticle($sId, array $aFields = [])
     {
         $this->createObject(
             Article::class,
@@ -116,7 +117,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
      * @param bool $blAdmin
      * @throws Exception
      */
-    public function createUser($sId, $aFields = [], $blAdmin = false)
+    public function createUser($sId, array $aFields = [], bool $blAdmin = false)
     {
         $this->createObject(
             User::class,
@@ -136,7 +137,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
             /** @var BaseModel $oObject */
             $oObject = oxNew($sClass);
             if (method_exists($oObject, 'setRights')) {
-                $oObject->setRights(null);
+                $oObject->setRights(oxNew(Rights::class));
             }
             if ($oObject->exists($sId)) {
                 $oObject->delete($sId);
@@ -156,7 +157,7 @@ abstract class integrationTestCase extends d3ModCfgUnitTestCase
             $oObject = oxNew(BaseModel::class);
             $oObject->init($sTableName);
             if (method_exists($oObject, 'setRights')) {
-                $oObject->setRights(null);
+                $oObject->setRights(oxNew(Rights::class));
             }
             if ($oObject->exists($sId)) {
                 $oObject->delete($sId);

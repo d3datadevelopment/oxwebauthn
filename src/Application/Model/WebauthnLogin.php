@@ -101,7 +101,6 @@ class WebauthnLogin
      * @param UserComponent $usrCmp
      * @param bool $setSessionCookie
      * @return void
-     * @throws WebauthnLoginErrorException
      */
     public function frontendLogin(UserComponent $usrCmp, bool $setSessionCookie = false)
     {
@@ -132,13 +131,9 @@ class WebauthnLogin
             return;
         } catch (UserException $oEx) {
             // for login component send exception text to a custom component (if defined)
-            $myUtilsView->addErrorToDisplay($oEx, false, true, '', false);
-
-            //return 'user';
+            $myUtilsView->addErrorToDisplay($oEx, false, true);
         } catch (CookieException $oEx) {
             $myUtilsView->addErrorToDisplay($oEx);
-
-            //return 'user';
         } catch (WebauthnException $e) {
             $myUtilsView->addErrorToDisplay($e);
             $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
@@ -146,8 +141,7 @@ class WebauthnLogin
         }
 
         $user->logout();
-        $exc = oxNew(WebauthnLoginErrorException::class);
-        throw $exc;
+        throw oxNew(WebauthnLoginErrorException::class);
     }
 
     /**
@@ -301,7 +295,7 @@ class WebauthnLogin
         if ($iSubshop) {
             $session->setVariable("shp", $iSubshop);
             $session->setVariable('currentadminshop', $iSubshop);
-            $this->d3GetMockableRegistryObject(Config::class)->setShopId($iSubshop);
+            $this->d3GetMockableRegistryObject(Config::class)->setShopId((string) $iSubshop);
         }
     }
 
@@ -331,9 +325,8 @@ class WebauthnLogin
      */
     public function updateBasket(): void
     {
-        if ($oBasket = $this->d3GetMockableRegistryObject(Session::class)->getBasket()) {
-            $oBasket->onUpdate();
-        }
+        $oBasket = $this->d3GetMockableRegistryObject(Session::class)->getBasket();
+        $oBasket->onUpdate();
     }
 
     /**

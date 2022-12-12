@@ -16,20 +16,8 @@ namespace D3\Webauthn\tests;
 use D3\ModCfg\Tests\additional_abstract;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 
-include(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'd3webauthn_config.php');
-
 class additional extends additional_abstract
 {
-    /**
-     * additional constructor.
-     * @throws StandardException
-     */
-    public function __construct()
-    {
-        if (D3WEBAUTHN_REQUIRE_MODCFG) {
-            $this->reactivateModCfg();
-        }
-    }
 }
 
 oxNew(additional::class);

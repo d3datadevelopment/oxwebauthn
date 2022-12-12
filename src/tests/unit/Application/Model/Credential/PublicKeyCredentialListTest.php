@@ -91,10 +91,13 @@ class PublicKeyCredentialListTest extends UnitTestCase
             }
         );
 
+        /** @var PublicKeyCredentialSource|MockObject $pkcsMock */
+        $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         if ($doCreate) {
-            $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
-                ->disableOriginalConstructor()
-                ->getMock();
+            /** @var PublicKeyCredential|MockObject $pkc */
             $pkc = $this->getMockBuilder(PublicKeyCredential::class)
                 ->onlyMethods(['allowDerivedDelete'])
                 ->getMock();
@@ -169,10 +172,11 @@ class PublicKeyCredentialListTest extends UnitTestCase
             }
         );
 
+        $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         if ($doCreate) {
-            $pkcsMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
-                ->disableOriginalConstructor()
-                ->getMock();
             foreach ($oxids as $oxid) {
                 $pkc = $this->getMockBuilder(PublicKeyCredential::class)
                     ->onlyMethods(['allowDerivedDelete'])

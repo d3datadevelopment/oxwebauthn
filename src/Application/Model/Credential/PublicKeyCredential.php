@@ -72,11 +72,11 @@ class PublicKeyCredential extends BaseModel
     }
 
     /**
-     * @return false|string
+     * @return null|string
      */
     public function getCredentialId(): ?string
     {
-        return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue);
+        return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue) ?: null;
     }
 
     /**
@@ -108,11 +108,12 @@ class PublicKeyCredential extends BaseModel
     }
 
     /**
-     * @return false|PublicKeyCredentialSource
+     * @return null|PublicKeyCredentialSource
      */
     public function getCredential(): ?PublicKeyCredentialSource
     {
-        return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue));
+        return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue)) ?:
+            null;
     }
 
     /**

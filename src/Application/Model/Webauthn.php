@@ -107,7 +107,7 @@ class Webauthn
     public function getExistingCredentials(UserEntity $userEntity): array
     {
         // Get the list of authenticators associated to the user
-        /** @var PublicKeyCredentialList $credentialSourceRepository */
+        /** @var PublicKeyCredentialList $credentialList */
         $credentialList = $this->d3GetMockableOxNewObject(PublicKeyCredentialList::class);
         $credentialSources = $credentialList->findAllForUserEntity($userEntity);
 
@@ -249,7 +249,7 @@ class Webauthn
         /** @var User $user */
         $user = $this->d3GetMockableOxNewObject(User::class);
         $user->load($userId);
-        /** @var UserEntity $userEntity */
+
         return $this->d3GetMockableOxNewObject(UserEntity::class, $user);
     }
 

@@ -46,7 +46,7 @@ class passwordFrontendAuthTest extends integrationTestCase
                 'oxactive'      => 1,
                 'oxrights'      => 'user',
                 'oxshopid'      => 2,
-                'oxusername'    => 'wrongshop@user.localhost',
+                'oxusername'    => 'wrongshop_fe@user.localhost',
                 'oxpassword'    => '$2y$10$b3O5amXZVMGGZbL4X10TIOHiOwEkq3C0ofObuTgHAS4Io0uMLauUS',   // 123456
                 'oxstreet'      => __CLASS__
             ]
@@ -81,7 +81,7 @@ class passwordFrontendAuthTest extends integrationTestCase
         $_POST['lgn_usr'] = $username;
         $_POST['lgn_pwd'] = $password;
 
-        /** @var AccountController $login */
+        /** @var AccountController $controller */
         $controller = oxNew(AccountController::class);
         $controller->init();
         /** @var d3_webauthn_UserComponent $component */
@@ -104,7 +104,7 @@ class passwordFrontendAuthTest extends integrationTestCase
             'not existing account'  => ['unknown@user.localhost', '123456', 'user'],
             'missing password'      => ['noadmin@user.localhost', null, 'user'],
             'inactive account'      => ['inactive@user.localhost', '123456', 'user'],
-            'wrong shop account'    => ['wrongshop@user.localhost', '123456', 'user'],
+            'wrong shop account'    => ['wrongshop_fe@user.localhost', '123456', 'user'],
             'account ok'            => ['noadmin@user.localhost', '123456', 'payment'],
         ];
     }

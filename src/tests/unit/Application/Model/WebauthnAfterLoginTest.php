@@ -26,6 +26,7 @@ use OxidEsales\Eshop\Core\UtilsServer;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
+use stdClass;
 
 class WebauthnAfterLoginTest extends UnitTestCase
 {
@@ -115,10 +116,11 @@ class WebauthnAfterLoginTest extends UnitTestCase
      * @param $requestLang
      * @param $sessionLang
      * @param $expectedLang
+     * @param $expectedAbbr
      * @return void
      * @throws ReflectionException
      * @dataProvider canChangeLanguageDataProvider
-     * @covers \D3\Webauthn\Application\Model\WebauthnAfterLogin::changeLanguage
+     * @covers       \D3\Webauthn\Application\Model\WebauthnAfterLogin::changeLanguage
      */
     public function canChangeLanguage($requestLang, $sessionLang, $expectedLang, $expectedAbbr)
     {
@@ -189,7 +191,7 @@ class WebauthnAfterLoginTest extends UnitTestCase
      */
     public function getConfiguredLanguageStub(): array
     {
-        $de_1 = oxNew(\stdClass::class);
+        $de_1 = oxNew(stdClass::class);
         $de_1->id = 0;
         $de_1->oxid = 'de';
         $de_1->abbr = 'de';
@@ -198,7 +200,7 @@ class WebauthnAfterLoginTest extends UnitTestCase
         $de_1->sort = '1';
         $de_1->selected = 0;
 
-        $en_2 = oxNew(\stdClass::class);
+        $en_2 = oxNew(stdClass::class);
         $en_2->id = 1;
         $en_2->oxid = 'en';
         $en_2->abbr = 'en';

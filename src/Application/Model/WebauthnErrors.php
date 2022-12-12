@@ -33,10 +33,10 @@ class WebauthnErrors
 
     /**
      * @param $msg
-     * @param null $type
+     * @param null|string $type
      * @return string
      */
-    public function translateError($msg, $type = null): string
+    public function translateError(string $msg, string $type = null): string
     {
         $lang = $this->d3GetMockableRegistryObject(Language::class);
         $type = $type ? '_'.$type : null;
@@ -58,8 +58,7 @@ class WebauthnErrors
                 return $lang->translateString('D3_WEBAUTHN_ERR_NOPUBKEYSUPPORT', null, true);
         }
 
-        switch (strtoupper($msg)) {
-            case self::UNSECURECONNECTION:
+        if (strtoupper($msg) === self::UNSECURECONNECTION) {
                 return $lang->translateString($msg);
         }
 
