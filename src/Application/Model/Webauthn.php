@@ -56,7 +56,7 @@ class Webauthn
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ||
             !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on' ||
             in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) ||      // is localhost
-            (isset($_SERVER['REMOTE_ADDR']) && preg_match('/.*\.localhost$/mi', $_SERVER['REMOTE_ADDR']) )  // localhost is TLD
+            (isset($_SERVER['REMOTE_ADDR']) && preg_match('/.*\.localhost$/mi', $_SERVER['REMOTE_ADDR']))  // localhost is TLD
         ) {
             return true;
         }
@@ -123,7 +123,7 @@ class Webauthn
      */
     protected function jsonEncode($creationOptions)
     {
-        return json_encode($creationOptions,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return json_encode($creationOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -225,9 +225,9 @@ class Webauthn
 
         try {
             $this->getServer()->loadAndCheckAssertionResponse(
-                html_entity_decode( $response ),
+                html_entity_decode($response),
                 $this->d3GetMockableRegistryObject(Session::class)
-                    ->getVariable( self::SESSION_ASSERTION_OPTIONS ),
+                    ->getVariable(self::SESSION_ASSERTION_OPTIONS),
                 $userEntity,
                 $serverRequest
             );

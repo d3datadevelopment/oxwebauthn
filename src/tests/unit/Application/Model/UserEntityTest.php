@@ -59,7 +59,7 @@ class UserEntityTest extends UnitTestCase
             $this->identicalTo([
                 'usernamefixture',
                 'userId',
-                'fNameFixture lNameFixture'
+                'fNameFixture lNameFixture',
             ])
         );
 

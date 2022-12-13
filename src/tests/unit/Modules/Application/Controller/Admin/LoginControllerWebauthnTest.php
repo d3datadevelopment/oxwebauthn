@@ -228,7 +228,7 @@ class LoginControllerWebauthnTest extends UnitTestCase
             ->getMock();
         $requestMock->method('getRequestParameter')->willReturnMap([
             ['user', 'myUserName'],
-            ['profile', 'myProfile']
+            ['profile', 'myProfile'],
         ]);
 
         /** @var User|MockObject $userMock */
@@ -248,7 +248,7 @@ class LoginControllerWebauthnTest extends UnitTestCase
         /** @var LoginController|MockObject $sut */
         $sut = $this->getMockBuilder(LoginController::class)
             ->onlyMethods(['d3CanUseWebauthn', 'd3CallMockableFunction', 'hasWebauthnButNotLoggedin',
-                'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject'
+                'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject',
             ])
             ->getMock();
         $sut->method('d3CanUseWebauthn')->willReturn($canUseWebauthn);

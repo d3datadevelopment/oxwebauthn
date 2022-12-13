@@ -48,7 +48,7 @@ class WebauthnExceptionTest extends UnitTestCase
         /** @var WebauthnException|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnException::class)
             ->onlyMethods(['setDetailedErrorMessage', 'getErrorMessageTranslator', 'getRequestType',
-                'd3CallMockableFunction'])
+                'd3CallMockableFunction', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->expects($this->once())->method('setDetailedErrorMessage');
@@ -150,7 +150,7 @@ class WebauthnExceptionTest extends UnitTestCase
     {
         return [
             'message is string' => ['errorMessageFixture'],
-            'message is null'   => [null]
+            'message is null'   => [null],
         ];
     }
 }

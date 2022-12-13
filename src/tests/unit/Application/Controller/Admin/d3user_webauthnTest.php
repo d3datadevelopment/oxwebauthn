@@ -71,7 +71,7 @@ class d3user_webauthnTest extends TestCase
             ->onlyMethods([
                 'd3CallMockableFunction',
                 'getEditObjectId',
-                'd3GetMockableOxNewObject'
+                'd3GetMockableOxNewObject',
             ])
             ->getMock();
         $sutMock->method('d3CallMockableFunction')->willReturn(true);
@@ -145,7 +145,7 @@ class d3user_webauthnTest extends TestCase
                 'setPageType',
                 'setAuthnRegister',
                 'd3GetMockableLogger',
-                'd3GetMockableRegistryObject'
+                'd3GetMockableRegistryObject',
             ])
             ->getMock();
         $sutMock->expects($this->atLeastOnce())->method('setPageType');
@@ -194,7 +194,7 @@ class d3user_webauthnTest extends TestCase
                 'setPageType',
                 'setAuthnRegister',
                 'd3GetMockableLogger',
-                'd3GetMockableRegistryObject'
+                'd3GetMockableRegistryObject',
             ])
             ->getMock();
         $sutMock->expects($this->atLeastOnce())->method('setPageType');
@@ -566,7 +566,7 @@ class d3user_webauthnTest extends TestCase
     public function canDeleteDataProvider(): array
     {
         return [
-            'has delete id' => ['deleteId', $this->once()]
+            'has delete id' => ['deleteId', $this->once()],
         ];
     }
 }

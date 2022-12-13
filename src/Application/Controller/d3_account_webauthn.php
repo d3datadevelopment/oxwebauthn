@@ -125,7 +125,7 @@ class d3_account_webauthn extends AccountController
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
             if (strlen((string) $error)) {
                 /** @var WebauthnCreateException $e */
-                $e = oxNew( WebauthnCreateException::class, $error);
+                $e = oxNew(WebauthnCreateException::class, $error);
                 throw $e;
             }
 
@@ -135,7 +135,7 @@ class d3_account_webauthn extends AccountController
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
-            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay( $e );
+            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
         }
     }
 

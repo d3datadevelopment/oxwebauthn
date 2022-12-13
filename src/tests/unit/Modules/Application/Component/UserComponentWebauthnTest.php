@@ -92,7 +92,7 @@ class UserComponentWebauthnTest extends UnitTestCase
             ->onlyMethods(['getRequestParameter'])
             ->getMock();
         $requestMock->method('getRequestParameter')->willReturnMap([
-            ['lgn_usr', 'myUserName']
+            ['lgn_usr', 'myUserName'],
         ]);
 
         /** @var User|MockObject $userMock */
@@ -112,7 +112,7 @@ class UserComponentWebauthnTest extends UnitTestCase
         /** @var d3_webauthn_UserComponent|MockObject $sut */
         $sut = $this->getMockBuilder(UserComponent::class)
             ->onlyMethods(['d3CanUseWebauthn', 'd3CallMockableFunction', 'd3HasWebauthnButNotLoggedin',
-                'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject', 'getParent'
+                'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject', 'getParent',
             ])
             ->getMock();
         $sut->method('d3CanUseWebauthn')->willReturn($canUseWebauthn);
@@ -433,7 +433,7 @@ class UserComponentWebauthnTest extends UnitTestCase
         return [
             'passed'                => [null, $this->once(), $this->never()],
             'webauthnException'     => [WebauthnGetException::class, $this->never(), $this->once()],
-            'webauthnLoginError'    => [WebauthnLoginErrorException::class, $this->never(), $this->never()]
+            'webauthnLoginError'    => [WebauthnLoginErrorException::class, $this->never(), $this->never()],
         ];
     }
 }

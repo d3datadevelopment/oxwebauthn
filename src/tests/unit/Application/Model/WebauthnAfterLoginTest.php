@@ -66,7 +66,7 @@ class WebauthnAfterLoginTest extends UnitTestCase
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
             [WebauthnConf::WEBAUTHN_ADMIN_PROFILE, $sessionProfile],
-            ['aAdminProfiles', [['prof','No0'], ['prof', 'No1'], ['prof','No2']]]
+            ['aAdminProfiles', [['prof','No0'], ['prof', 'No1'], ['prof','No2']]],
         ]);
         $sessionMock->expects($this->once())->method('deleteVariable');
         $sessionMock->expects($this->exactly((int) $setSessionVar))->method('setVariable');
@@ -210,7 +210,7 @@ class WebauthnAfterLoginTest extends UnitTestCase
         $en_2->selected = 0;
         return [
             $de_1,
-            $en_2
+            $en_2,
         ];
     }
 

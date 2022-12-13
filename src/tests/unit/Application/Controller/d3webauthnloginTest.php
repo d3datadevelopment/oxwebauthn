@@ -47,7 +47,7 @@ class d3webauthnloginTest extends UnitTestCase
             ->onlyMethods(['getVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturn([
-            'key1' => 'variable1'
+            'key1' => 'variable1',
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
@@ -71,7 +71,7 @@ class d3webauthnloginTest extends UnitTestCase
             [
                 'defKey1' => 'devValues1',
                 'key1' => 'variable1',
-                'cl' => NULL,
+                'cl' => null,
             ],
             $this->callMethod(
                 $sut,
@@ -99,7 +99,7 @@ class d3webauthnloginTest extends UnitTestCase
             ->getMock();
         $sessionMock->method('hasVariable')->willReturnMap([
             [WebauthnConf::WEBAUTHN_SESSION_AUTH, $auth],
-            [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userFromLogin]
+            [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $userFromLogin],
         ]);
 
         /** @var Utils|MockObject $utilsMock */
@@ -112,7 +112,7 @@ class d3webauthnloginTest extends UnitTestCase
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableFunction',
-                'generateCredentialRequest', 'addTplParam'])
+                'generateCredentialRequest', 'addTplParam', ])
             ->getMock();
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
             function () use ($utilsMock, $sessionMock) {
@@ -174,7 +174,7 @@ class d3webauthnloginTest extends UnitTestCase
             ->onlyMethods(['getVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [$userSessionVarName, $currUserFixture]
+            [$userSessionVarName, $currUserFixture],
         ]);
 
         /** @var Webauthn|MockObject $webAuthnMock */
@@ -240,7 +240,7 @@ class d3webauthnloginTest extends UnitTestCase
             ->onlyMethods(['getVariable', 'setVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [$userVarName, $currUserFixture]
+            [$userVarName, $currUserFixture],
         ]);
         $sessionMock->expects($this->once())->method('setVariable')->with(WebauthnConf::GLOBAL_SWITCH)
             ->willReturn(true);
@@ -262,7 +262,7 @@ class d3webauthnloginTest extends UnitTestCase
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetMockableOxNewObject', 'addTplParam',
-                'd3GetMockableLogger', 'd3GetMockableRegistryObject'])
+                'd3GetMockableLogger', 'd3GetMockableRegistryObject', ])
             ->getMock();
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
             function () use ($webAuthnMock) {
@@ -313,7 +313,7 @@ class d3webauthnloginTest extends UnitTestCase
             ->onlyMethods(['getVariable'])
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
-            [$sessionVarName, $currClassFixture]
+            [$sessionVarName, $currClassFixture],
         ]);
 
         /** @var d3webauthnlogin|MockObject $sut */
@@ -410,7 +410,7 @@ class d3webauthnloginTest extends UnitTestCase
     {
         return [
             [true],
-            [false]
+            [false],
         ];
     }
 

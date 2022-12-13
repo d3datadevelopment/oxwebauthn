@@ -118,7 +118,8 @@ class d3webauthnadminlogin extends AdminController
     public function d3AssertAuthn(): ?string
     {
         try {
-            $login = $this->d3GetMockableOxNewObject(WebauthnLogin::class,
+            $login = $this->d3GetMockableOxNewObject(
+                WebauthnLogin::class,
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('credential'),
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('error')
             );

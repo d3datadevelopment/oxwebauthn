@@ -96,7 +96,7 @@ class RelyingPartyEntityTest extends TestCase
             'null'              => [null, false],
             'empty string'      => ['', false],
             'space string'      => ['   ', false],
-            'non empty string'  => ['content', true]
+            'non empty string'  => ['content', true],
         ];
     }
 
@@ -222,7 +222,7 @@ class RelyingPartyEntityTest extends TestCase
     {
         return [
             'configured'    => [true, ' subd.mydomain.com', 'www.myhost.de', 'subd.mydomain.com'],
-            'not configured'=> [false, ' subd.mydomain.com', 'www.myhost.de', 'www.myhost.de']
+            'not configured'=> [false, ' subd.mydomain.com', 'www.myhost.de', 'www.myhost.de'],
         ];
     }
 

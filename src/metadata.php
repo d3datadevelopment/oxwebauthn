@@ -61,7 +61,7 @@ $logo = '<img src="https://logos.oxidmodule.com/d3logo.svg" alt="(D3)" style="he
 /**
  * Module information
  */
-$aModule = array(
+$aModule = [
     'id'          => $sModuleId,
     'title'       => $logo.' Webauthn / FIDO2 Login',
     'description'   => [
@@ -90,13 +90,13 @@ $aModule = array(
         AccountNewsletterController::class => d3_AccountNewsletterController_Webauthn::class,
         AccountUserController::class => d3_AccountUserController_Webauthn::class,
         AccountOrderController::class => d3_AccountOrderController_Webauthn::class,
-        AccountReviewController::class => d3_AccountReviewController_Webauthn::class
+        AccountReviewController::class => d3_AccountReviewController_Webauthn::class,
     ],
     'controllers'   => [
         'd3user_webauthn'       => d3user_webauthn::class,
         'd3webauthnlogin'       => d3webauthnlogin::class,
         'd3webauthnadminlogin'  => d3webauthnadminlogin::class,
-        'd3_account_webauthn'   => d3_account_webauthn::class
+        'd3_account_webauthn'   => d3_account_webauthn::class,
     ],
     'templates'     => [
         'd3user_webauthn.tpl'       => 'd3/oxwebauthn/Application/views/admin/tpl/d3user_webauthn.tpl',
@@ -139,14 +139,14 @@ $aModule = array(
             'template'      => 'page/checkout/inc/options.tpl',
             'block'         => 'checkout_options_login',
             'file'          => 'Application/views/blocks/page/checkout/inc/checkout_options_login.tpl',
-        ]
+        ],
     ],
     'settings'  => [
         [
             'group'     => $sModuleId.'_general',
             'name'      => $sModuleId.'_diffshopurl',
             'type'      => 'str',
-            'value'     => false
+            'value'     => false,
         ],
-    ]
-);
+    ],
+];

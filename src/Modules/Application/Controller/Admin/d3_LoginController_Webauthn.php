@@ -40,7 +40,7 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      */
     public function checklogin()
     {
-        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'user') ?:
+        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('user') ?:
             $this->d3GetMockableRegistryObject(Session::class)
                  ->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_LOGINUSER);
 
@@ -48,16 +48,16 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
         $user = $this->d3GetMockableOxNewObject(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user, 'malladmin');
 
-        if ( $this->d3CanUseWebauthn( $lgn_user, $userId)) {
+        if ($this->d3CanUseWebauthn($lgn_user, $userId)) {
             $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_PROFILE,
                 $this->d3GetMockableRegistryObject(Request::class)
-                     ->getRequestEscapedParameter( 'profile')
+                     ->getRequestEscapedParameter('profile')
             );
             $this->d3GetMockableRegistryObject(Session::class)->setVariable(
                 WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE,
                 $this->d3GetMockableRegistryObject(Request::class)
-                     ->getRequestEscapedParameter( 'chlanguage')
+                     ->getRequestEscapedParameter('chlanguage')
             );
 
             if ($this->hasWebauthnButNotLoggedin($userId)) {
@@ -96,15 +96,15 @@ class d3_LoginController_Webauthn extends d3_LoginController_Webauthn_parent
      *
      * @return bool
      */
-    protected function d3CanUseWebauthn( $lgn_user, ?string $userId): bool
+    protected function d3CanUseWebauthn($lgn_user, ?string $userId): bool
     {
-        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'pwd');
+        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('pwd');
 
         return $lgn_user &&
                $userId &&
                false === $this->d3GetMockableRegistryObject(Session::class)
-                              ->hasVariable( WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH ) &&
-               ( ! strlen( trim( (string) $password ) ) );
+                              ->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH) &&
+               (! strlen(trim((string) $password)));
     }
 
     /**

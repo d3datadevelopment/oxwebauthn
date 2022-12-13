@@ -127,7 +127,7 @@ class WebauthnErrorsTest extends UnitTestCase
     {
         return [
             'with colon'        => [' My Text With : Colon', 'my text with'],
-            'without colon'     => [' My Text With Colon', 'my text with colon']
+            'without colon'     => [' My Text With Colon', 'my text with colon'],
         ];
     }
 }

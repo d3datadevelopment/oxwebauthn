@@ -59,7 +59,7 @@ class WebauthnErrors
         }
 
         if (strtoupper($msg) === self::UNSECURECONNECTION) {
-                return $lang->translateString($msg);
+            return $lang->translateString($msg);
         }
 
         return $lang->translateString('D3_WEBAUTHN_ERR_TECHNICALERROR', null, true);
@@ -72,7 +72,7 @@ class WebauthnErrors
     public function getErrIdFromMessage(string $msg): string
     {
         if (is_int(strpos($msg, ':'))) {
-            return trim( strtolower( substr( $msg, 0, strpos( $msg, ':' ) ) ) );
+            return trim(strtolower(substr($msg, 0, strpos($msg, ':'))));
         }
 
         return trim(strtolower($msg));

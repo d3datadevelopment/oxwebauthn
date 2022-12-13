@@ -107,7 +107,7 @@ class WebauthnTest extends UnitTestCase
             'REMOTE_ADDR v6'            => [null, null, null, '::1', true],
             'REMOTE_ADDR localhost'     => [null, null, null, 'some.localhost', true],
             'unset'                     => [null, null, null, null, false],
-            'not valid'                 => ['off', 'http', 'off', '160.158.23.7', false]
+            'not valid'                 => ['off', 'http', 'off', '160.158.23.7', false],
         ];
     }
 
@@ -164,7 +164,7 @@ class WebauthnTest extends UnitTestCase
         /** @var Webauthn|MockObject $sut */
         $sut = $this->getMockBuilder(Webauthn::class)
             ->onlyMethods(['d3GetMockableOxNewObject', 'getServer', 'd3GetMockableRegistryObject', 'jsonEncode',
-                'getExistingCredentials'
+                'getExistingCredentials',
             ])
             ->getMock();
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
@@ -192,7 +192,7 @@ class WebauthnTest extends UnitTestCase
         );
         $sut->expects($this->once())->method('jsonEncode')->willReturn($jsonReturn);
         $sut->expects($this->once())->method('getExistingCredentials')->willReturn([
-            $pubKeyCredDescriptorMock
+            $pubKeyCredDescriptorMock,
         ]);
 
         if (!$jsonReturn) {
@@ -361,7 +361,7 @@ class WebauthnTest extends UnitTestCase
         /** @var Webauthn|MockObject $sut */
         $sut = $this->getMockBuilder(Webauthn::class)
             ->onlyMethods(['d3GetMockableOxNewObject', 'getServer', 'd3GetMockableRegistryObject', 'jsonEncode',
-                'getExistingCredentials'
+                'getExistingCredentials',
             ])
             ->getMock();
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
@@ -391,7 +391,7 @@ class WebauthnTest extends UnitTestCase
         );
         $sut->expects($this->once())->method('jsonEncode')->willReturn($jsonReturn);
         $sut->expects($this->once())->method('getExistingCredentials')->willReturn([
-            $pubKeyCredDescriptorMock
+            $pubKeyCredDescriptorMock,
         ]);
 
         if (!$jsonReturn) {
@@ -695,7 +695,7 @@ class WebauthnTest extends UnitTestCase
         $sessionMock->method('getVariable')->willReturnMap(
             [
                 [WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER, $adminUser],
-                [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $frontendUser]
+                [WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER, $frontendUser],
             ]
         );
 
@@ -732,7 +732,7 @@ class WebauthnTest extends UnitTestCase
     {
         return [
             'admin'     => [true, 'admUsr', 'frontendUsr', 'admUsr'],
-            'frontend'  => [false, 'admUsr', 'frontendUsr', 'frontendUsr']
+            'frontend'  => [false, 'admUsr', 'frontendUsr', 'frontendUsr'],
         ];
     }
 
@@ -819,7 +819,7 @@ class WebauthnTest extends UnitTestCase
             'user use webauthn, config disabled'    => [true, false, true, false],
             'user use webauthn, session disabled'   => [false, true, true, false],
             'user use webauthn, both disabled'      => [true, true, true, false],
-            'user dont use '                        => [false, false, false, false]
+            'user dont use '                        => [false, false, false, false],
         ];
     }
 

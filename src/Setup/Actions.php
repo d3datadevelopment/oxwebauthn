@@ -139,8 +139,8 @@ class Actions
     public function clearCache()
     {
         try {
-            $oUtils = $this->d3GetMockableRegistryObject( Utils::class );
-            $oUtils->resetTemplateCache( $this->getModuleTemplates() );
+            $oUtils = $this->d3GetMockableRegistryObject(Utils::class);
+            $oUtils->resetTemplateCache($this->getModuleTemplates());
             $oUtils->resetLanguageCache();
         } catch (ContainerExceptionInterface|NotFoundExceptionInterface|ModuleConfigurationNotFoundException $e) {
             $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
@@ -175,7 +175,7 @@ class Actions
     {
         /** @var $template ModuleConfiguration\Template */
         return array_map(
-            function($template) {
+            function ($template) {
                 return $template->getTemplateKey();
             },
             $moduleConfiguration->getTemplates()
@@ -191,7 +191,7 @@ class Actions
     {
         /** @var $templateBlock ModuleConfiguration\TemplateBlock */
         return array_map(
-            function($templateBlock) {
+            function ($templateBlock) {
                 return basename($templateBlock->getShopTemplatePath());
             },
             $moduleConfiguration->getTemplateBlocks()

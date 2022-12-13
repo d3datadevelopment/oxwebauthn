@@ -36,7 +36,7 @@ class passwordFrontendAuthTest extends integrationTestCase
                 'oxshopid'      => 1,
                 'oxusername'    => 'noadmin@user.localhost',
                 'oxpassword'    => '$2y$10$b3O5amXZVMGGZbL4X10TIOHiOwEkq3C0ofObuTgHAS4Io0uMLauUS',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ]
         );
 
@@ -48,7 +48,7 @@ class passwordFrontendAuthTest extends integrationTestCase
                 'oxshopid'      => 2,
                 'oxusername'    => 'wrongshop_fe@user.localhost',
                 'oxpassword'    => '$2y$10$b3O5amXZVMGGZbL4X10TIOHiOwEkq3C0ofObuTgHAS4Io0uMLauUS',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ]
         );
 
@@ -60,7 +60,7 @@ class passwordFrontendAuthTest extends integrationTestCase
                 'oxshopid'      => 1,
                 'oxusername'    => 'inactive@user.localhost',
                 'oxpassword'    => '$2y$10$b3O5amXZVMGGZbL4X10TIOHiOwEkq3C0ofObuTgHAS4Io0uMLauUS',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ]
         );
     }

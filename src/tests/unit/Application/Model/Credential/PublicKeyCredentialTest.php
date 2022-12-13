@@ -86,7 +86,7 @@ class PublicKeyCredentialTest extends UnitTestCase
         /** @var PublicKeyCredential $sut */
         $sut = oxNew(PublicKeyCredential::class);
         $sut->assign([
-            $fieldName  => $setValue
+            $fieldName  => $setValue,
         ]);
 
         $this->assertEquals(
@@ -318,7 +318,7 @@ class PublicKeyCredentialTest extends UnitTestCase
             $sut->setId($oxid);
             $sut->assign([
                 'credentialid' => base64_encode($pkcId),
-                'oxshopid' => $shopId
+                'oxshopid' => $shopId,
             ]);
             $sut->save();
         }
@@ -344,7 +344,7 @@ class PublicKeyCredentialTest extends UnitTestCase
     {
         return [
             'item exists'       => [true, 'idFixture'],
-            'item not exists'   => [false, null]
+            'item not exists'   => [false, null],
         ];
     }
 }

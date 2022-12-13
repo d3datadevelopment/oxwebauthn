@@ -105,7 +105,7 @@ class PublicKeyCredentialListTest extends UnitTestCase
             $pkc->setId($oxid);
             $pkc->assign([
                 'credentialid'  => base64_encode('myCredentialId'),
-                'oxshopid'      => 55
+                'oxshopid'      => 55,
             ]);
             $pkc->setCredential($pkcsMock);
             $pkc->save();
@@ -132,7 +132,7 @@ class PublicKeyCredentialListTest extends UnitTestCase
     {
         return [
             'existing'      => [true, 'pkcsource'],
-            'not existing'  => [false, null]
+            'not existing'  => [false, null],
         ];
     }
 
@@ -185,7 +185,7 @@ class PublicKeyCredentialListTest extends UnitTestCase
                 $pkc->setId($oxid);
                 $pkc->assign([
                     'oxuserid' => 'userid',
-                    'oxshopid' => 55
+                    'oxshopid' => 55,
                 ]);
                 $pkc->setCredential($pkcsMock);
                 $pkc->save();
@@ -271,7 +271,7 @@ class PublicKeyCredentialListTest extends UnitTestCase
                 $pkc->setId($oxid);
                 $pkc->assign([
                     'oxuserid' => 'userid',
-                    'oxshopid' => 55
+                    'oxshopid' => 55,
                 ]);
                 $pkc->setCredential($pkcsMock);
                 $pkc->save();

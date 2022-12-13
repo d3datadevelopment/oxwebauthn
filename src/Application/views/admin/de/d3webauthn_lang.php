@@ -56,5 +56,5 @@ $aLang = [
                                                          '<p>Ist Ihr Shop unter verschiedenen Subdomains erreichbar, können Sie hier die Hauptdomain angeben, die zur Registrierung verwendet werden soll. Beachten Sie bitte, '.
                                                          'dass die hier angegebene Adresse mit der des Shopaufrufs übereinstimmen muss. Shopfremde Adressen werden bei der Verwendung abgelehnt.</p>'.
                                                          '<p>Bleibt das Feld leer, wird die Adresse des aktuellen Shopaufrufs verwendet. Bei Verwendung unterschiedlicher Adressen muss vom Nutzer für jede Adresse eine separate '.
-                                                         'Schlüsselregistrierung durchgeführt werden.</p>'
+                                                         'Schlüsselregistrierung durchgeführt werden.</p>',
 ];

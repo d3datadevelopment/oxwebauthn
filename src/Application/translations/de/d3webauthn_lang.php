@@ -16,7 +16,7 @@ $sLangName = 'Deutsch';
 // -------------------------------
 // RESOURCE IDENTIFIER = STRING
 // -------------------------------
-$aLang = array(
+$aLang = [
     'charset'                              => 'UTF-8',
 
     'PAGE_TITLE_D3WEBAUTHNLOGIN'           => 'Passwortloses Anmelden',
@@ -25,7 +25,7 @@ $aLang = array(
     'D3_WEBAUTHN_ACCOUNT_DESC'             => 'Verwalten Sie hier Ihre Anmeldeschlüssel.',
     'D3_WEBAUTHN_ACC_REGISTERNEW'          => 'neue Registrierung erstellen',
     'D3_WEBAUTHN_ACC_ADDKEY'               => 'Sicherheitsschlüssel hinzufügen',
-    
+
     'D3_WEBAUTHN_ACC_REGISTEREDKEYS'       => 'registrierte Schlüssel',
 
     'WEBAUTHN_INPUT_HELP'                  => 'Bitte mit Hardwareschlüssel authentisieren.',
@@ -47,4 +47,4 @@ $aLang = array(
     'D3_WEBAUTHN_ERR_UNSECURECONNECTION'   => 'Die Verwendung von Sicherheitsschlüsseln ist nur bei lokalen oder gesicherten Verbindungen (https) möglich.',
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'      => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
     'D3_WEBAUTHN_ERR_NOTLOADEDUSER'        => "Kann keine Anmeldedaten von nicht geladenem Kundenkonto beziehen.",
-);
+];

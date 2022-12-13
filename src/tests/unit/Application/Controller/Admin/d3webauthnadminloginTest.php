@@ -61,7 +61,8 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
      * @return void
      */
     public function canGetNavigationParams()
-    {}
+    {
+    }
 
     /**
      * @test
@@ -78,7 +79,7 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
             ->getMock();
         $sessionMock->method('hasVariable')->willReturnMap([
             [WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH, $auth],
-            [WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER, $userFromLogin]
+            [WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER, $userFromLogin],
         ]);
 
         /** @var Utils|MockObject $utilsMock */
@@ -97,7 +98,7 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
         /** @var d3webauthnlogin|MockObject $sut */
         $sut = $this->getMockBuilder($this->sutClassName)
             ->onlyMethods(['d3GetMockableRegistryObject', 'd3CallMockableFunction', 'd3GetMockableOxNewObject',
-                'generateCredentialRequest', 'addTplParam'])
+                'generateCredentialRequest', 'addTplParam', ])
             ->getMock();
         $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
             function () use ($utilsMock, $sessionMock) {

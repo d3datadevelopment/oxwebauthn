@@ -58,12 +58,12 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function d3WebauthnLogin(): void
     {
-        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'lgn_usr');
+        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_usr');
         /** @var d3_User_Webauthn $user */
         $user = $this->d3GetMockableOxNewObject(User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
 
-        if ( $this->d3CanUseWebauthn( $lgn_user, $userId)) {
+        if ($this->d3CanUseWebauthn($lgn_user, $userId)) {
             if ($this->d3HasWebauthnButNotLoggedin($userId)) {
                 $session = $this->d3GetMockableRegistryObject(Session::class);
                 $session->setVariable(
@@ -95,15 +95,15 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      *
      * @return bool
      */
-    protected function d3CanUseWebauthn( $lgn_user, ?string $userId): bool
+    protected function d3CanUseWebauthn($lgn_user, ?string $userId): bool
     {
-        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter( 'lgn_pwd');
+        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_pwd');
 
         return $lgn_user &&
             $userId &&
             false === $this->d3GetMockableRegistryObject(Session::class)
-                ->hasVariable( WebauthnConf::WEBAUTHN_SESSION_AUTH ) &&
-            ( ! strlen( trim( (string) $password ) ) );
+                ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
+            (! strlen(trim((string) $password)));
     }
 
     /**
@@ -147,7 +147,8 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function d3AssertAuthn(): void
     {
         try {
-            $login = $this->d3GetMockableOxNewObject(WebauthnLogin::class,
+            $login = $this->d3GetMockableOxNewObject(
+                WebauthnLogin::class,
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('credential'),
                 $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('error')
             );
@@ -158,6 +159,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
             $this->_afterLogin($this->getUser());
         } catch (WebauthnGetException $e) {
             $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
-        } catch (WebauthnLoginErrorException $e) {}
+        } catch (WebauthnLoginErrorException $e) {
+        }
     }
 }

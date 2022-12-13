@@ -99,7 +99,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
                 $this,
                 [
                     $userName,
-                    $shopId
+                    $shopId,
                 ]
             );
         }

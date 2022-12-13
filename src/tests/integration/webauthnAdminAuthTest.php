@@ -32,7 +32,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
         2   => 'credId2',
         3   => 'credId3',
         4   => 'credId4',
-        5   => 'credId5'
+        5   => 'credId5',
     ];
 
     public function createTestData()
@@ -47,7 +47,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'      => 1,
                 'oxusername'    => 'wawrongshopid@user.localhost',
                 'oxpassword'    => '$2y$10$QErMJNHQCoN03tfCUQDRfOvbwvqfzwWw1iI/7bC49fKQrPKoDdnaK',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ],
             true
         );
@@ -60,7 +60,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'  => 1,
                 'name'      => __CLASS__,
                 'credentialid'  => 'ITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAAA==',
-                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30='
+                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30=',
             ]
         );
 
@@ -72,7 +72,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'  => 1,
                 'name'      => __CLASS__,
                 'credentialid'  => 'ITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAAA==',
-                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30='
+                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30=',
             ]
         );
 
@@ -84,7 +84,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'  => 1,
                 'name'      => __CLASS__,
                 'credentialid'  => 'ITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAAA==',
-                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30='
+                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30=',
             ]
         );
 
@@ -96,7 +96,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'  => 1,
                 'name'      => __CLASS__,
                 'credentialid'  => 'ITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAAA==',
-                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30='
+                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30=',
             ]
         );
 
@@ -108,7 +108,7 @@ class webauthnAdminAuthTest extends passwordAdminAuthTest
                 'oxshopid'  => 2,
                 'name'      => __CLASS__,
                 'credentialid'  => 'ITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAAA==',
-                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30='
+                'credential'=> 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo3MDoiITSNkDRdN1bfRrb9MDCNOfBNay7YqT3ZxWxxqIQWVvwN0tFOG7SN2JiCfcUfPMBhE9bTLU1Gbb/8+5eHyFR2d5DCrxAAACI7czo3OiIAKgB0eXBlIjtzOjEwOiJwdWJsaWMta2V5IjtzOjEzOiIAKgB0cmFuc3BvcnRzIjthOjA6e31zOjE4OiIAKgBhdHRlc3RhdGlvblR5cGUiO3M6NDoibm9uZSI7czoxMjoiACoAdHJ1c3RQYXRoIjtPOjMzOiJXZWJhdXRoblxUcnVzdFBhdGhcRW1wdHlUcnVzdFBhdGgiOjA6e31zOjk6IgAqAGFhZ3VpZCI7TzozNToiUmFtc2V5XFV1aWRcTGF6eVxMYXp5VXVpZEZyb21TdHJpbmciOjE6e3M6Njoic3RyaW5nIjtzOjM2OiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiO31zOjIyOiIAKgBjcmVkZW50aWFsUHVibGljS2V5IjtzOjc3OiKlAQIDJiABIVggHucXfQh0acwpsffVRM02F7P57mVm6hPX/l8Pjbh0jOwiWCBRT5MMqa909tcXHqG/EKfjXXDd9UEisk+ZF7QSTfwv0CI7czoxMzoiACoAdXNlckhhbmRsZSI7czoxNDoib3hkZWZhdWx0YWRtaW4iO3M6MTA6IgAqAGNvdW50ZXIiO2k6NDI3MTtzOjEwOiIAKgBvdGhlclVJIjtOO30=',
             ]
         );
     }

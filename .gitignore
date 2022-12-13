@@ -1,3 +1,4 @@
 .idea
+.php_cs.cache
 src/tests/.phpunit.result.cache
 src/tests/reports/

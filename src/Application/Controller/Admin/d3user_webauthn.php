@@ -78,7 +78,7 @@ class d3user_webauthn extends AdminDetailsController
     public function requestNewCredential(): void
     {
         try {
-            $this->setPageType( 'requestnew' );
+            $this->setPageType('requestnew');
             $this->setAuthnRegister();
         } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
             $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e->getMessage());
@@ -97,16 +97,16 @@ class d3user_webauthn extends AdminDetailsController
     {
         try {
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
-            if ( strlen((string) $error) ) {
+            if (strlen((string) $error)) {
                 /** @var WebauthnCreateException $e */
                 $e = oxNew(WebauthnCreateException::class, $error);
                 throw $e;
             }
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
-            if ( strlen((string) $credential) ) {
+            if (strlen((string) $credential)) {
                 $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
-                $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter( 'keyname' ) );
+                $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
             $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);

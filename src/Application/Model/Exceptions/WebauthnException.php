@@ -26,19 +26,19 @@ class WebauthnException extends StandardException
 
     public $detailedErrorMessage = null;
 
-    public function __construct( $sMessage = "not set", $iCode = 0, Exception $previous = null )
+    public function __construct($sMessage = "not set", $iCode = 0, Exception $previous = null)
     {
         $this->setDetailedErrorMessage($sMessage);
 
         $this->d3CallMockableFunction(
             [
                 StandardException::class,
-                '__construct'
+                '__construct',
             ],
             [
                 $this->getErrorMessageTranslator()->translateError($sMessage, $this->getRequestType()),
                 $iCode,
-                $previous
+                $previous,
             ]
         );
     }

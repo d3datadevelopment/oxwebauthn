@@ -58,7 +58,8 @@ class UserWebauthnTest extends UnitTestCase
             /** @var d3_User_Webauthn $user */
             $user = oxNew(User::class);
             $user->delete($this->userId);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
     }
 
     /**
@@ -163,7 +164,7 @@ class UserWebauthnTest extends UnitTestCase
             ->getMock();
         $sessionMock->method('getVariable')->willReturnMap([
             [WebauthnConf::WEBAUTHN_SESSION_AUTH, $authInSession],
-            [WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $userNameInSession]
+            [WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $userNameInSession],
         ]);
 
         /** @var User|MockObject $sut */

@@ -117,7 +117,7 @@ trait CheckoutTestTrait
         $sut->setUser(oxNew(User::class));
 
         if ($expected === 'parent') {
-            $this->assertSame( $return, $hasUser ? $this->userFixture : false);
+            $this->assertSame($return, $hasUser ? $this->userFixture : false);
         } else {
             $this->assertSame($return, $expected);
         }

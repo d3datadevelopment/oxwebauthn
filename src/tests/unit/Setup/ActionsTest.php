@@ -569,7 +569,7 @@ class ActionsTest extends UnitTestCase
     {
         return [
             'has SEO url'   => ['https://testshop.dev/securitykeys', true],
-            'has no SEO url'=> ['', false]
+            'has no SEO url'=> ['', false],
         ];
     }
 

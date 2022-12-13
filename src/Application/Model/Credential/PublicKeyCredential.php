@@ -49,7 +49,7 @@ class PublicKeyCredential extends BaseModel
     public function setName(string $name): void
     {
         $this->assign([
-            'name' => $name
+            'name' => $name,
         ]);
     }
 
@@ -67,7 +67,7 @@ class PublicKeyCredential extends BaseModel
     public function setCredentialId(string $credentialId): void
     {
         $this->assign([
-            'credentialid' => base64_encode($credentialId)
+            'credentialid' => base64_encode($credentialId),
         ]);
     }
 
@@ -85,7 +85,7 @@ class PublicKeyCredential extends BaseModel
     public function setUserId(string $userId): void
     {
         $this->assign([
-            'oxuserid' => $userId
+            'oxuserid' => $userId,
         ]);
     }
 
@@ -103,7 +103,7 @@ class PublicKeyCredential extends BaseModel
     public function setCredential(PublicKeyCredentialSource $credential): void
     {
         $this->assign([
-            'credential' => base64_encode(serialize($credential))
+            'credential' => base64_encode(serialize($credential)),
         ]);
     }
 

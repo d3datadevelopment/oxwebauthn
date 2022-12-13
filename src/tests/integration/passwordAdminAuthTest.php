@@ -41,7 +41,7 @@ class passwordAdminAuthTest extends integrationTestCase
                 'oxshopid'      => 1,
                 'oxusername'    => 'noadmin@user.localhost',
                 'oxpassword'    => '$2y$10$QErMJNHQCoN03tfCUQDRfOvbwvqfzwWw1iI/7bC49fKQrPKoDdnaK',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ],
             true
         );
@@ -54,7 +54,7 @@ class passwordAdminAuthTest extends integrationTestCase
                 'oxshopid'      => 1,
                 'oxusername'    => 'admin@user.localhost',
                 'oxpassword'    => '$2y$10$QErMJNHQCoN03tfCUQDRfOvbwvqfzwWw1iI/7bC49fKQrPKoDdnaK',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ],
             true
         );
@@ -67,7 +67,7 @@ class passwordAdminAuthTest extends integrationTestCase
                 'oxshopid'      => 2,
                 'oxusername'    => 'wrongshop@user.localhost',
                 'oxpassword'    => '$2y$10$QErMJNHQCoN03tfCUQDRfOvbwvqfzwWw1iI/7bC49fKQrPKoDdnaK',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ],
             true
         );
@@ -80,7 +80,7 @@ class passwordAdminAuthTest extends integrationTestCase
                 'oxshopid'      => 1,
                 'oxusername'    => 'inactive@user.localhost',
                 'oxpassword'    => '$2y$10$QErMJNHQCoN03tfCUQDRfOvbwvqfzwWw1iI/7bC49fKQrPKoDdnaK',   // 123456
-                'oxstreet'      => __CLASS__
+                'oxstreet'      => __CLASS__,
             ],
             true
         );

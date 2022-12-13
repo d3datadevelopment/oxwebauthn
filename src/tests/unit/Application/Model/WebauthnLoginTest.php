@@ -216,7 +216,7 @@ class WebauthnLoginTest extends UnitTestCase
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
                 'setFrontendSession', 'handleBackendCookie', 'handleBackendSubshopRights', 'setSessionCookie',
-                'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId'])
+                'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->expects($this->exactly((int) $setCookie))->method('setSessionCookie');
@@ -281,7 +281,7 @@ class WebauthnLoginTest extends UnitTestCase
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn', 'd3GetMockableRegistryObject',
                 'setFrontendSession', 'handleBackendCookie', 'handleBackendSubshopRights', 'setSessionCookie',
-                'd3GetMockableLogger', 'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId'])
+                'd3GetMockableLogger', 'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('handleErrorMessage')->willThrowException(oxNew($exceptionClass));
@@ -350,7 +350,7 @@ class WebauthnLoginTest extends UnitTestCase
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
                 'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights',
-                'd3GetMockableOxNewObject'])
+                'd3GetMockableOxNewObject', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
@@ -412,7 +412,7 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
                 'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights',
                 'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject',
-                'd3GetMockableLogger'])
+                'd3GetMockableLogger', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('handleErrorMessage')->willThrowException(oxNew($exceptionClass));
@@ -675,7 +675,7 @@ class WebauthnLoginTest extends UnitTestCase
     {
         return [
             'set cookie'        => [true],
-            'dont set cookie'   => [false]
+            'dont set cookie'   => [false],
         ];
     }
 
@@ -1065,10 +1065,11 @@ class WebauthnLoginTest extends UnitTestCase
         $sessionMock->method('getVariable')->willReturnCallback(
             function () {
                 $args = func_get_args();
-                if ($args[0] === WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
+                if ($args[0] === WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) {
                     return 'adminUser';
-                elseif ($args[0] === WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+                } elseif ($args[0] === WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER) {
                     return 'frontendUser';
+                }
                 return null;
             }
         );
@@ -1126,11 +1127,11 @@ class WebauthnLoginTest extends UnitTestCase
         $sessionMock->expects($this->exactly(2))->method('setVariable')->withConsecutive(
             [
                 $this->identicalTo(WebauthnConf::WEBAUTHN_SESSION_AUTH),
-                $this->identicalTo('credentialFixture')
+                $this->identicalTo('credentialFixture'),
             ],
             [
                 $this->identicalTo(WebauthnConf::OXID_FRONTEND_AUTH),
-                $this->identicalTo('idFixture')
+                $this->identicalTo('idFixture'),
             ]
         );
 

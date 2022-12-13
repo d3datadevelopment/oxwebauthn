@@ -29,11 +29,11 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
         $this->d3CallMockableFunction(
             [
                 PublicKeyCredentialRpEntity::class,
-                '__construct'
+                '__construct',
             ],
             [
                 $this->getActiveShop()->getFieldData('oxname'),
-                $this->getRPShopUrl()
+                $this->getRPShopUrl(),
             ]
         );
     }
