@@ -21,6 +21,7 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use Exception;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Utils;
@@ -319,11 +320,13 @@ class d3user_webauthnTest extends TestCase
 
     /**
      * @test
+     * @param string $excClass
      * @return void
      * @throws ReflectionException
+     * @dataProvider canSaveAuthnFailedDataProvider
      * @covers \D3\Webauthn\Application\Controller\Admin\d3user_webauthn::saveAuthn
      */
-    public function canSaveAuthnFailed()
+    public function canSaveAuthnFailed(string $excClass)
     {
         $_POST['credential'] = 'msg';
         $_POST['keyname'] = 'key_name';
@@ -333,7 +336,7 @@ class d3user_webauthnTest extends TestCase
             ->onlyMethods(['saveAuthn'])
             ->getMock();
         $webauthnMock->expects($this->once())->method('saveAuthn')
-            ->willThrowException(oxNew(WebauthnException::class));
+            ->willThrowException(oxNew($excClass));
 
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
@@ -378,6 +381,17 @@ class d3user_webauthnTest extends TestCase
             $oControllerMock,
             'saveAuthn'
         );
+    }
+
+    /**
+     * @return array[]
+     */
+    public function canSaveAuthnFailedDataProvider(): array
+    {
+        return [
+            'webauthn exception'    => [WebauthnException::class],
+            'common exception'    => [Exception::class],
+        ];
     }
 
     /**
