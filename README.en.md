@@ -13,7 +13,8 @@ The key management is done in the admin area and in the user's "My Account".
 
 ## Table of content
 
-- [Installation](#installation)
+- [What is FIDO2?](#what-is-fido2)
+- [Module installation](#module-installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Changelog](#changelog)
@@ -21,7 +22,36 @@ The key management is done in the admin area and in the user's "My Account".
 - [License](#license)
 - [Further licences and terms of use](#further-licences-and-terms-of-use)
 
-## Installation
+## What is FIDO2?
+
+It enables secure authentication of the user in web-based user interfaces via a browser. Instead of a password ("knowledge" factor), one logs in with special hardware that uses strong public key cryptography for verification ("ownership" factor). Due to the way it is implemented, FIDO2 logins cannot be intercepted by phishing. 
+
+FIDO2 describes the entire authentication process, WebAuthn and CTAP are subcomponents of this process. CTAP is the communication from the FIDO2 device to the client / browser. WebAuthn handles the transmission from the browser to the application (shop).
+
+Any FIDO2-certified hardware can be used for registration. This can be:
+
+- Cross-Platform Authenticators (device-independent):
+  - USB tokens (e.g. Solokey or YubiKey),
+  - NFC transmitters
+  - Bluetooth transmitters
+  - Smartcards
+- Platform Authenticators (device-dependent)
+  - Face ID devices
+  - Windows Hello devices
+- Hybrid authenticators
+  - Smartphones with Touch ID (Android from version 7, iOS from version 14),
+
+FIDO2 can be used as:
+- an additional 2nd factor to the existing username-password combination
+- as a secure substitute instead of a password (passwordless, still in connection with the entry of a user name)
+- as a complete substitute for user name and password (with login data stored in the FIDO2 device).
+
+In this module, passwordless login is currently implemented (2nd option). 
+For the 1st options we see too little security gain compared to option 2. The implementation of the 3rd option is technically feasible, but for the normal field of application not very relevant and technically complex. If required, we are available for enquiries.
+
+When registering a FIDO2 key, access data is created in order to be able to check a later login attempt. These access data are firmly bound to the customer account and the shop and cannot be exchanged with each other.
+
+## Module installation
 
 This package requires an Composer installed OXID eShop as defined in [composer.json](composer.json).
 
@@ -45,20 +75,23 @@ To use the registered FIDO2 keys, simply leave the password field blank when log
 
 The keys can be easily managed in the My Account area of the frontend and also in the customer account in the backend. The administration includes the registration of new keys (multiple keys per account are possible and recommended). A free text name can be assigned to each key. Furthermore, all registered keys are displayed with their names. Registered keys can also be deleted there.
 
-Any FIDO2-certified hardware can be used for registration. This can be:
-- USB tokens (e.g. Solokey or YubiKey), 
-- NFC transmitters
-- Bluetooth transmitter
-- Smartphones with Touch ID (Android from version 7, iOS from version 14),
-- smart cards
-- Face ID devices
-- Windows Hello devices
-
 Since a password is no longer required with a FIDO2-based login, the backup password can also be more complex than passwords suitable for everyday use.
 
 ## Configuration
 
 The FIDO2 accesses created are fixed to the respective shop and cannot be exchanged between different shops. The basis for the accesses is the current URL of the shop. If your shop is accessible under different URLs or moves to a new address, you can overwrite the default value in the module settings. This way, existing accesses do not become invalid with the change.
+
+Options used:
+
+- allows Platform and Cross-Platform Authenticators
+- does not define interface restrictions (USB, NFC, ...)
+- User verification recommended, but not required
+  - Not all browsers can e.g. request the PIN from Cross-Platform Authenticators, with User Verification these browsers are excluded from use
+- does not request attestation
+- no request for user data stored on the device
+- Timeout: 60 seconds
+
+All other options can be freely adapted to individual requirements by overloading.
 
 ## Changelog
 

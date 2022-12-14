@@ -13,7 +13,8 @@ Die Schlüsselverwaltung erfolgt im Adminbereich sowie im "Mein Konto" des Benut
 
 ## Inhaltsverzeichnis
 
-- [Installation](#installation)
+- [Was ist FIDO2?](#was-ist-fido2)
+- [Modulinstallation](#modulinstallation)
 - [Verwendung](#verwendung)
 - [Konfiguration](#konfiguration)
 - [Changelog](#changelog)
@@ -21,7 +22,36 @@ Die Schlüsselverwaltung erfolgt im Adminbereich sowie im "Mein Konto" des Benut
 - [Lizenz](#lizenz)
 - [weitere Lizenzen und Nutzungsbedingungen](#weitere-lizenzen-und-nutzungsbedingungen)
 
-## Installation
+## Was ist FIDO2?
+
+Es ermöglicht die sichere Authentisierung des Benutzers in webbasierten Benutzeroberflächen über einen Browser. Statt eines Passworts (Faktor "Wissen") meldet man sich mit einer speziellen Hardware an, die zur Prüfung die starke Public Key cryptography verwendet (Faktor "Besitz"). FIDO2-Anmeldungen können durch die Art der Umsetzung nicht mit Phishing abgefangen werden. 
+
+FIDO2 beschreibt den gesamten Authentisierungsprozess, WebAuthn und CTAP sind Unterbestandteile dieses Prozesses. Bei CTAP handelt es sich um die Kommunikation vom FIDO2-Gerät zum Client / Browser. WebAuthn übernimmt die Übermittlung vom Browser zur Anwendung (Shop).
+
+Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können sein:
+
+- Cross-Platform Authenticators (geräteunabhängig):
+  - USB-Tokens (z.B. Solokey oder YubiKey),
+  - NFC-Sender
+  - Bluetoothsender
+  - Smartcards
+- Platform Authenticators (geräteabhängig)
+  - Face ID Geräte
+  - Windows Hello Geräte
+- hybride Authenticators
+  - Smartphones mit Touch ID (Android ab Version 7, iOS ab Version 14),
+
+FIDO2 kann verwendet werden als:
+- ein zusätzlicher 2. Faktor zur bisherigen Benutzername-Passwort-Kombination
+- als sicherer Ersatz statt eines Passworts (passwortlos, noch in Verbindung mit der Eingabe eines Benutzernamens)
+- als kompletter Ersatz für Benutzernamen und Passwort (mit im FIDO2-Gerät abgelegten Anmeldedaten)
+
+In diesem Modul ist derzeit die passwortlose Anmeldung umgesetzt (2. Option). 
+Für die 1. Optionen sehen wir einen zu geringen Sicherheitsgewinn gegenüber Option 2. Die Umsetzung der 3. Option ist technisch machbar, jedoch für den normalen Einsatzbereich wenig relevant und technisch aufwändig. Bei Bedarf stehen wir gern für Anfragen zur Verfügung.
+
+Bei der Registrierung eines FIDO2-Keys werden Zugangsdaten erstellt, um einen späteren Anmeldeversuch prüfen zu können. Diese Zugangsdaten sind fest an das Kundenkonto und an den Shop gebunden und nicht untereinander austauschbar.
+
+## Modulinstallation
 
 Dieses Paket erfordert einen mit Composer installierten OXID eShop in einer in der [composer.json](composer.json) definierten Version.
 
@@ -45,20 +75,23 @@ Zur Verwendung der registrierten FIDO2-Keys wird bei der Anmeldung einfach das P
 
 Die Keys können einfach im Mein-Konto-Bereich des Frontends und auch im Kundenkonto im Backend verwaltet werden. Die Verwaltung umfasst das Registrieren neuer Keys (mehrfache Keys pro Konto sind möglich und empfohlen). Jedem Key kann ein Freitextname zugeordnet werden. Weiterhin werden alle registrierten Keys mit ihrem Namen dargestellt. Ebenso sind registrierte Keys dort löschbar.
 
-Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können sein:
-- USB-Tokens (z.B. Solokey oder YubiKey), 
-- NFC-Sender
-- Bluetoothsender
-- Smartphones mit Touch ID (Android ab Version 7, iOS ab Version 14),
-- Smartcards
-- Face ID Geräte
-- Windows Hello Geräte
-
 Da bei einer FIDO2-basierten Anmeldung kein Passwort mehr benötigt wird, kann das Backupkennwort auch komplexer als alltagstaugliche Passworte sein.
 
 ## Konfiguration
 
 Die angelegten FIDO2-Zugänge sind auf den jeweiligen Shop festgeschrieben und können nicht zwischen unterschiedlichen Shops ausgetauscht werden. Basis für die Zugänge ist die aktuelle URL des Shops. Wenn Ihr Shop unter verschiedenen URLs erreichbar ist oder auf eine neue Adresse umzieht, können Sie die Vorgabe in den Moduleinstellungen überschreiben. So werden bestehende Zugänge mit dem Wechsel nicht ungültig.
+
+Weitere verwendete Optionen:
+
+- erlaubt Platform und Cross-Platform Authenticators
+- definiert keine Schnittstellen-Einschränkungen (USB, NFC, ...)
+- User Verification empfohlen, aber nicht erforderlich
+  - nicht alle Browser können z.B. die PIN bei Cross-Platform Authenticators anfordern, bei User Verification sind diese Browser von der Verwendung ausgeschlossen
+- fordert keine Attestation an
+- keine Abfrage von auf dem Gerät gespeicherter Benutzerdaten
+- Timeout: 60 Sekunden
+
+Alle weiteren Optionen sind durch Überladungen frei an individuelle Erfordernisse anpassbar.
 
 ## Changelog
 
