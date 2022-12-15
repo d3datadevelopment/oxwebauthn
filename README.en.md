@@ -79,8 +79,6 @@ Since a password is no longer required with a FIDO2-based login, the backup pass
 
 ## Configuration
 
-The FIDO2 accesses created are fixed to the respective shop and cannot be exchanged between different shops. The basis for the accesses is the current URL of the shop. If your shop is accessible under different URLs or moves to a new address, you can overwrite the default value in the module settings. This way, existing accesses do not become invalid with the change.
-
 Options used:
 
 - allows Platform and Cross-Platform Authenticators

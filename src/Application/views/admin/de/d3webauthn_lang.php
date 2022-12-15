@@ -49,12 +49,4 @@ $aLang = [
     'D3_WEBAUTHN_ERR_NOTLOADEDUSER'                   => "Kann keine Anmeldedaten von nicht geladenem Kundenkonto beziehen.",
 
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
-
-    'SHOP_MODULE_GROUP_d3webauthn_general'            => 'Grundeinstellungen',
-    'SHOP_MODULE_d3webauthn_diffshopurl'              => 'abweichende Shop-URL',
-    'HELP_SHOP_MODULE_d3webauthn_diffshopurl'         => '<p>Die Zugangsdaten werden für die URL Ihres Shops festgeschrieben. Dazu wird bei jeder Anfrage die Domain Ihres Shops ohne "http(s)://" und ohne "www." übergeben.</p>'.
-                                                         '<p>Ist Ihr Shop unter verschiedenen Subdomains erreichbar, können Sie hier die Hauptdomain angeben, die zur Registrierung verwendet werden soll. Beachten Sie bitte, '.
-                                                         'dass die hier angegebene Adresse mit der des Shopaufrufs übereinstimmen muss. Shopfremde Adressen werden bei der Verwendung abgelehnt.</p>'.
-                                                         '<p>Bleibt das Feld leer, wird die Adresse des aktuellen Shopaufrufs verwendet. Bei Verwendung unterschiedlicher Adressen muss vom Nutzer für jede Adresse eine separate '.
-                                                         'Schlüsselregistrierung durchgeführt werden.</p>',
 ];

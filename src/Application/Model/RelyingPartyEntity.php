@@ -39,22 +39,6 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
     }
 
     /**
-     * @return bool
-     */
-    public function hasConfiguredShopUrl(): bool
-    {
-        return (bool) strlen(trim((string) $this->getConfiguredShopUrl()));
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getConfiguredShopUrl()
-    {
-        return $this->d3GetMockableRegistryObject(Config::class)->getConfigParam('d3webauthn_diffshopurl');
-    }
-
-    /**
      * @return string
      */
     public function getShopUrlByHost(): string
@@ -67,9 +51,7 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
      */
     public function getRPShopUrl(): ?string
     {
-        return $this->hasConfiguredShopUrl() ?
-            trim($this->getConfiguredShopUrl()) :
-            $this->getShopUrlByHost();
+        return $this->getShopUrlByHost();
     }
 
     /**

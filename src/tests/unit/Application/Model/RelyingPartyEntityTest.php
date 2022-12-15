@@ -18,8 +18,6 @@ namespace D3\Webauthn\tests\unit\Application\Model;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\RelyingPartyEntity;
 use OxidEsales\Eshop\Application\Model\Shop;
-use OxidEsales\Eshop\Core\Config;
-use OxidEsales\Eshop\Core\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -57,89 +55,6 @@ class RelyingPartyEntityTest extends TestCase
         $this->callMethod(
             $sut,
             '__construct'
-        );
-    }
-
-    /**
-     * @test
-     * @param $configuredShopUrl
-     * @param $expected
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\RelyingPartyEntity::hasConfiguredShopUrl
-     * @dataProvider checkHasConfiguredShopUrlDataProvider
-     */
-    public function checkHasConfiguredShopUrl($configuredShopUrl, $expected)
-    {
-        /** @var RelyingPartyEntity|MockObject $sut */
-        $sut = $this->getMockBuilder(RelyingPartyEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getConfiguredShopUrl'])
-            ->getMock();
-        $sut->method('getConfiguredShopUrl')->willReturn($configuredShopUrl);
-
-        $this->assertSame(
-            $expected,
-            $this->callMethod(
-                $sut,
-                'hasConfiguredShopUrl'
-            )
-        );
-    }
-
-    /**
-     * @return array
-     */
-    public function checkHasConfiguredShopUrlDataProvider(): array
-    {
-        return [
-            'null'              => [null, false],
-            'empty string'      => ['', false],
-            'space string'      => ['   ', false],
-            'non empty string'  => ['content', true],
-        ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Application\Model\RelyingPartyEntity::getConfiguredShopUrl
-     */
-    public function canGetConfiguredShopUrl()
-    {
-        $fixture = 'configuredShopUrl';
-
-        /** @var Config|MockObject $configMock */
-        $configMock = $this->getMockBuilder(Config::class)
-            ->onlyMethods(['getConfigParam'])
-            ->getMock();
-        $configMock->method('getConfigParam')->with($this->identicalTo('d3webauthn_diffshopurl'))
-            ->willReturn($fixture);
-
-        /** @var RelyingPartyEntity|MockObject $sut */
-        $sut = $this->getMockBuilder(RelyingPartyEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['d3GetMockableRegistryObject'])
-            ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
-
-        $this->assertSame(
-            $fixture,
-            $this->callMethod(
-                $sut,
-                'getConfiguredShopUrl'
-            )
         );
     }
 
@@ -186,8 +101,6 @@ class RelyingPartyEntityTest extends TestCase
 
     /**
      * @test
-     * @param $hasConfiguredUrl
-     * @param $configuredUrl
      * @param $hostUrl
      * @param $expected
      * @return void
@@ -195,15 +108,13 @@ class RelyingPartyEntityTest extends TestCase
      * @dataProvider canGetRPShopUrlDataProvider
      * @covers \D3\Webauthn\Application\Model\RelyingPartyEntity::getRPShopUrl
      */
-    public function canGetRPShopUrl($hasConfiguredUrl, $configuredUrl, $hostUrl, $expected)
+    public function canGetRPShopUrl($hostUrl, $expected)
     {
         /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['hasConfiguredShopUrl', 'getConfiguredShopUrl', 'getShopUrlByHost'])
+            ->onlyMethods(['getShopUrlByHost'])
             ->getMock();
-        $sut->method('hasConfiguredShopUrl')->willReturn($hasConfiguredUrl);
-        $sut->method('getConfiguredShopUrl')->willReturn($configuredUrl);
         $sut->method('getShopUrlByHost')->willReturn($hostUrl);
 
         $this->assertSame(
@@ -221,8 +132,7 @@ class RelyingPartyEntityTest extends TestCase
     public function canGetRPShopUrlDataProvider(): array
     {
         return [
-            'configured'    => [true, ' subd.mydomain.com', 'www.myhost.de', 'subd.mydomain.com'],
-            'not configured'=> [false, ' subd.mydomain.com', 'www.myhost.de', 'www.myhost.de'],
+            'not configured'=> ['www.myhost.de', 'www.myhost.de'],
         ];
     }
 
@@ -237,9 +147,9 @@ class RelyingPartyEntityTest extends TestCase
         /** @var RelyingPartyEntity|MockObject $sut */
         $sut = $this->getMockBuilder(RelyingPartyEntity::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['hasConfiguredShopUrl']) // required for code coverage
+            ->onlyMethods(['getRPShopUrl']) // required for code coverage
             ->getMock();
-        $sut->method('hasConfiguredShopUrl')->willReturn(true);
+        $sut->method('getRPShopUrl')->willReturn('fixture');
 
         $this->assertInstanceOf(
             Shop::class,

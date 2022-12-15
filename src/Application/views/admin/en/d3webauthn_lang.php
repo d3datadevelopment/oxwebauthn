@@ -49,13 +49,4 @@ $aLang = [
     'D3_WEBAUTHN_ERR_NOTLOADEDUSER'                   => "Can't create webauthn user entity from not loaded user",
 
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'                 => 'Unfortunately, logging in with a security key is currently not possible for technical reasons. Please use your password instead.',
-
-    'SHOP_MODULE_GROUP_d3webauthn_general'            => 'Basic settings',
-    'SHOP_MODULE_d3webauthn_diffshopurl'              => 'different shop URL',
-    'HELP_SHOP_MODULE_d3webauthn_diffshopurl'         => '<p>The access data are fixed for the URL of your shop. For this purpose, the domain of your shop without "http(s)://" and without "www." '.
-                                                         'is transferred with every request.</p>'.
-                                                         '<p>If your shop can be reached under different subdomains, you can enter the main domain here that is to be used for registration. Please '.
-                                                         'note that the address given here must match the address of the shop call. Addresses that do not match the shop will be rejected.</p>'.
-                                                         '<p>If the field remains empty, the address of the current shop call is used. If different addresses are used, a separate key registration '.
-                                                         'must be carried out by the user for each address.</p>',
 ];
