@@ -36,7 +36,8 @@
     "web-auth/webauthn-lib": "^3.3",
     "nyholm/psr7": "^1.5.1",
     "nyholm/psr7-server": "^1.0.2",
-    "ext-json": "*"
+    "ext-json": "*",
+    "d3/testingtools": "^1.1"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.19",
