@@ -52,10 +52,13 @@ trait CheckoutTestTrait
 
     /**
      * @test
+     *
      * @param $hasUser
+     * @param $isAvailable
      * @param $isActive
      * @param $sessionAuth
      * @param $expected
+     *
      * @return void
      * @throws ReflectionException
      * @dataProvider canGetUserDataProvider
@@ -64,7 +67,7 @@ trait CheckoutTestTrait
      * @covers       \D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController::getUser
      * @covers       \D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController::getUser
      */
-    public function canGetUser($hasUser, $isActive, $sessionAuth, $expected)
+    public function canGetUser($hasUser, $isAvailable, $isActive, $sessionAuth, $expected)
     {
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -75,8 +78,9 @@ trait CheckoutTestTrait
 
         /** @var Webauthn|MockObject $webauthnMock */
         $webauthnMock = $this->getMockBuilder(Webauthn::class)
-            ->onlyMethods(['isActive'])
+            ->onlyMethods(['isAvailable', 'isActive'])
             ->getMock();
+        $webauthnMock->method('isAvailable')->willReturn($isAvailable);
         $webauthnMock->method('isActive')->willReturn($isActive);
 
         /** @var PaymentController|OrderController|UserController|MockObject $sut */
@@ -136,10 +140,11 @@ trait CheckoutTestTrait
     public function canGetUserDataProvider(): array
     {
         return [
-            'no (valid) user'       => [false, false, null, 'parent'],
-            'webauthn not active'   => [true, false, null, 'parent'],
-            'has webauthn auth'     => [true, true, 'userIdFixture', 'parent'],
-            'no webauthn auth'      => [true, true, null, false],
+            'no (valid) user'       => [false, true, false, null, 'parent'],
+            'webauthn not available'=> [true, false, false, null, 'parent'],
+            'webauthn not active'   => [true, true, false, null, 'parent'],
+            'has webauthn auth'     => [true, true, true, 'userIdFixture', 'parent'],
+            'no webauthn auth'      => [true, true, true, null, false],
         ];
     }
 }

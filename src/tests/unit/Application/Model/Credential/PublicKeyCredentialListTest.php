@@ -210,6 +210,9 @@ class PublicKeyCredentialListTest extends UnitTestCase
 
         if ($doCreate) {
             foreach ($oxids as $oxid) {
+                $pkc = $this->getMockBuilder(PublicKeyCredential::class)
+                    ->onlyMethods(['allowDerivedDelete'])
+                    ->getMock();
                 $pkc->delete($oxid);
             }
         }
@@ -286,6 +289,9 @@ class PublicKeyCredentialListTest extends UnitTestCase
 
         if ($doCreate) {
             foreach ($oxids as $oxid) {
+                $pkc = $this->getMockBuilder(PublicKeyCredential::class)
+                    ->onlyMethods(['allowDerivedDelete'])
+                    ->getMock();
                 $pkc->delete($oxid);
             }
         }

@@ -31,7 +31,7 @@ class passwordAdminAuthTest extends integrationTestCase
 
     public function createTestData()
     {
-        $admin = DatabaseProvider::getDb()->getOne('SELECT oxid FROM oxuser WHERE oxrights = "malladmin"');
+        $admin = DatabaseProvider::getDb()->getOne('SELECT oxid FROM oxuser WHERE oxrights = \'malladmin\'');
         Registry::getSession()->setVariable(WebauthnConf::OXID_ADMIN_AUTH, $admin);
         $this->createUser(
             $this->userList[1],

@@ -18,6 +18,7 @@ namespace D3\Webauthn\Application\Controller\Traits;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
+use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Model\User;
@@ -38,13 +39,14 @@ trait checkoutGetUserTrait
      */
     public function getUser()
     {
-        /** @var User|null $user */
+        /** @var d3_User_Webauthn|null $user */
         $user = $this->d3CallMockableFunction([$this->parentClass, 'getUser']);
 
         if ($user && $user->isLoaded() && $user->getId()) {
             $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
 
-            if ($webauthn->isActive($user->getId())
+            if ($webauthn->isAvailable()
+                && $webauthn->isActive($user->getId())
                 && !$this->d3GetMockableRegistryObject(Session::class)
                          ->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
