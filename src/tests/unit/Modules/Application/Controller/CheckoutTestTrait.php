@@ -38,6 +38,8 @@ trait CheckoutTestTrait
 
     public function setUp(): void
     {
+        parent::setUp();
+
         $this->userFixture = oxNew(User::class);
         $this->userFixture->setId($this->userFixtureId);
         $this->userFixture->assign(['oxlname'    => __METHOD__]);
@@ -47,6 +49,8 @@ trait CheckoutTestTrait
 
     public function tearDown(): void
     {
+        parent::tearDown();
+
         $this->userFixture->delete($this->userFixtureId);
     }
 
@@ -75,6 +79,7 @@ trait CheckoutTestTrait
             ->getMock();
         $sessionMock->method('getVariable')
             ->with($this->identicalTo(WebauthnConf::WEBAUTHN_SESSION_AUTH))->willReturn($sessionAuth);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var Webauthn|MockObject $webauthnMock */
         $webauthnMock = $this->getMockBuilder(Webauthn::class)
@@ -82,33 +87,10 @@ trait CheckoutTestTrait
             ->getMock();
         $webauthnMock->method('isAvailable')->willReturn($isAvailable);
         $webauthnMock->method('isActive')->willReturn($isActive);
+        d3GetOxidDIC()->set(Webauthn::class, $webauthnMock);
 
-        /** @var PaymentController|OrderController|UserController|MockObject $sut */
-        $sut = $this->getMockBuilder($this->sutClass)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webauthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webauthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var PaymentController|OrderController|UserController $sut */
+        $sut = oxNew($this->sutClass);
         if ($hasUser) {
             $sut->setUser($this->userFixture);
         }

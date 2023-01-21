@@ -21,15 +21,17 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Webauthn;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\UtilsView;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-class d3_account_webauthnTest extends UnitTestCase
+class d3_account_webauthnTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -77,23 +79,13 @@ class d3_account_webauthnTest extends UnitTestCase
             ->onlyMethods(['isAvailable'])
             ->getMock();
         $webAuthnMock->expects($this->atLeastOnce())->method('isAvailable')->willReturn(true);
+        d3GetOxidDIC()->set(Webauthn::class, $webAuthnMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['getUser', 'd3GetMockableOxNewObject'])
+            ->onlyMethods(['getUser'])
             ->getMock();
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webAuthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webAuthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         $this->_oController = $oControllerMock;
 
@@ -119,23 +111,13 @@ class d3_account_webauthnTest extends UnitTestCase
             ->onlyMethods(['isAvailable'])
             ->getMock();
         $webAuthnMock->expects($this->atLeastOnce())->method('isAvailable')->willReturn(true);
+        d3GetOxidDIC()->set(Webauthn::class, $webAuthnMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['getUser', 'd3GetMockableOxNewObject'])
+            ->onlyMethods(['getUser'])
             ->getMock();
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webAuthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webAuthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         $this->_oController = $oControllerMock;
 
@@ -167,23 +149,13 @@ class d3_account_webauthnTest extends UnitTestCase
             ->onlyMethods(['getAllFromUser'])
             ->getMock();
         $publicKeyCredentialListMock->method('getAllFromUser')->with($oUser)->willReturnSelf();
+        d3GetOxidDIC()->set(PublicKeyCredentialList::class, $publicKeyCredentialListMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['getUser', 'd3GetMockableOxNewObject'])
+            ->onlyMethods(['getUser'])
             ->getMock();
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($publicKeyCredentialListMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case PublicKeyCredentialList::class:
-                        return $publicKeyCredentialListMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         $this->_oController = $oControllerMock;
 
@@ -216,15 +188,15 @@ class d3_account_webauthnTest extends UnitTestCase
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->never())->method('error')->willReturn(true);
         $loggerMock->expects($this->never())->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'd3GetMockableLogger'])
+            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser'])
             ->getMock();
         $oControllerMock->expects($this->atLeastOnce())->method('setAuthnRegister');
         $oControllerMock->expects($this->atLeastOnce())->method('setPageType');
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('d3GetMockableLogger')->willReturn($loggerMock);
 
         $this->_oController = $oControllerMock;
 
@@ -254,16 +226,16 @@ class d3_account_webauthnTest extends UnitTestCase
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->atLeastOnce())->method('error')->willReturn(true);
         $loggerMock->expects($this->atLeastOnce())->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser', 'd3GetMockableLogger'])
+            ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser'])
             ->getMock();
         $oControllerMock->expects($this->atLeastOnce())->method('setAuthnRegister')
             ->willThrowException(oxNew(WebauthnException::class));
         $oControllerMock->expects($this->never())->method('setPageType');
         $oControllerMock->method('getUser')->willReturn($oUser);
-        $oControllerMock->method('d3GetMockableLogger')->willReturn($loggerMock);
 
         $this->_oController = $oControllerMock;
 
@@ -292,22 +264,12 @@ class d3_account_webauthnTest extends UnitTestCase
         } else {
             $webAuthnMock->method('getCreationOptions')->willReturn('options');
         }
+        d3GetOxidDIC()->set(Webauthn::class, $webAuthnMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
         $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'addTplParam', 'getUser'])
+            ->onlyMethods(['addTplParam', 'getUser'])
             ->getMock();
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webAuthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webAuthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
         $oControllerMock->expects($throwExc ? $this->never() : $this->atLeast(3))
             ->method('addTplParam');
         $oControllerMock->method('getUser')->willReturn(oxNew(User::class));
@@ -376,28 +338,25 @@ class d3_account_webauthnTest extends UnitTestCase
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->atLeastOnce())->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->never())->method('error')->willReturn(true);
         $loggerMock->expects($this->never())->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
-        /** @var d3_account_webauthn|MockObject $oControllerMock */
-        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'd3GetMockableLogger'])
+        /** @var Request|MockObject $requestMock */
+        $requestMock = $this->getMockBuilder(Request::class)
+            ->onlyMethods(['getRequestEscapedParameter'])
             ->getMock();
-        $oControllerMock->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
-        $oControllerMock->method('d3GetMockableLogger')->willReturn($loggerMock);
+        $requestMock->method('getRequestEscapedParameter')->with(
+            $this->identicalTo('error')
+        )->willReturn('errorMsg');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Request::class, $requestMock);
+
+        /** @var d3_account_webauthn $oControllerMock */
+        $oControllerMock = oxNew(d3_account_webauthn::class);
 
         $this->_oController = $oControllerMock;
 
@@ -423,39 +382,17 @@ class d3_account_webauthnTest extends UnitTestCase
             ->onlyMethods(['saveAuthn'])
             ->getMock();
         $webauthnMock->expects($this->once())->method('saveAuthn');
+        d3GetOxidDIC()->set(Webauthn::class, $webauthnMock);
 
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->never())->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
-        /** @var d3_account_webauthn|MockObject $oControllerMock */
-        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
-            ->getMock();
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webauthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webauthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
-        $oControllerMock->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var d3_account_webauthn $oControllerMock */
+        $oControllerMock = oxNew(d3_account_webauthn::class);
 
         $this->_oController = $oControllerMock;
 
@@ -482,39 +419,17 @@ class d3_account_webauthnTest extends UnitTestCase
             ->getMock();
         $webauthnMock->expects($this->once())->method('saveAuthn')
             ->willThrowException(oxNew(WebauthnException::class));
+        d3GetOxidDIC()->set(Webauthn::class, $webauthnMock);
 
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->atLeastOnce())->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
-        /** @var d3_account_webauthn|MockObject $oControllerMock */
-        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'd3GetMockableRegistryObject'])
-            ->getMock();
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webauthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webauthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
-        $oControllerMock->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var d3_account_webauthn $oControllerMock */
+        $oControllerMock = oxNew(d3_account_webauthn::class);
 
         $this->_oController = $oControllerMock;
 
@@ -541,22 +456,10 @@ class d3_account_webauthnTest extends UnitTestCase
             ->getMock();
         $publicKeyCredentialMock->expects($expected)->method('delete')->with($this->identicalTo($deleteId))
             ->willReturn(true);
+        d3GetOxidDIC()->set(PublicKeyCredential::class, $publicKeyCredentialMock);
 
-        /** @var d3_account_webauthn|MockObject $oControllerMock */
-        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $oControllerMock->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($publicKeyCredentialMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case PublicKeyCredential::class:
-                        return $publicKeyCredentialMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var d3_account_webauthn $oControllerMock */
+        $oControllerMock = oxNew(d3_account_webauthn::class);
 
         $this->_oController = $oControllerMock;
 

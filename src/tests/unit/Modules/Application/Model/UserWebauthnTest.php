@@ -19,6 +19,7 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn_parent;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use Exception;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
@@ -29,7 +30,7 @@ use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
-class UserWebauthnTest extends UnitTestCase
+class UserWebauthnTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -96,22 +97,12 @@ class UserWebauthnTest extends UnitTestCase
             ->onlyMethods(['deleteVariable'])
             ->getMock();
         $sessionMock->expects($this->atLeast(11))->method('deleteVariable')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var User|MockObject $sut */
         $sut = $this->getMockBuilder(User::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -157,6 +148,7 @@ class UserWebauthnTest extends UnitTestCase
             ->onlyMethods(['getShopId'])
             ->getMock();
         $configMock->method('getShopId')->willReturn(1);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -166,24 +158,12 @@ class UserWebauthnTest extends UnitTestCase
             [WebauthnConf::WEBAUTHN_SESSION_AUTH, $authInSession],
             [WebauthnConf::WEBAUTHN_SESSION_LOGINUSER, $userNameInSession],
         ]);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var User|MockObject $sut */
         $sut = $this->getMockBuilder(User::class)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'load'])
+            ->onlyMethods(['load'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock, $configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
         $sut->expects($this->exactly((int) ($canLoad)))->method('load')->will(
             $userIsLoadable ?
                 $this->returnValue(true) :
@@ -235,22 +215,10 @@ class UserWebauthnTest extends UnitTestCase
             ->onlyMethods(['getShopId'])
             ->getMock();
         $configMock->method('getShopId')->willReturn($shopId);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
-        /** @var User|MockObject $sut */
-        $sut = $this->getMockBuilder(User::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
-            ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var User $sut */
+        $sut = oxNew(User::class);
 
         $this->assertSame(
             $expected,

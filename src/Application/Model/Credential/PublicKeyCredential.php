@@ -112,8 +112,13 @@ class PublicKeyCredential extends BaseModel
      */
     public function getCredential(): ?PublicKeyCredentialSource
     {
-        return unserialize(base64_decode($this->__get($this->_getFieldLongName('credential'))->rawValue)) ?:
-            null;
+        return unserialize(
+            base64_decode(
+                $this->__get($this->_getFieldLongName('credential'))->rawValue
+            ),
+            ['allowed_classes'  => [PublicKeyCredentialSource::class]]
+        ) ?:
+        null;
     }
 
     /**
@@ -130,7 +135,7 @@ class PublicKeyCredential extends BaseModel
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
         // item exist already
-        if ($this->d3GetMockableOxNewObject(PublicKeyCredentialList::class)
+        if (d3GetOxidDIC()->get(PublicKeyCredentialList::class)
             ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
         ) {
             return;
@@ -174,7 +179,7 @@ class PublicKeyCredential extends BaseModel
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
+                        $qb->createNamedParameter(d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId())
                     )
                 )
             );

@@ -22,13 +22,14 @@ use D3\Webauthn\Application\Model\Exceptions\WebauthnLoginErrorException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnLogin;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
+use Generator;
 use OxidEsales\Eshop\Application\Component\UserComponent;
 use OxidEsales\Eshop\Application\Model\Basket;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Exception\CookieException;
 use OxidEsales\Eshop\Core\Exception\UserException;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\SystemEventHandler;
 use OxidEsales\Eshop\Core\Utils;
@@ -40,7 +41,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionException;
 use TypeError;
 
-class WebauthnLoginTest extends UnitTestCase
+class WebauthnLoginTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -157,15 +158,13 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array[]
+     * @return Generator
      */
-    public function credentialErrorDataProvider(): array
+    public function credentialErrorDataProvider(): Generator
     {
-        return [
-            'empty credential'      => ['', WebauthnGetException::class, WebauthnGetException::class],
-            'spaced credential'     => ['   ', WebauthnGetException::class, WebauthnGetException::class],
-            'null credential'       => [null, TypeError::class, WebauthnGetException::class],
-        ];
+        yield 'empty credential'      => ['', WebauthnGetException::class, WebauthnGetException::class];
+        yield 'spaced credential'     => ['   ', WebauthnGetException::class, WebauthnGetException::class];
+        yield 'null credential'       => [null, TypeError::class, WebauthnGetException::class];
     }
 
     /**
@@ -216,7 +215,7 @@ class WebauthnLoginTest extends UnitTestCase
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
                 'setFrontendSession', 'handleBackendCookie', 'handleBackendSubshopRights', 'setSessionCookie',
-                'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId', ])
+                'getCredential', 'regenerateSessionId', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->expects($this->exactly((int) $setCookie))->method('setSessionCookie');
@@ -232,14 +231,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function frontendLoginSuccessDataProvider(): array
+    public function frontendLoginSuccessDataProvider(): Generator
     {
-        return [
-            'setCookie'     => [true],
-            'dontSetCookie' => [false],
-        ];
+        yield 'setCookie'     => [true];
+        yield 'dontSetCookie' => [false];
     }
 
     /**
@@ -259,17 +256,20 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->once())->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
             ->onlyMethods(['logout'])
             ->getMock();
         $userMock->expects($this->once())->method('logout');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.User::class, $userMock);
 
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($writeLog)->method('error')->willReturn(true);
         $loggerMock->expects($writeLog)->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var UserComponent|MockObject $userComponentMock */
         $userComponentMock = $this->getMockBuilder(UserComponent::class)
@@ -279,35 +279,12 @@ class WebauthnLoginTest extends UnitTestCase
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn', 'd3GetMockableRegistryObject',
+            ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
                 'setFrontendSession', 'handleBackendCookie', 'handleBackendSubshopRights', 'setSessionCookie',
-                'd3GetMockableLogger', 'd3GetMockableOxNewObject', 'getCredential', 'regenerateSessionId', ])
+                'getCredential', 'regenerateSessionId', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('handleErrorMessage')->willThrowException(oxNew($exceptionClass));
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($userMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case User::class:
-                        return $userMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
-        $sut->method('d3GetMockableLogger')->willReturn($loggerMock);
 
         $this->expectException(WebauthnLoginErrorException::class);
 
@@ -321,16 +298,14 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array[]
+     * @return Generator
      */
-    public function frontendLoginExceptionDataProvider(): array
+    public function frontendLoginExceptionDataProvider(): Generator
     {
-        return [
-            'userException'         => [UserException::class, $this->any(), false],
-            'cookieException'       => [CookieException::class, $this->any(), true],
-            'webauthnException'     => [WebauthnException::class, $this->atLeastOnce(), false],
-            'webauthnGetException'  => [WebauthnGetException::class, $this->atLeastOnce(), true],
-        ];
+        yield 'userException'         => [UserException::class, $this->any(), false];
+        yield 'cookieException'       => [CookieException::class, $this->any(), true];
+        yield 'webauthnException'     => [WebauthnException::class, $this->atLeastOnce(), false];
+        yield 'webauthnGetException'  => [WebauthnGetException::class, $this->atLeastOnce(), true];
     }
 
     /**
@@ -345,25 +320,14 @@ class WebauthnLoginTest extends UnitTestCase
         $userMock = $this->getMockBuilder(User::class)
             ->disableOriginalConstructor()
             ->getMock();
+        d3GetOxidDIC()->set('d3ox.webauthn.'.User::class, $userMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
-                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights',
-                'd3GetMockableOxNewObject', ])
+                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($userMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case User::class:
-                        return $userMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         $this->assertSame(
             'admin_start',
@@ -389,58 +353,35 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['onAdminLogin'])
             ->getMock();
         $systemEventHandlerMock->expects($this->never())->method('onAdminLogin');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.SystemEventHandler::class, $systemEventHandlerMock);
 
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->once())->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
             ->onlyMethods(['logout'])
             ->getMock();
         $userMock->expects($this->once())->method('logout');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.User::class, $userMock);
 
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($writeLog)->method('error')->willReturn(true);
         $loggerMock->expects($writeLog)->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
-                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights',
-                'd3GetMockableOxNewObject', 'd3GetMockableRegistryObject',
-                'd3GetMockableLogger', ])
+                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights'])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('handleErrorMessage')->willThrowException(oxNew($exceptionClass));
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
-        $sut->method('d3GetMockableLogger')->willReturn($loggerMock);
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($userMock, $systemEventHandlerMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case User::class:
-                        return $userMock;
-                    case SystemEventHandler::class:
-                        return $systemEventHandlerMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         $this->assertSame(
             'login',
@@ -453,16 +394,14 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function adminLoginExceptionDataProvider(): array
+    public function adminLoginExceptionDataProvider(): Generator
     {
-        return [
-            'userException'         => [UserException::class, $this->any()],
-            'cookieException'       => [CookieException::class, $this->any()],
-            'webauthnException'     => [WebauthnException::class, $this->atLeastOnce()],
-            'webauthnGetException'  => [WebauthnGetException::class, $this->atLeastOnce()],
-        ];
+        yield 'userException'         => [UserException::class, $this->any()];
+        yield 'cookieException'       => [CookieException::class, $this->any()];
+        yield 'webauthnException'     => [WebauthnException::class, $this->atLeastOnce()];
+        yield 'webauthnGetException'  => [WebauthnGetException::class, $this->atLeastOnce()];
     }
 
     /**
@@ -494,15 +433,13 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canHandleErrorMessageDataProvider(): array
+    public function canHandleErrorMessageDataProvider(): Generator
     {
-        return [
-            'has error message' => ['errorMessage', true],
-            'empty error message'  => ['', false],
-            'error message null'  => [null, false],
-        ];
+        yield 'has error message' => ['errorMessage', true];
+        yield 'empty error message'  => ['', false];
+        yield 'error message null'  => [null, false];
     }
 
     /**
@@ -519,10 +456,11 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['assertAuthn'])
             ->getMock();
         $webauthnMock->expects($doAssert)->method('assertAuthn');
+        d3GetOxidDIC()->set(Webauthn::class, $webauthnMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['getCredential', 'd3GetMockableOxNewObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
         if ($throwException) {
@@ -530,17 +468,6 @@ class WebauthnLoginTest extends UnitTestCase
         } else {
             $sut->method('getCredential')->willReturn('credential');
         }
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($webauthnMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Webauthn::class:
-                        return $webauthnMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         if ($throwException) {
             $this->expectException(WebauthnGetException::class);
@@ -555,14 +482,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canAssertAuthDataProvider(): array
+    public function canAssertAuthDataProvider(): Generator
     {
-        return [
-            'has credential' => ['credentialFixture', $this->atLeastOnce(), false],
-            'no credential'  => [null, $this->never(), true],
-        ];
+        yield 'has credential' => ['credentialFixture', $this->atLeastOnce(), false];
+        yield 'no credential'  => [null, $this->never(), true];
     }
 
     /**
@@ -586,23 +511,13 @@ class WebauthnLoginTest extends UnitTestCase
                 $this->identicalTo('userId')
             )
         );
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->assertSame(
             $sessionMock,
@@ -634,6 +549,7 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['setUserCookie'])
             ->getMock();
         $utilsServerMock->expects($this->exactly((int) $setCookie))->method('setUserCookie');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsServer::class, $utilsServerMock);
 
         /** @var Config|MockObject $configMock */
         $configMock = $this->getMockBuilder(Config::class)
@@ -641,25 +557,13 @@ class WebauthnLoginTest extends UnitTestCase
             ->getMock();
         $configMock->method('getConfigParam')->with('blShowRememberMe')->willReturn($setCookie);
         $configMock->method('getShopId')->willReturn(1);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsServerMock, $configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsServer::class:
-                        return $utilsServerMock;
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -669,14 +573,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canSetSessionCookieDataProvider(): array
+    public function canSetSessionCookieDataProvider(): Generator
     {
-        return [
-            'set cookie'        => [true],
-            'dont set cookie'   => [false],
-        ];
+        yield 'set cookie'        => [true];
+        yield 'dont set cookie'   => [false];
     }
 
     /**
@@ -698,23 +600,13 @@ class WebauthnLoginTest extends UnitTestCase
             ->getMock();
         $userMock->method('isLoaded')->willReturn($userLoaded);
         $userMock->method('getFieldData')->with('oxrights')->willReturn($rights);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.User::class, $userMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($userMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case User::class:
-                        return $userMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
 
         if ($throwsException) {
             $this->expectException(UserException::class);
@@ -731,20 +623,18 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array[]
+     * @return Generator
      */
-    public function canAssertUserDataProvider(): array
+    public function canAssertUserDataProvider(): Generator
     {
-        return [
-            'frontend, user not loaded'       => [false, false, 'malladmin', true],
-            'backend, user not loaded'          => [true, false, 'malladmin', true],
-            'frontend, frontend user loaded'  => [false, true, 'user', false],
-            'backend, frontend user loaded'  => [true, true, 'user', true],
-            'frontend, backend user loaded'   => [false, true, 'malladmin', false],
-            'backend, backend user loaded'   => [true, true, 'malladmin', false],
-            'frontend, backend 2 user loaded' => [false, true, '2', false],
-            'backend, backend 2 user loaded' => [true, true, '2', false],
-        ];
+        yield 'frontend, user not loaded'       => [false, false, 'malladmin', true];
+        yield 'backend, user not loaded'          => [true, false, 'malladmin', true];
+        yield 'frontend, frontend user loaded'  => [false, true, 'user', false];
+        yield 'backend, frontend user loaded'  => [true, true, 'user', true];
+        yield 'frontend, backend user loaded'   => [false, true, 'malladmin', false];
+        yield 'backend, backend user loaded'   => [true, true, 'malladmin', false];
+        yield 'frontend, backend 2 user loaded' => [false, true, '2', false];
+        yield 'backend, backend 2 user loaded' => [true, true, '2', false];
     }
 
     /**
@@ -763,23 +653,13 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['getOxCookie'])
             ->getMock();
         $utilsServerMock->method('getOxCookie')->willReturn($cookie);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsServer::class, $utilsServerMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsServerMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsServer::class:
-                        return $utilsServerMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         if ($throwException) {
             $this->expectException(CookieException::class);
@@ -794,14 +674,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array[]
+     * @return Generator
      */
-    public function canHandleBackendCookieDataProvider(): array
+    public function canHandleBackendCookieDataProvider(): Generator
     {
-        return [
-            'has cookie'    => ['cookiecontent', false],
-            'has no cookie' => [null, true],
-        ];
+        yield 'has cookie'    => ['cookiecontent', false];
+        yield 'has no cookie' => [null, true];
     }
 
     /**
@@ -820,6 +698,7 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['setShopId'])
             ->getMock();
         $configMock->expects($setVar)->method('setShopId');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
@@ -835,20 +714,9 @@ class WebauthnLoginTest extends UnitTestCase
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -858,15 +726,13 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canHandleBackendSubshopRightsDataProvider(): array
+    public function canHandleBackendSubshopRightsDataProvider(): Generator
     {
-        return [
-            'malladmin'     => ['malladmin', $this->never()],
-            '1'             => ['1', $this->atLeastOnce()],
-            '2'             => ['2', $this->atLeastOnce()],
-        ];
+        yield 'malladmin'     => ['malladmin', $this->never()];
+        yield '1'             => ['1', $this->atLeastOnce()];
+        yield '2'             => ['2', $this->atLeastOnce()];
     }
 
     /**
@@ -885,23 +751,13 @@ class WebauthnLoginTest extends UnitTestCase
             ->getMock();
         $sessionMock->method('isSessionStarted')->willReturn($sessionStarted);
         $sessionMock->expects($this->exactly((int) $sessionStarted))->method('regenerateSessionId');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3GetMockableRegistryObject'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -910,14 +766,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canRegenerateSessionIdDataProvider(): array
+    public function canRegenerateSessionIdDataProvider(): Generator
     {
-        return [
-            'session started'       => [true],
-            'session not started'   => [false],
-        ];
+        yield 'session started'       => [true];
+        yield 'session not started'   => [false];
     }
 
     /**
@@ -935,12 +789,14 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['redirect'])
             ->getMock();
         $utilsMock->expects($this->exactly((int) $inBlockedGroup))->method('redirect');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Utils::class, $utilsMock);
 
         /** @var Config|MockObject $configMock */
         $configMock = $this->getMockBuilder(Config::class)
             ->onlyMethods(['getShopHomeUrl'])
             ->getMock();
         $configMock->method('getShopHomeUrl')->willReturn('homeurl');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
@@ -950,22 +806,9 @@ class WebauthnLoginTest extends UnitTestCase
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->disableOriginalConstructor()
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsMock, $configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Utils::class:
-                        return $utilsMock;
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -975,14 +818,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canHandleBlockedUserDataProvider(): array
+    public function canHandleBlockedUserDataProvider(): Generator
     {
-        return [
-            'is in blocked group'       => [true],
-            'is not in blocked group'   => [false],
-        ];
+        yield 'is in blocked group'       => [true];
+        yield 'is not in blocked group'   => [false];
     }
 
     /**
@@ -1004,23 +845,13 @@ class WebauthnLoginTest extends UnitTestCase
             ->onlyMethods(['getBasket'])
             ->getMock();
         $sessionMock->method('getBasket')->willReturn($basketMock);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,
@@ -1073,23 +904,13 @@ class WebauthnLoginTest extends UnitTestCase
                 return null;
             }
         );
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['d3GetMockableRegistryObject', 'isAdmin'])
+            ->onlyMethods(['isAdmin'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
         $sut->method('isAdmin')->willReturn($isAdmin);
 
         $this->assertSame(
@@ -1102,14 +923,12 @@ class WebauthnLoginTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canGetUserIdDataProvider(): array
+    public function canGetUserIdDataProvider(): Generator
     {
-        return [
-            'admin'     => [true, 'adminUser'],
-            'frontend'  => [false, 'frontendUser'],
-        ];
+        yield 'admin'     => [true, 'adminUser'];
+        yield 'frontend'  => [false, 'frontendUser'];
     }
 
     /**
@@ -1134,6 +953,7 @@ class WebauthnLoginTest extends UnitTestCase
                 $this->identicalTo('idFixture'),
             ]
         );
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
         /** @var User|MockObject $userMock */
         $userMock = $this->getMockBuilder(User::class)
@@ -1144,20 +964,9 @@ class WebauthnLoginTest extends UnitTestCase
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getCredential', 'd3GetMockableRegistryObject'])
+            ->onlyMethods(['getCredential'])
             ->getMock();
         $sut->method('getCredential')->willReturn('credentialFixture');
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
 
         $this->callMethod(
             $sut,

@@ -17,6 +17,7 @@ namespace D3\Webauthn\tests\integration;
 
 use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
+use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 
@@ -31,7 +32,9 @@ class passwordAdminAuthTest extends integrationTestCase
 
     public function createTestData()
     {
-        $admin = DatabaseProvider::getDb()->getOne('SELECT oxid FROM oxuser WHERE oxrights = \'malladmin\'');
+        /** @var DatabaseInterface $db */
+        $db = d3GetOxidDIC()->get('d3ox.webauthn.'.DatabaseInterface::class.'.assoc');
+        $admin = $db->getOne('SELECT oxid FROM oxuser WHERE oxrights = \'malladmin\'');
         Registry::getSession()->setVariable(WebauthnConf::OXID_ADMIN_AUTH, $admin);
         $this->createUser(
             $this->userList[1],

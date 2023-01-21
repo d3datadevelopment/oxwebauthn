@@ -13,6 +13,7 @@
 
 declare(strict_types=1);
 
+use D3\DIContainerHandler\definitionFileContainer;
 use D3\Webauthn\Application\Controller\Admin\d3user_webauthn;
 use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Controller\d3_account_webauthn;
@@ -33,6 +34,7 @@ use D3\Webauthn\Modules\Application\Controller\d3_webauthn_OrderController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_PaymentController;
 use D3\Webauthn\Modules\Application\Controller\d3_webauthn_UserController;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
+use D3\Webauthn\Modules\WebauthnServices;
 use OxidEsales\Eshop\Application\Component\UserComponent;
 use OxidEsales\Eshop\Application\Controller\AccountController;
 use OxidEsales\Eshop\Application\Controller\AccountDownloadsController;
@@ -73,12 +75,13 @@ $aModule = [
     'email'       => 'support@shopmodule.com',
     'url'         => 'https://www.oxidmodule.com/',
     'extend'      => [
-        UserController::class       => d3_webauthn_UserController::class,
-        PaymentController::class    => d3_webauthn_PaymentController::class,
-        OrderController::class      => d3_webauthn_OrderController::class,
-        OxidModel\User::class       => d3_User_Webauthn::class,
-        LoginController::class      => d3_LoginController_Webauthn::class,
-        UserComponent::class        => d3_webauthn_UserComponent::class,
+        UserController::class           => d3_webauthn_UserController::class,
+        PaymentController::class        => d3_webauthn_PaymentController::class,
+        OrderController::class          => d3_webauthn_OrderController::class,
+        OxidModel\User::class           => d3_User_Webauthn::class,
+        LoginController::class          => d3_LoginController_Webauthn::class,
+        UserComponent::class            => d3_webauthn_UserComponent::class,
+        definitionFileContainer::class  => WebauthnServices::class,
 
         /** workarounds for missing tpl blocks (https://github.com/OXID-eSales/wave-theme/pull/124) */
         AccountController::class    => d3_AccountController_Webauthn::class,

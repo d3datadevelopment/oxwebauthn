@@ -17,13 +17,14 @@ namespace D3\Webauthn\tests\unit\Application\Model;
 
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\WebauthnErrors;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Core\Language;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
-class WebauthnErrorsTest extends UnitTestCase
+class WebauthnErrorsTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -50,22 +51,12 @@ class WebauthnErrorsTest extends UnitTestCase
                 }
             )
         )->willReturn('translated');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Language::class, $languageMock);
 
         /** @var WebauthnErrors|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnErrors::class)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'getErrIdFromMessage'])
+            ->onlyMethods(['getErrIdFromMessage'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($languageMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Language::class:
-                        return $languageMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
         $sut->method('getErrIdFromMessage')->willReturn($errId);
 
         $this->assertSame(

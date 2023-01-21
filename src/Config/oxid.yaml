@@ -1,0 +1,138 @@
+# This Software is the property of Data Development and is protected
+# by copyright law - it is NOT Freeware.
+#
+# Any unauthorized use of this software without a valid license
+# is a violation of the license agreement and will be prosecuted by
+# civil and criminal law.
+#
+# https://www.d3data.de
+#
+# @copyright (C) D3 Data Development (Inh. Thomas Dartsch)
+# @author    D3 Data Development - Daniel Seifert <support@shopmodule.com>
+# @link      https://www.oxidmodule.com
+
+services:
+  _defaults:
+    autowire: false
+    public: true
+
+  # config
+  d3ox.webauthn.OxidEsales\Eshop\Core\Config:
+    class:      'OxidEsales\Eshop\Core\Config'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getConfig'
+    shared:     true
+
+  # request
+  d3ox.webauthn.OxidEsales\Eshop\Core\Request:
+    class:      'OxidEsales\Eshop\Core\Request'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getRequest'
+    shared:     true
+
+  # session
+  d3ox.webauthn.OxidEsales\Eshop\Core\Session:
+    class:      'OxidEsales\Eshop\Core\Session'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getSession'
+    shared:     true
+
+  # language
+  d3ox.webauthn.OxidEsales\Eshop\Core\Language:
+    class:      'OxidEsales\Eshop\Core\Language'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getLang'
+    shared:     true
+
+  # Utils
+  d3ox.webauthn.OxidEsales\Eshop\Core\Utils:
+    class:      'OxidEsales\Eshop\Core\Utils'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getUtils'
+    shared:     true
+
+  # UtilsServer
+  d3ox.webauthn.OxidEsales\Eshop\Core\UtilsServer:
+    class:      'OxidEsales\Eshop\Core\UtilsServer'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getUtilsServer'
+    shared:     true
+
+  # UtilsView
+  d3ox.webauthn.OxidEsales\Eshop\Core\UtilsView:
+    class:      'OxidEsales\Eshop\Core\UtilsView'
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getUtilsView'
+    shared:     true
+
+  # DbMetaDataHandler
+  d3ox.webauthn.OxidEsales\Eshop\Core\DbMetaDataHandler:
+    class: 'OxidEsales\Eshop\Core\DbMetaDataHandler'
+    factory: 'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Core\DbMetaDataHandler'
+    shared: false
+
+  # SeoEncoder
+  d3ox.webauthn.OxidEsales\Eshop\Core\SeoEncoder:
+    class: 'OxidEsales\Eshop\Core\SeoEncoder'
+    factory: 'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Core\SeoEncoder'
+    shared: false
+
+  # SystemEventHandler
+  d3ox.webauthn.OxidEsales\Eshop\Core\SystemEventHandler:
+    class: 'OxidEsales\Eshop\Core\SystemEventHandler'
+    factory: 'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Core\SystemEventHandler'
+    shared: false
+
+  # ControllerClassNameResolver
+  d3ox.webauthn.OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver:
+    class: 'OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver'
+    factory: 'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver'
+    shared: false
+
+  # FrontendController
+  d3ox.webauthn.OxidEsales\Eshop\Application\Controller\FrontendController:
+    class:      'OxidEsales\Eshop\Application\Controller\FrontendController'
+    factory:    'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Application\Controller\FrontendController'
+    shared:     false
+
+  # User
+  d3ox.webauthn.OxidEsales\Eshop\Application\Model\User:
+    class:      'OxidEsales\Eshop\Application\Model\User'
+    factory:    'oxNew'
+    arguments:
+      - 'OxidEsales\Eshop\Application\Model\User'
+    shared:     false
+
+  d3ox.webauthn.Psr\Log\LoggerInterface:
+    class: Psr\Log\LoggerInterface
+    factory:
+      - 'OxidEsales\Eshop\Core\Registry'
+      - 'getLogger'
+    shared: true
+
+  # DB_assoc
+  d3ox.webauthn.OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface.assoc:
+    class: 'OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface'
+    factory:
+      - 'OxidEsales\Eshop\Core\DatabaseProvider'
+      - 'getDb'
+    arguments:
+      - 2
+    shared: true

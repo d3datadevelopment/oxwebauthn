@@ -63,12 +63,14 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
+                        $qb->createNamedParameter(d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId())
                     )
                 )
             );
         $credential = $qb->execute()->fetchOne();
-
+//dumpvar($qb->getSQL());
+//dumpvar($qb->getParameters());
+//dumpvar(unserialize(base64_decode($credential)));
         if (!strlen((string) $credential)) {
             return null;
         }
@@ -100,14 +102,17 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
+                        $qb->createNamedParameter(d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId())
                     )
                 )
             );
 
         // generate decoded credentials list
         return array_map(function (array $fields) {
-            return unserialize(base64_decode($fields['credential']));
+            /** @var PublicKeyCredential $credential */
+            $credential = clone $this->getBaseObject();
+            $credential->assign(['credential'   => $fields['credential']]);
+            return $credential->getCredential();
         }, $qb->execute()->fetchAllAssociative());
     }
 
@@ -137,7 +142,7 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
+                        $qb->createNamedParameter(d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId())
                     )
                 )
             );

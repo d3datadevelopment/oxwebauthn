@@ -17,12 +17,13 @@ namespace D3\Webauthn\tests\unit\Application\Model;
 
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\RelyingPartyEntity;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Model\Shop;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
-class RelyingPartyEntityTest extends TestCase
+class RelyingPartyEntityTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 

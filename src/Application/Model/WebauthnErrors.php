@@ -38,7 +38,7 @@ class WebauthnErrors
      */
     public function translateError(string $msg, string $type = null): string
     {
-        $lang = $this->d3GetMockableRegistryObject(Language::class);
+        $lang = d3GetOxidDIC()->get('d3ox.webauthn.'.Language::class);
         $type = $type ? '_'.$type : null;
 
         switch ($this->getErrIdFromMessage($msg)) {

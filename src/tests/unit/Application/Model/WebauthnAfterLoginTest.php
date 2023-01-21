@@ -18,6 +18,7 @@ namespace D3\Webauthn\tests\unit\Application\Model;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\WebauthnAfterLogin;
 use D3\Webauthn\Application\Model\WebauthnConf;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Core\Language;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
@@ -28,7 +29,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use stdClass;
 
-class WebauthnAfterLoginTest extends UnitTestCase
+class WebauthnAfterLoginTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -53,12 +54,14 @@ class WebauthnAfterLoginTest extends UnitTestCase
             $this->identicalTo('oxidadminprofile'),
             $this->logicalOr($this->identicalTo('1@prof@No1'), $this->identicalTo(''))
         );
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsServer::class, $utilsServerMock);
 
         /** @var Request|MockObject $requestMock */
         $requestMock = $this->getMockBuilder(Request::class)
             ->onlyMethods(['getRequestEscapedParameter'])
             ->getMock();
         $requestMock->method('getRequestEscapedParameter')->willReturn($requestProfile);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Request::class, $requestMock);
 
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -70,26 +73,10 @@ class WebauthnAfterLoginTest extends UnitTestCase
         ]);
         $sessionMock->expects($this->once())->method('deleteVariable');
         $sessionMock->expects($this->exactly((int) $setSessionVar))->method('setVariable');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
-        /** @var WebauthnAfterLogin|MockObject $sut */
-        $sut = $this->getMockBuilder(WebauthnAfterLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
-            ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock, $requestMock, $utilsServerMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    case Request::class:
-                        return $requestMock;
-                    case UtilsServer::class:
-                        return $utilsServerMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var WebauthnAfterLogin $sut */
+        $sut = oxNew(WebauthnAfterLogin::class);
 
         $this->callMethod(
             $sut,
@@ -133,6 +120,7 @@ class WebauthnAfterLoginTest extends UnitTestCase
         );
         $languageMock->expects($this->once())->method('setTplLanguage')
             ->with($this->identicalTo($expectedLang));
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Language::class, $languageMock);
 
         /** @var UtilsServer|MockObject $utilsServerMock */
         $utilsServerMock = $this->getMockBuilder(UtilsServer::class)
@@ -142,12 +130,14 @@ class WebauthnAfterLoginTest extends UnitTestCase
             $this->identicalTo('oxidadminlanguage'),
             $this->identicalTo($expectedAbbr)
         );
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsServer::class, $utilsServerMock);
 
         /** @var Request|MockObject $requestMock */
         $requestMock = $this->getMockBuilder(Request::class)
             ->onlyMethods(['getRequestEscapedParameter'])
             ->getMock();
         $requestMock->method('getRequestEscapedParameter')->willReturn($requestLang);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Request::class, $requestMock);
 
         /** @var Session|MockObject $sessionMock */
         $sessionMock = $this->getMockBuilder(Session::class)
@@ -157,28 +147,10 @@ class WebauthnAfterLoginTest extends UnitTestCase
             [WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE, $sessionLang],
         ]);
         $sessionMock->expects($this->once())->method('deleteVariable');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Session::class, $sessionMock);
 
-        /** @var WebauthnAfterLogin|MockObject $sut */
-        $sut = $this->getMockBuilder(WebauthnAfterLogin::class)
-            ->onlyMethods(['d3GetMockableRegistryObject'])
-            ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($sessionMock, $requestMock, $utilsServerMock, $languageMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Session::class:
-                        return $sessionMock;
-                    case Request::class:
-                        return $requestMock;
-                    case UtilsServer::class:
-                        return $utilsServerMock;
-                    case Language::class:
-                        return $languageMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
+        /** @var WebauthnAfterLogin $sut */
+        $sut = oxNew(WebauthnAfterLogin::class);
 
         $this->callMethod(
             $sut,

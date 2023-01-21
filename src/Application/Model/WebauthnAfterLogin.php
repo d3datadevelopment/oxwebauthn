@@ -30,15 +30,15 @@ class WebauthnAfterLogin
      */
     public function setDisplayProfile(): void
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
 
-        $sProfile = $this->d3GetMockableRegistryObject(Request::class)
+        $sProfile = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)
             ->getRequestEscapedParameter('profile') ?:
             $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
 
         $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_PROFILE);
 
-        $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
+        $myUtilsServer = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsServer::class);
 
         if (isset($sProfile)) {
             $aProfiles = $session->getVariable("aAdminProfiles");
@@ -58,17 +58,17 @@ class WebauthnAfterLogin
      */
     public function changeLanguage(): void
     {
-        $myUtilsServer = $this->d3GetMockableRegistryObject(UtilsServer::class);
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $myUtilsServer = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsServer::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
 
         // languages
-        $iLang = $this->d3GetMockableRegistryObject(Request::class)
+        $iLang = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)
             ->getRequestEscapedParameter('chlanguage') ?:
             $session->getVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
         $session->deleteVariable(WebauthnConf::WEBAUTHN_ADMIN_CHLANGUAGE);
 
-        $language = $this->d3GetMockableRegistryObject(Language::class);
+        $language = d3GetOxidDIC()->get('d3ox.webauthn.'.Language::class);
         $aLanguages = $language->getAdminTplLanguageArray();
 
         if (!isset($aLanguages[$iLang])) {

@@ -17,6 +17,7 @@ namespace D3\Webauthn\tests\unit\Setup;
 
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Setup\Actions;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use Exception;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
@@ -32,24 +33,15 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\Sho
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ShopConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ModuleConfigurationNotFoundException;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class ActionsTest extends UnitTestCase
+class ActionsTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        //$seoEncoder = oxNew(SeoEncoder::class);
-        //$seoEncoder->addSeoEntry();
-    }
 
     /**
      * @test
@@ -101,22 +93,10 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['tableExists'])
             ->getMock();
         $DbMetaDataMock->expects($this->once())->method('tableExists')->willReturn($expected);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.DbMetaDataHandler::class, $DbMetaDataMock);
 
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($DbMetaDataMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case DbMetaDataHandler::class:
-                        return $DbMetaDataMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var Actions $sut */
+        $sut = oxNew(Actions::class);
 
         $this->assertSame(
             $expected,
@@ -188,22 +168,10 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['fieldExists'])
             ->getMock();
         $DbMetaDataMock->expects($this->once())->method('fieldExists')->willReturn($expected);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.DbMetaDataHandler::class, $DbMetaDataMock);
 
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($DbMetaDataMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case DbMetaDataHandler::class:
-                        return $DbMetaDataMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var Actions $sut */
+        $sut = oxNew(Actions::class);
 
         $this->assertSame(
             $expected,
@@ -228,22 +196,10 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['updateViews'])
             ->getMock();
         $DbMetaDataMock->expects($this->once())->method('updateViews');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.DbMetaDataHandler::class, $DbMetaDataMock);
 
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($DbMetaDataMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case DbMetaDataHandler::class:
-                        return $DbMetaDataMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var Actions $sut */
+        $sut = oxNew(Actions::class);
 
         $this->callMethod(
             $sut,
@@ -263,6 +219,7 @@ class ActionsTest extends UnitTestCase
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($throwException ? $this->atLeastOnce() : $this->never())
             ->method('error')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
@@ -270,6 +227,7 @@ class ActionsTest extends UnitTestCase
             ->getMock();
         $utilsViewMock->expects($throwException ? $this->atLeastOnce() : $this->never())
             ->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
         /** @var Utils|MockObject $utilsMock */
         $utilsMock = $this->getMockBuilder(Utils::class)
@@ -279,30 +237,17 @@ class ActionsTest extends UnitTestCase
             ->method('resetTemplateCache');
         $utilsMock->expects($throwException ? $this->never() : $this->once())
             ->method('resetLanguageCache');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Utils::class, $utilsMock);
 
         /** @var Actions|MockObject $sut */
         $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'getModuleTemplates', 'd3GetMockableLogger'])
+            ->onlyMethods(['getModuleTemplates'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsMock, $utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Utils::class:
-                        return $utilsMock;
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
         $sut->method('getModuleTemplates')->will(
             $throwException ?
                 $this->throwException(oxNew(ModuleConfigurationNotFoundException::class)) :
                 $this->returnValue([])
         );
-        $sut->method('d3GetMockableLogger')->willReturn($loggerMock);
 
         $this->callMethod(
             $sut,
@@ -462,33 +407,23 @@ class ActionsTest extends UnitTestCase
                               ->getMock();
         $utilsViewMock->expects($throwException ? $this->atLeastOnce() : $this->never())
                       ->method('addErrorToDisplay');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($throwException ? $this->atLeastOnce() : $this->never())
                    ->method('error')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var Actions|MockObject $sut */
         $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['hasSeoUrl', 'createSeoUrl', 'd3GetMockableLogger', 'd3GetMockableRegistryObject'])
+            ->onlyMethods(['hasSeoUrl', 'createSeoUrl'])
             ->getMock();
         $sut->method('hasSeoUrl')->willReturn($hasSeoUrl);
         $sut->expects($hasSeoUrl ? $this->never() : $this->once())->method('createSeoUrl')->will(
             $throwException ?
                 $this->throwException(oxNew(Exception::class)) :
                 $this->returnValue(true)
-        );
-        $sut->method('d3GetMockableLogger')->willReturn($loggerMock);
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($utilsViewMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case UtilsView::class:
-                        return $utilsViewMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
         );
 
         $this->callMethod(
@@ -522,6 +457,7 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['getStaticUrl'])
             ->getMock();
         $seoEncoderMock->method('getStaticUrl')->willReturn($staticUrl);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.SeoEncoder::class, $seoEncoderMock);
 
         /** @var ViewConfig|MockObject $viewConfigMock */
         $viewConfigMock = $this->getMockBuilder(ViewConfig::class)
@@ -534,24 +470,10 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['getViewConfig'])
             ->getMock();
         $controllerMock->method('getViewConfig')->willReturn($viewConfigMock);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.FrontendController::class, $controllerMock);
 
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($controllerMock, $seoEncoderMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case FrontendController::class:
-                        return $controllerMock;
-                    case SeoEncoder::class:
-                        return $seoEncoderMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var Actions $sut */
+        $sut = oxNew(Actions::class);
 
         $this->assertSame(
             $expected,
@@ -586,22 +508,10 @@ class ActionsTest extends UnitTestCase
             ->onlyMethods(['addSeoEntry'])
             ->getMock();
         $seoEncoderMock->expects($this->exactly(2))->method('addSeoEntry');
+        d3GetOxidDIC()->set('d3ox.webauthn.'.SeoEncoder::class, $seoEncoderMock);
 
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetMockableOxNewObject'])
-            ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($seoEncoderMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case SeoEncoder::class:
-                        return $seoEncoderMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
+        /** @var Actions $sut */
+        $sut = oxNew(Actions::class);
 
         $this->callMethod(
             $sut,

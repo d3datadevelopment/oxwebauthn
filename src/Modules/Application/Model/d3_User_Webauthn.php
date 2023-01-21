@@ -20,6 +20,7 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
+use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
@@ -46,7 +47,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
      */
     protected function d3WebauthnLogout(): void
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_LOGIN_OBJECT);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
@@ -83,13 +84,13 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
      */
     protected function d3WebauthnLogin(string $userName)
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
 
         if ($session->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
             $userName === $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER)
         ) {
             $userName = $userName ?: $session->getVariable(WebauthnConf::WEBAUTHN_SESSION_LOGINUSER);
-            $shopId = $this->d3GetMockableRegistryObject(Config::class)->getShopId();
+            $shopId = d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId();
 
             /** private method is out of scope */
             $class = new ReflectionClass($this);
@@ -133,7 +134,7 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
                     ),
                     $qb->expr()->eq(
                         'oxshopid',
-                        $qb->createNamedParameter($this->d3GetMockableRegistryObject(Config::class)->getShopId())
+                        $qb->createNamedParameter(d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId())
                     ),
                     $rights ?
                         $qb->expr()->eq(

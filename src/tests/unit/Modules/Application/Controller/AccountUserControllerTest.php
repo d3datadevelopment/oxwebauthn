@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\tests\unit\Modules\Application\Controller;
 
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Controller\AccountUserController;
-use OxidEsales\TestingLibrary\UnitTestCase;
 
-class AccountUserControllerTest extends UnitTestCase
+class AccountUserControllerTest extends WAUnitTestCase
 {
     use AccountTestTrait;
 

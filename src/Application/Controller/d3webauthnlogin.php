@@ -28,6 +28,7 @@ use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Log\LoggerInterface;
 
 class d3webauthnlogin extends FrontendController
 {
@@ -40,7 +41,7 @@ class d3webauthnlogin extends FrontendController
      */
     public function getNavigationParams(): array
     {
-        $navparams = $this->d3GetMockableRegistryObject(Session::class)->getVariable(
+        $navparams = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)->getVariable(
             WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS
         );
 
@@ -60,17 +61,17 @@ class d3webauthnlogin extends FrontendController
      */
     public function render(): string
     {
-        if ($this->d3GetMockableRegistryObject(Session::class)
+        if (d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
-            !$this->d3GetMockableRegistryObject(Session::class)
+            !d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                   ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
-            $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=start');
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');
         }
 
         $this->generateCredentialRequest();
 
-        $this->addTplParam('navFormParams', $this->d3GetMockableRegistryObject(Session::class)
+        $this->addTplParam('navFormParams', d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                                                  ->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
         return $this->d3CallMockableFunction([FrontendController::class, 'render']);
@@ -85,22 +86,22 @@ class d3webauthnlogin extends FrontendController
      */
     public function generateCredentialRequest(): void
     {
-        $userId = $this->d3GetMockableRegistryObject(Session::class)
+        $userId = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                        ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
 
         try {
             /** @var Webauthn $webauthn */
-            $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
+            $webauthn = d3GetOxidDIC()->get(Webauthn::class);
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
-            $this->d3GetMockableRegistryObject(Session::class)
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
-            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
-            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
-            $this->d3GetMockableRegistryObject(Utils::class)->redirect('index.php?cl=start');
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');
         }
     }
 
@@ -109,7 +110,7 @@ class d3webauthnlogin extends FrontendController
      */
     public function d3GetPreviousClass(): ?string
     {
-        return $this->d3GetMockableRegistryObject(Session::class)
+        return d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                     ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
     }
 
@@ -119,7 +120,7 @@ class d3webauthnlogin extends FrontendController
     public function previousClassIsOrderStep(): bool
     {
         $sClassKey = $this->d3GetPreviousClass();
-        $resolvedClass = $this->d3GetMockableRegistryObject(ControllerClassNameResolver::class)
+        $resolvedClass = d3GetOxidDIC()->get('d3ox.webauthn.'.ControllerClassNameResolver::class)
                               ->getClassNameById($sClassKey);
         $resolvedClass = $resolvedClass ?: 'start';
 

@@ -58,14 +58,14 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function d3WebauthnLogin(): void
     {
-        $lgn_user = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_usr');
+        $lgn_user = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestParameter('lgn_usr');
         /** @var d3_User_Webauthn $user */
-        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
 
         if ($this->d3CanUseWebauthn($lgn_user, $userId)) {
             if ($this->d3HasWebauthnButNotLoggedin($userId)) {
-                $session = $this->d3GetMockableRegistryObject(Session::class);
+                $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
                 $session->setVariable(
                     WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
                     $this->getClassKey() != 'd3webauthnlogin' ? $this->getClassKey() : 'start'
@@ -83,8 +83,8 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                     $this->getParent()->getViewConfig()->getNavFormParams()
                 );
 
-                $sUrl = $this->d3GetMockableRegistryObject(Config::class)->getShopHomeUrl() . 'cl=d3webauthnlogin';
-                $this->d3GetMockableRegistryObject(Utils::class)->redirect($sUrl);
+                $sUrl = d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopHomeUrl() . 'cl=d3webauthnlogin';
+                d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect($sUrl);
             }
         }
     }
@@ -97,11 +97,11 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     protected function d3CanUseWebauthn($lgn_user, ?string $userId): bool
     {
-        $password = $this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_pwd');
+        $password = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestParameter('lgn_pwd');
 
         return $lgn_user &&
             $userId &&
-            false === $this->d3GetMockableRegistryObject(Session::class)
+            false === d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                 ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) &&
             (! strlen(trim((string) $password)));
     }
@@ -114,10 +114,10 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     protected function d3HasWebauthnButNotLoggedin($userId): bool
     {
-        $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
+        $webauthn = d3GetOxidDIC()->get(Webauthn::class);
 
         return $webauthn->isActive($userId)
-            && !$this->d3GetMockableRegistryObject(Session::class)
+            && !d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                 ->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH);
     }
 
@@ -134,7 +134,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
      */
     public function d3WebauthnClearSessionVariables(): void
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
         $session->deleteVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS);
@@ -147,19 +147,29 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
     public function d3AssertAuthn(): void
     {
         try {
-            $login = $this->d3GetMockableOxNewObject(
-                WebauthnLogin::class,
-                $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('credential'),
-                $this->d3GetMockableRegistryObject(Request::class)->getRequestEscapedParameter('error')
-            );
+            $login = $this->d3GetWebauthnLogin();
             $login->frontendLogin(
                 $this,
-                (bool)$this->d3GetMockableRegistryObject(Request::class)->getRequestParameter('lgn_cook')
+                (bool)d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestParameter('lgn_cook')
             );
             $this->_afterLogin($this->getUser());
         } catch (WebauthnGetException $e) {
-            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
         } catch (WebauthnLoginErrorException $e) {
         }
+    }
+
+    /**
+     * @return WebauthnLogin
+     */
+    protected function d3GetWebauthnLogin(): WebauthnLogin
+    {
+        /** @var Request $request */
+        $request = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class);
+
+        return oxNew(WebauthnLogin::class,
+            $request->getRequestEscapedParameter('credential'),
+            $request->getRequestEscapedParameter('error')
+        );
     }
 }

@@ -35,6 +35,7 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Log\LoggerInterface;
 
 class Actions
 {
@@ -85,7 +86,7 @@ class Actions
      */
     public function tableExists(string $sTableName): bool
     {
-        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
+        $oDbMetaDataHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.DbMetaDataHandler::class);
         return $oDbMetaDataHandler->tableExists($sTableName);
     }
 
@@ -95,7 +96,9 @@ class Actions
      */
     protected function d3GetDb(): ?DatabaseInterface
     {
-        return DatabaseProvider::getDb();
+        /** @var DatabaseInterface $db */
+        $db = d3GetOxidDIC()->get('d3ox.webauthn.'.DatabaseInterface::class.'.assoc');
+        return $db;
     }
 
     /**
@@ -120,7 +123,7 @@ class Actions
      */
     public function fieldExists(string $sFieldName, string $sTableName): bool
     {
-        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
+        $oDbMetaDataHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.DbMetaDataHandler::class);
         return $oDbMetaDataHandler->fieldExists($sFieldName, $sTableName);
     }
 
@@ -129,7 +132,7 @@ class Actions
      */
     public function regenerateViews()
     {
-        $oDbMetaDataHandler = $this->d3GetMockableOxNewObject(DbMetaDataHandler::class);
+        $oDbMetaDataHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.DbMetaDataHandler::class);
         $oDbMetaDataHandler->updateViews();
     }
 
@@ -139,12 +142,12 @@ class Actions
     public function clearCache()
     {
         try {
-            $oUtils = $this->d3GetMockableRegistryObject(Utils::class);
+            $oUtils = d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class);
             $oUtils->resetTemplateCache($this->getModuleTemplates());
             $oUtils->resetLanguageCache();
         } catch (ContainerExceptionInterface|NotFoundExceptionInterface|ModuleConfigurationNotFoundException $e) {
-            $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
-            $this->d3GetMockableRegistryObject(UtilsView::class)->addErrorToDisplay($e->getMessage());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), [$this]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e->getMessage());
         }
     }
 
@@ -208,8 +211,8 @@ class Actions
                 $this->createSeoUrl();
             }
         } catch (Exception|NotFoundExceptionInterface|DoctrineDriverException|ContainerExceptionInterface $e) {
-            $this->d3GetMockableLogger()->error($e->getMessage(), [$this]);
-            $this->d3GetMockableRegistryObject(UtilsView::class)
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), [$this]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)
                  ->addErrorToDisplay('error wile creating SEO URLs: '.$e->getMessage());
         }
     }
@@ -219,9 +222,9 @@ class Actions
      */
     public function hasSeoUrl(): bool
     {
-        $seoEncoder = $this->d3GetMockableOxNewObject(SeoEncoder::class);
+        $seoEncoder = d3GetOxidDIC()->get('d3ox.webauthn.'.SeoEncoder::class);
         $seoUrl = $seoEncoder->getStaticUrl(
-            $this->d3GetMockableOxNewObject(FrontendController::class)->getViewConfig()->getSelfLink() .
+            d3GetOxidDIC()->get('d3ox.webauthn.'.FrontendController::class)->getViewConfig()->getSelfLink() .
             "cl=".$this->stdClassName
         );
 
@@ -233,10 +236,10 @@ class Actions
      */
     public function createSeoUrl()
     {
-        $seoEncoder = $this->d3GetMockableOxNewObject(SeoEncoder::class);
+        $seoEncoder = d3GetOxidDIC()->get('d3ox.webauthn.'.SeoEncoder::class);
         $seoEncoder->addSeoEntry(
             'ff57646b47249ee33c6b672741ac371a',
-            $this->d3GetMockableRegistryObject(Config::class)->getShopId(),
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId(),
             0,
             'index.php?cl='.$this->stdClassName,
             $this->seo_de,
@@ -245,7 +248,7 @@ class Actions
         );
         $seoEncoder->addSeoEntry(
             'ff57646b47249ee33c6b672741ac371a',
-            $this->d3GetMockableRegistryObject(Config::class)->getShopId(),
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId(),
             1,
             'index.php?cl='.$this->stdClassName,
             $this->seo_en,

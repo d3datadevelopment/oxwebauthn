@@ -1,0 +1,160 @@
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+#
+# https://www.d3data.de
+#
+# @copyright (C) D3 Data Development (Inh. Thomas Dartsch)
+# @author    D3 Data Development - Daniel Seifert <support@shopmodule.com>
+# @link      https://www.oxidmodule.com
+
+parameters:
+  D3\Webauthn\Application\Model\WebauthnLogin.args.credential:
+  D3\Webauthn\Application\Model\WebauthnLogin.args.error:
+#  D3\Linkmobility4OXID\Application\Model\RequestFactory.args.message:
+#  D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms.args.message:
+#  D3\Linkmobility4OXID\Application\Model\Exceptions\successfullySentException.args.smscount:
+
+services:
+  _defaults:
+    autowire: false
+    public: true
+
+  D3\Webauthn\Application\Model\Webauthn:
+    class: D3\Webauthn\Application\Model
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\Webauthn
+
+  D3\Webauthn\Application\Model\RelyingPartyEntity:
+    class: D3\Webauthn\Application\Model\RelyingPartyEntity
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\RelyingPartyEntity
+
+  D3\Webauthn\Application\Model\UserEntity:
+    class: D3\Webauthn\Application\Model\UserEntity
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\UserEntity
+      - '@D3\Webauthn\Application\Model\UserEntity.args.user'
+  D3\Webauthn\Application\Model\UserEntity.args.user:
+    synthetic: true
+    shared: false
+
+  D3\Webauthn\Application\Model\WebauthnAfterLogin:
+    class: D3\Webauthn\Application\Model\WebauthnAfterLogin
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\WebauthnAfterLogin
+
+  D3\Webauthn\Application\Model\WebauthnLogin:
+    class: D3\Webauthn\Application\Model\WebauthnLogin
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\WebauthnLogin
+      - '%D3\Webauthn\Application\Model\WebauthnLogin.args.credential%'
+      - '%D3\Webauthn\Application\Model\WebauthnLogin.args.error%'
+
+  D3\Webauthn\Application\Model\Credential\PublicKeyCredential:
+    class: D3\Webauthn\Application\Model\Credential\PublicKeyCredential
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\Credential\PublicKeyCredential
+
+  D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList:
+    class: D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList
+    factory: 'oxNew'
+    shared: false
+    arguments:
+      - D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList
+
+#  D3\Linkmobility4OXID\Application\Model\OrderRecipients:
+#    class: D3\Linkmobility4OXID\Application\Model\OrderRecipients
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\OrderRecipients
+#      - '@D3\Linkmobility4OXID\Application\Model\OrderRecipients.args.order'
+#  D3\Linkmobility4OXID\Application\Model\OrderRecipients.args.order:
+#    synthetic: true
+#    shared: false
+#
+#  D3\Linkmobility4OXID\Application\Model\UserRecipients:
+#    class: D3\Linkmobility4OXID\Application\Model\UserRecipients
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\UserRecipients
+#      - '@D3\Linkmobility4OXID\Application\Model\UserRecipients.args.user'
+#  D3\Linkmobility4OXID\Application\Model\UserRecipients.args.user:
+#    synthetic: true
+#    shared: false
+#
+#  D3\Linkmobility4OXID\Application\Model\Configuration:
+#    class: D3\Linkmobility4OXID\Application\Model\Configuration
+#    factory: 'oxNew'
+#    shared: true
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\Configuration
+#
+#  D3\Linkmobility4OXID\Application\Model\MessageClient:
+#    class: D3\Linkmobility4OXID\Application\Model\MessageClient
+#    factory: 'oxNew'
+#    shared: true
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\MessageClient
+#
+#  D3\Linkmobility4OXID\Application\Model\MessageSender:
+#    class: D3\Linkmobility4OXID\Application\Model\MessageSender
+#    factory: 'oxNew'
+#    shared: true
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\MessageSender
+#
+#  D3\Linkmobility4OXID\Application\Model\RequestFactory:
+#    class: D3\Linkmobility4OXID\Application\Model\RequestFactory
+#    factory: 'oxNew'
+#    shared: true
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\RequestFactory
+#      - '%D3\Linkmobility4OXID\Application\Model\RequestFactory.args.message%'
+#      - '@D3\Linkmobility4OXID\Application\Model\RequestFactory.args.client'
+#  D3\Linkmobility4OXID\Application\Model\RequestFactory.args.client:
+#    synthetic: true
+#    shared: false
+#
+#  D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms:
+#    class: D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms
+#      - '%D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms.args.message%'
+#
+#  D3\Linkmobility4OXID\Application\Model\Exceptions\successfullySentException:
+#    class: D3\Linkmobility4OXID\Application\Model\Exceptions\successfullySentException
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\Exceptions\successfullySentException
+#      - '%D3\Linkmobility4OXID\Application\Model\Exceptions\successfullySentException.args.smscount%'
+#
+#  D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException:
+#    class: D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException
+#
+#  D3\Linkmobility4OXID\Setup\Actions:
+#    class: D3\Linkmobility4OXID\Setup\Actions
+#    factory: 'oxNew'
+#    shared: false
+#    arguments:
+#      - D3\Linkmobility4OXID\Setup\Actions

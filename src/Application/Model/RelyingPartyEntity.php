@@ -59,6 +59,6 @@ class RelyingPartyEntity extends PublicKeyCredentialRpEntity
      */
     public function getActiveShop(): Shop
     {
-        return $this->d3GetMockableRegistryObject(Config::class)->getActiveShop();
+        return d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getActiveShop();
     }
 }

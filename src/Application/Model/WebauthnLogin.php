@@ -31,6 +31,7 @@ use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsServer;
 use OxidEsales\Eshop\Core\UtilsView;
 use OxidEsales\EshopCommunity\Application\Component\UserComponent;
+use Psr\Log\LoggerInterface;
 
 class WebauthnLogin
 {
@@ -104,9 +105,9 @@ class WebauthnLogin
      */
     public function frontendLogin(UserComponent $usrCmp, bool $setSessionCookie = false)
     {
-        $myUtilsView = $this->d3GetMockableRegistryObject(UtilsView::class);
+        $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
         /** @var d3_User_Webauthn $user */
-        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $userId = $this->getUserId();
 
         try {
@@ -116,7 +117,7 @@ class WebauthnLogin
             $this->assertAuthn();
 
             // relogin, don't extract from this try block
-            $usrCmp->setUser($this->d3GetMockableOxNewObject(User::class));
+            $usrCmp->setUser(d3GetOxidDIC()->get('d3ox.webauthn.'.User::class));
             $this->setFrontendSession($user);
             $usrCmp->setLoginStatus(USER_LOGIN_SUCCESS);
 
@@ -136,8 +137,8 @@ class WebauthnLogin
             $myUtilsView->addErrorToDisplay($oEx);
         } catch (WebauthnException $e) {
             $myUtilsView->addErrorToDisplay($e);
-            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
         }
 
         $user->logout();
@@ -150,9 +151,9 @@ class WebauthnLogin
      */
     public function adminLogin(string $selectedProfile): string
     {
-        $myUtilsView = $this->d3GetMockableRegistryObject(UtilsView::class);
+        $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
         /** @var d3_User_Webauthn $user */
-        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $userId = $this->getUserId();
 
         try {
@@ -164,10 +165,10 @@ class WebauthnLogin
             $this->handleBackendCookie();
             $this->handleBackendSubshopRights($user, $session);
 
-            $oEventHandler = $this->d3GetMockableOxNewObject(SystemEventHandler::class);
+            $oEventHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.SystemEventHandler::class);
             $oEventHandler->onAdminLogin();
 
-            $afterLogin = $this->d3GetMockableOxNewObject(WebauthnAfterLogin::class);
+            $afterLogin = d3GetOxidDIC()->get(WebauthnAfterLogin::class);
             $afterLogin->setDisplayProfile();
             $afterLogin->changeLanguage();
 
@@ -181,15 +182,15 @@ class WebauthnLogin
             $myUtilsView->addErrorToDisplay('LOGIN_NO_COOKIE_SUPPORT');
         } catch (WebauthnException $e) {
             $myUtilsView->addErrorToDisplay($e);
-            $this->d3GetMockableLogger()->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
-            $this->d3GetMockableLogger()->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
         }
 
         $user->logout();
         $oStr = Str::getStr();
-        $this->d3GetMockableRegistryObject(Config::class)->getActiveView()
+        d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getActiveView()
             ->addTplParam('user', $oStr->htmlspecialchars($userId));
-        $this->d3GetMockableRegistryObject(Config::class)->getActiveView()
+        d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getActiveView()
             ->addTplParam('profile', $oStr->htmlspecialchars($selectedProfile));
 
         return 'login';
@@ -215,7 +216,7 @@ class WebauthnLogin
     public function assertAuthn(): void
     {
         $credential = $this->getCredential();
-        $webAuthn = $this->d3GetMockableOxNewObject(Webauthn::class);
+        $webAuthn = d3GetOxidDIC()->get(Webauthn::class);
         $webAuthn->assertAuthn($credential);
     }
 
@@ -225,7 +226,7 @@ class WebauthnLogin
      */
     public function setAdminSession($userId): Session
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         $adminProfiles = $session->getVariable("aAdminProfiles");
         $session->initNewSession();
         $session->setVariable("aAdminProfiles", $adminProfiles);
@@ -239,11 +240,11 @@ class WebauthnLogin
      */
     public function setSessionCookie(User $user)
     {
-        if ($this->d3GetMockableRegistryObject(Config::class)->getConfigParam('blShowRememberMe')) {
-            $this->d3GetMockableRegistryObject(UtilsServer::class)->setUserCookie(
+        if (d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getConfigParam('blShowRememberMe')) {
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsServer::class)->setUserCookie(
                 $user->getFieldData('oxusername'),
                 $user->getFieldData('oxpassword'),
-                $this->d3GetMockableRegistryObject(Config::class)->getShopId()
+                d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopId()
             );
         }
     }
@@ -256,7 +257,7 @@ class WebauthnLogin
      */
     public function assertUser($userId, bool $isBackend = false): User
     {
-        $user = $this->d3GetMockableOxNewObject(User::class);
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $user->load($userId);
         if (!$user->isLoaded() ||
             ($isBackend && $user->getFieldData('oxrights') === 'user')
@@ -275,7 +276,7 @@ class WebauthnLogin
      */
     public function handleBackendCookie(): void
     {
-        $cookie = $this->d3GetMockableRegistryObject(UtilsServer::class)->getOxCookie();
+        $cookie = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsServer::class)->getOxCookie();
         if ($cookie === null) {
             /** @var CookieException $exc */
             $exc = oxNew(CookieException::class, 'ERROR_MESSAGE_COOKIE_NOCOOKIE');
@@ -295,7 +296,7 @@ class WebauthnLogin
         if ($iSubshop) {
             $session->setVariable("shp", $iSubshop);
             $session->setVariable('currentadminshop', $iSubshop);
-            $this->d3GetMockableRegistryObject(Config::class)->setShopId((string) $iSubshop);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->setShopId((string) $iSubshop);
         }
     }
 
@@ -304,7 +305,7 @@ class WebauthnLogin
      */
     public function regenerateSessionId(): void
     {
-        $oSession = $this->d3GetMockableRegistryObject(Session::class);
+        $oSession = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         if ($oSession->isSessionStarted()) {
             $oSession->regenerateSessionId();
         }
@@ -314,9 +315,9 @@ class WebauthnLogin
     {
         // this user is blocked, deny him
         if ($user->inGroup('oxidblocked')) {
-            $sUrl = $this->d3GetMockableRegistryObject(Config::class)->getShopHomeUrl() .
+            $sUrl = d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopHomeUrl() .
                     'cl=content&tpl=user_blocked.tpl';
-            $this->d3GetMockableRegistryObject(Utils::class)->redirect($sUrl);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect($sUrl);
         }
     }
 
@@ -325,7 +326,7 @@ class WebauthnLogin
      */
     public function updateBasket(): void
     {
-        $oBasket = $this->d3GetMockableRegistryObject(Session::class)->getBasket();
+        $oBasket = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)->getBasket();
         $oBasket->onUpdate();
     }
 
@@ -343,9 +344,9 @@ class WebauthnLogin
     public function getUserId(): string
     {
         return $this->isAdmin() ?
-            $this->d3GetMockableRegistryObject(Session::class)
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) :
-            $this->d3GetMockableRegistryObject(Session::class)
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
     }
 
@@ -356,7 +357,7 @@ class WebauthnLogin
      */
     public function setFrontendSession(User $user): void
     {
-        $session = $this->d3GetMockableRegistryObject(Session::class);
+        $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         $session->setVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH, $this->getCredential());
         $session->setVariable(WebauthnConf::OXID_FRONTEND_AUTH, $user->getId());
     }

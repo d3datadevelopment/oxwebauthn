@@ -18,6 +18,7 @@ namespace D3\Webauthn\tests\unit\Application\Model\Credential;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\TestingLibrary\UnitTestCase;
@@ -25,7 +26,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use Webauthn\PublicKeyCredentialSource;
 
-class PublicKeyCredentialTest extends UnitTestCase
+class PublicKeyCredentialTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 
@@ -193,16 +194,20 @@ class PublicKeyCredentialTest extends UnitTestCase
      */
     public function canGetCredential()
     {
-        /** @var PublicKeyCredentialSource $publicKeyCredentialSourceMock */
-        $publicKeyCredentialSourceMock = $this->getMockBuilder(PublicKeyCredentialSource::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        // can't get mock of PublicKeyCredentialSource because of cascaded mock object is not serializable
 
-        $this->canGetField(
-            'credential',
-            'getCredential',
-            base64_encode(serialize($publicKeyCredentialSourceMock)),
-            $publicKeyCredentialSourceMock
+        /** @var PublicKeyCredential $sut */
+        $sut = oxNew(PublicKeyCredential::class);
+        $sut->assign([
+            'credential'  => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9',
+        ]);
+
+        $this->assertInstanceOf(
+            PublicKeyCredentialSource::class,
+            $this->callMethod(
+                $sut,
+                'getCredential'
+            )
         );
     }
 
@@ -231,22 +236,12 @@ class PublicKeyCredentialTest extends UnitTestCase
         $pkcListObjectMock->method('findOneByCredentialId')->willReturn(
             $credAlreadyExist ? $publicKeyCredentialSourceMock : null
         );
+        d3GetOxidDIC()->set(PublicKeyCredentialList::class, $pkcListObjectMock);
 
         /** @var PublicKeyCredential|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->onlyMethods(['d3GetMockableOxNewObject', 'exists', 'getIdByCredentialId', 'load', 'save'])
+            ->onlyMethods(['exists', 'getIdByCredentialId', 'load', 'save'])
             ->getMock();
-        $sut->method('d3GetMockableOxNewObject')->willReturnCallback(
-            function () use ($pkcListObjectMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case PublicKeyCredentialList::class:
-                        return $pkcListObjectMock;
-                    default:
-                        return call_user_func_array("oxNew", $args);
-                }
-            }
-        );
         $sut->method('exists')->willReturn($credIdExist);
         $sut->expects($this->exactly((int) $doSave))->method('getIdByCredentialId');
         $sut->expects($this->exactly((int) ($doSave && $credIdExist)))->method('load');
@@ -296,22 +291,12 @@ class PublicKeyCredentialTest extends UnitTestCase
             ->onlyMethods(['getShopId'])
             ->getMock();
         $configMock->method('getShopId')->willReturn($shopId);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.Config::class, $configMock);
 
         /** @var PublicKeyCredential|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->onlyMethods(['d3GetMockableRegistryObject', 'allowDerivedDelete'])
+            ->onlyMethods(['allowDerivedDelete'])
             ->getMock();
-        $sut->method('d3GetMockableRegistryObject')->willReturnCallback(
-            function () use ($configMock) {
-                $args = func_get_args();
-                switch ($args[0]) {
-                    case Config::class:
-                        return $configMock;
-                    default:
-                        return Registry::get($args[0]);
-                }
-            }
-        );
         $sut->method('allowDerivedDelete')->willReturn(true);
 
         if ($doCreate) {
@@ -323,17 +308,19 @@ class PublicKeyCredentialTest extends UnitTestCase
             $sut->save();
         }
 
-        $this->assertSame(
-            $expected,
-            $this->callMethod(
-                $sut,
-                'getIdByCredentialId',
-                [$pkcId]
-            )
-        );
-
-        if ($doCreate) {
-            $sut->delete($oxid);
+        try {
+            $this->assertSame(
+                $expected,
+                $this->callMethod(
+                    $sut,
+                    'getIdByCredentialId',
+                    [$pkcId]
+                )
+            );
+        } finally {
+            if ($doCreate) {
+                $sut->delete($oxid);
+            }
         }
     }
 

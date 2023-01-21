@@ -18,12 +18,13 @@ namespace D3\Webauthn\tests\unit\Application\Model;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\UserEntity;
+use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
-class UserEntityTest extends UnitTestCase
+class UserEntityTest extends WAUnitTestCase
 {
     use CanAccessRestricted;
 

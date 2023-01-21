@@ -43,11 +43,11 @@ trait checkoutGetUserTrait
         $user = $this->d3CallMockableFunction([$this->parentClass, 'getUser']);
 
         if ($user && $user->isLoaded() && $user->getId()) {
-            $webauthn = $this->d3GetMockableOxNewObject(Webauthn::class);
+            $webauthn = d3GetOxidDIC()->get(Webauthn::class);
 
             if ($webauthn->isAvailable()
                 && $webauthn->isActive($user->getId())
-                && !$this->d3GetMockableRegistryObject(Session::class)
+                && !d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                          ->getVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH)
             ) {
                 return false;

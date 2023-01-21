@@ -11,6 +11,15 @@
  * @link      https://www.oxidmodule.com
  */
 
+namespace D3\Webauthn\Modules
+{
+    use D3\DIContainerHandler\definitionFileContainer;
+
+    class WebauthnServices_parent extends definitionFileContainer
+    {
+    }
+}
+
 namespace D3\Webauthn\Modules\Application\Component
 {
     use OxidEsales\Eshop\Application\Component\UserComponent;
