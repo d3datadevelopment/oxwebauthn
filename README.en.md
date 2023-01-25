@@ -1,9 +1,9 @@
 [![deutsche Version](https://logos.oxidmodule.com/de2_xs.svg)](README.md)
 [![english version](https://logos.oxidmodule.com/en2_xs.svg)](README.en.md)
 
-# D³ WebAuthn / FIDO2 Login for OXID eShop
+# D³ Passwordless login for OXID eShop
 
-With this module, the login in the OXID shop can be carried out with a hardware token instead of a password. 
+With this module, the login in the OXID shop can be carried out with a hardware token instead of a password (WebAuthn / FIDO2 based). 
 
 This secures the login in the frontend and (if allowed for the user) also in the backend.
 
@@ -31,7 +31,7 @@ FIDO2 describes the entire authentication process, WebAuthn and CTAP are subcomp
 Any FIDO2-certified hardware can be used for registration. This can be:
 
 - Cross-Platform Authenticators (device-independent):
-  - USB tokens (e.g. Solokey or YubiKey),
+  - USB tokens (e.g. [Solokey](https://solokeys.com/) oder [YubiKey](https://www.yubico.com/)),
   - NFC transmitters
   - Bluetooth transmitters
   - Smartcards
@@ -51,14 +51,24 @@ For the 1st options we see too little security gain compared to option 2. The im
 
 When registering a FIDO2 key, access data is created in order to be able to check a later login attempt. These access data are firmly bound to the customer account and the shop and cannot be exchanged with each other.
 
-## Module installation
+## System requirements
 
-This package requires an Composer installed OXID eShop as defined in [composer.json](composer.json).
+This package requires an OXID eShop installed with Composer in one of the following versions:
+
+- 6.3.x
+- 6.4.x
+- 6.5.x
+
+and its requirements.
+
+The Flow and Wave themes are supported by default. Other themes may require customisation.
+
+## Module installation
 
 Open a command line interface and navigate to the shop root directory (parent of source and vendor). Execute the following command. Adapt the paths to your environment.
 
 ```bash
-php composer require d3/oxwebauthn:^1.0
+php composer require d3/oxid-twofactor-passwordless:^1.0
 ``` 
 
 If a reference to an unsuitable package `symfony/process` is shown, this must be changed. To do this, please add the switch `-W` to the above command (`... require -W ...`).

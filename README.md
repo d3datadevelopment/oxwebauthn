@@ -1,9 +1,9 @@
 [![deutsche Version](https://logos.oxidmodule.com/de2_xs.svg)](README.md)
 [![english version](https://logos.oxidmodule.com/en2_xs.svg)](README.en.md)
 
-# D³ WebAuthn / FIDO2 Login für OXID eShop
+# D³ Passwortloses Anmelden für OXID eShop
 
-Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem Hardwaretoken anstelle eines Passworts durchgeführt werden. 
+Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem Hardwaretoken anstelle eines Passworts durchgeführt werden (WebAuthn / FIDO2 basiert). 
 
 Hierbei wird die Anmeldung im Frontend und (sofern für den Benutzer erlaubt) auch im Backend gesichert.
 
@@ -31,7 +31,7 @@ FIDO2 beschreibt den gesamten Authentisierungsprozess, WebAuthn und CTAP sind Un
 Zur Anmeldung ist jede FIDO2-zertifizierte Hardware nutzbar. Das können sein:
 
 - Cross-Platform Authenticators (geräteunabhängig):
-  - USB-Tokens (z.B. Solokey oder YubiKey),
+  - USB-Tokens (z.B. [Solokey](https://solokeys.com/) oder [YubiKey](https://www.yubico.com/)),
   - NFC-Sender
   - Bluetoothsender
   - Smartcards
@@ -51,14 +51,24 @@ Für die 1. Optionen sehen wir einen zu geringen Sicherheitsgewinn gegenüber Op
 
 Bei der Registrierung eines FIDO2-Keys werden Zugangsdaten erstellt, um einen späteren Anmeldeversuch prüfen zu können. Diese Zugangsdaten sind fest an das Kundenkonto und an den Shop gebunden und nicht untereinander austauschbar.
 
-## Modulinstallation
+## Systemanforderungen
 
-Dieses Paket erfordert einen mit Composer installierten OXID eShop in einer in der [composer.json](composer.json) definierten Version.
+Dieses Paket erfordert einen mit Composer installierten OXID eShop in einer der folgenden Versionen:
+
+- 6.3.x
+- 6.4.x
+- 6.5.x
+
+und dessen Anforderungen.
+
+Im Standard wird das Flow- und Wave-Theme unterstützt. Andere Themes können Anpassungen erfordern.
+
+## Modulinstallation
 
 Öffnen Sie eine Kommandozeile und navigieren Sie zum Stammverzeichnis des Shops (Elternverzeichnis von source und vendor). Führen Sie den folgenden Befehl aus. Passen Sie die Pfadangaben an Ihre Installationsumgebung an.
 
 ```bash
-php composer require d3/oxwebauthn:^1.0
+php composer require d3/oxid-twofactor-passwordless:^1.0
 ```
 
 Wird ein Hinweis auf ein unpassendes Paket "symfony/process" gezeigt, muss dieses geändert werden. Fügen Sie dazu in den oben genannten Befehl bitte den Schalter `-W` ein (`... require -W ...`).

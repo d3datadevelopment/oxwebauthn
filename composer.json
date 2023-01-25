@@ -1,6 +1,6 @@
 {
-  "name": "d3/oxwebauthn",
-  "description": "Webauthn / FIDO2 based login for OXID eShop.",
+  "name": "d3/oxid-twofactor-passwordless",
+  "description": "Passwordless login for OXID eShop (Webauthn / FIDO2 based)",
   "type": "oxideshop-module",
   "keywords": [
     "oxid",
@@ -10,7 +10,15 @@
     "webauthn",
     "FIDO2",
     "CTAP",
-    "public key"
+    "public key",
+    "2FA",
+    "two factor",
+    "second factor",
+    "passwordless",
+    "token",
+    "yubikey",
+    "solokey",
+    "credential"
   ],
   "authors": [
     {
@@ -48,5 +56,8 @@
     "psr-4": {
       "D3\\Webauthn\\": "../../../source/modules/d3/oxwebauthn"
     }
+  },
+  "suggest": {
+    "d3/oxid-twofactor-onetimepassword": "Registrations can be supplemented with time-based one-time passwords as a second factor."
   }
 }

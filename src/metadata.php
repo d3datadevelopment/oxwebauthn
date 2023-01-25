@@ -65,10 +65,13 @@ $logo = '<img src="https://logos.oxidmodule.com/d3logo.svg" alt="(D3)" style="he
  */
 $aModule = [
     'id'          => $sModuleId,
-    'title'       => $logo.' Webauthn / FIDO2 Login',
-    'description'   => [
-        'de'        => 'Webauthn f&uuml;r OXID eSales Shop',
-        'en'        => 'Webauthn for OXID eSales shop',
+    'title'       => [
+        'de'      => $logo.' zweiter Faktor - Passwortlose Anmeldung',
+        'en'      => $logo.' second factor - passwordless login',
+    ],
+    'description' => [
+        'de'      => 'Passwortlose Anmeldung f&uuml;r OXID eSales Shop (WebAuthn / FIDO2 basiert)',
+        'en'      => 'Passwordless login for OXID eSales shop (WebAuthn / FIDO2 based)',
     ],
     'version'     => '1.0.0.0',
     'author'      => 'D&sup3; Data Development (Inh.: Thomas Dartsch)',
