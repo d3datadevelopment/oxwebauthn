@@ -196,6 +196,7 @@ class Webauthn
             $serverRequest
         );
 
+        /** @var PublicKeyCredential $pkCredential */
         $pkCredential = d3GetOxidDIC()->get(PublicKeyCredential::class);
         $pkCredential->saveCredentialSource($publicKeyCredentialSource, $keyName);
     }

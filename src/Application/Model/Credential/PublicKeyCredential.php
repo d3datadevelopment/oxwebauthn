@@ -135,9 +135,9 @@ class PublicKeyCredential extends BaseModel
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {
         // item exist already
-        if (d3GetOxidDIC()->get(PublicKeyCredentialList::class)
-            ->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())
-        ) {
+        /** @var PublicKeyCredentialList $pkcl */
+        $pkcl = d3GetOxidDIC()->get(PublicKeyCredentialList::class);
+        if ($pkcl->findOneByCredentialId($publicKeyCredentialSource->getPublicKeyCredentialId())) {
             return;
         }
 

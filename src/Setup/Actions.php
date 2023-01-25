@@ -56,7 +56,7 @@ class Actions
             `OXUSERID` char(32) NOT NULL,
             `OXSHOPID` int(11) NOT NULL,
             `NAME` varchar(100) NOT NULL,
-            `CREDENTIALID` char(128) NOT NULL,
+            `CREDENTIALID` varchar(512) NOT NULL,
             `CREDENTIAL` varchar(2000) NOT NULL,
             `OXTIMESTAMP` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
             PRIMARY KEY (`OXID`),

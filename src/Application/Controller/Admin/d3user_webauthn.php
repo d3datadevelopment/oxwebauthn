@@ -108,6 +108,7 @@ class d3user_webauthn extends AdminDetailsController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
+                /** @var Webauthn $webauthn */
                 $webauthn = d3GetOxidDIC()->get(Webauthn::class);
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
             }
