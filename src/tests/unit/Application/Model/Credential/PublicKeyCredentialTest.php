@@ -240,12 +240,14 @@ class PublicKeyCredentialTest extends WAUnitTestCase
 
         /** @var PublicKeyCredential|MockObject $sut */
         $sut = $this->getMockBuilder(PublicKeyCredential::class)
-            ->onlyMethods(['exists', 'getIdByCredentialId', 'load', 'save'])
+            ->onlyMethods(['exists', 'getIdByCredentialId', 'load', 'save', 'setCredential', 'setCredentialId'])
             ->getMock();
         $sut->method('exists')->willReturn($credIdExist);
         $sut->expects($this->exactly((int) $doSave))->method('getIdByCredentialId');
         $sut->expects($this->exactly((int) ($doSave && $credIdExist)))->method('load');
         $sut->expects($this->exactly((int) $doSave))->method('save');
+        $sut->expects($this->exactly((int) $doSave))->method('setCredential');
+        $sut->expects($this->exactly((int) $doSave))->method('setCredentialId');
 
         $this->callMethod(
             $sut,

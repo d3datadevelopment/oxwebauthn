@@ -39,6 +39,9 @@ use Psr\Log\LoggerInterface;
 
 class Actions
 {
+    public const FIELDLENGTH_CREDID = 512;
+    public const FIELDLENGTH_CREDENTIAL = 2000;
+
     use IsMockable;
 
     public $seo_de = 'sicherheitsschluessel';
@@ -56,8 +59,8 @@ class Actions
             `OXUSERID` char(32) NOT NULL,
             `OXSHOPID` int(11) NOT NULL,
             `NAME` varchar(100) NOT NULL,
-            `CREDENTIALID` varchar(512) NOT NULL,
-            `CREDENTIAL` varchar(2000) NOT NULL,
+            `CREDENTIALID` varchar(".self::FIELDLENGTH_CREDID.") NOT NULL,
+            `CREDENTIAL` varchar(".self::FIELDLENGTH_CREDENTIAL.") NOT NULL,
             `OXTIMESTAMP` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
             PRIMARY KEY (`OXID`),
             KEY `CREDENTIALID_IDX` (`CREDENTIALID`),

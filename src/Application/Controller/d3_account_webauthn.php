@@ -26,6 +26,7 @@ use D3\Webauthn\Application\Model\Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\AccountController;
+use OxidEsales\Eshop\Core\Language;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\SeoEncoder;
@@ -118,7 +119,6 @@ class d3_account_webauthn extends AccountController
      * @return void
      * @throws DoctrineDriverException
      * @throws DoctrineException
-     * @throws AssertionFailedException
      * @throws Throwable
      */
     public function saveAuthn(): void
@@ -140,7 +140,23 @@ class d3_account_webauthn extends AccountController
                 $webauthn->saveAuthn($credential, d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestEscapedParameter('keyname'));
             }
         } catch (WebauthnException $e) {
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error(
+                $e->getDetailedErrorMessage(),
+                ['UserId' => $this->getUser()->getId()]
+            );
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
+        } catch (AssertionFailedException $e) {
+            /** @var Language $language */
+            $language = d3GetOxidDIC()->get('d3ox.webauthn.'.Language::class);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error(
+                $e->getMessage(),
+                ['UserId' => $this->getUser()->getId()]
+            );
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay(
+                $language->translateString('D3_WEBAUTHN_ERR_NOTCREDENTIALNOTSAVEABLE')
+            );
         }
     }
 

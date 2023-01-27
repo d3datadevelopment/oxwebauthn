@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\tests\unit\Application\Controller;
 
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Controller\d3_account_webauthn;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
@@ -22,6 +23,7 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
+use Generator;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
@@ -287,14 +289,12 @@ class d3_account_webauthnTest extends WAUnitTestCase
     }
 
     /**
-     * @return array
+     * @return Generator
      */
-    public function canSetAuthnRegisterDataProvider(): array
+    public function canSetAuthnRegisterDataProvider(): Generator
     {
-        return [
-            'dont throw exception'  => [false],
-            'throw exception'  => [true],
-        ];
+        yield 'dont throw exception'  => [false];
+        yield 'throw exception'  => [true];
     }
 
     /**
@@ -333,18 +333,25 @@ class d3_account_webauthnTest extends WAUnitTestCase
     {
         $_POST['error'] = 'msg';
 
+        /** @var LoggerInterface|MockObject $loggerMock */
+        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
+        $loggerMock->expects($this->once())->method('error')->willReturn(true);
+        $loggerMock->expects($this->once())->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
+
+        /** @var User|MockObject $userMock */
+        $userMock = $this->getMockBuilder(User::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId'])
+            ->getMock();
+        $userMock->method('getId')->willReturn('userId');
+
         /** @var UtilsView|MockObject $utilsViewMock */
         $utilsViewMock = $this->getMockBuilder(UtilsView::class)
             ->onlyMethods(['addErrorToDisplay'])
             ->getMock();
         $utilsViewMock->expects($this->atLeastOnce())->method('addErrorToDisplay');
         d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
-
-        /** @var LoggerInterface|MockObject $loggerMock */
-        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
-        $loggerMock->expects($this->never())->method('error')->willReturn(true);
-        $loggerMock->expects($this->never())->method('debug')->willReturn(true);
-        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var Request|MockObject $requestMock */
         $requestMock = $this->getMockBuilder(Request::class)
@@ -355,8 +362,11 @@ class d3_account_webauthnTest extends WAUnitTestCase
         )->willReturn('errorMsg');
         d3GetOxidDIC()->set('d3ox.webauthn.'.Request::class, $requestMock);
 
-        /** @var d3_account_webauthn $oControllerMock */
-        $oControllerMock = oxNew(d3_account_webauthn::class);
+        /** @var d3_account_webauthn|MockObject $oControllerMock */
+        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
+            ->onlyMethods(['getUser'])
+            ->getMock();
+        $oControllerMock->method('getUser')->willReturn($userMock);
 
         $this->_oController = $oControllerMock;
 
@@ -406,19 +416,33 @@ class d3_account_webauthnTest extends WAUnitTestCase
      * @test
      * @return void
      * @throws ReflectionException
+     * @dataProvider canSaveAuthnFailedDataProvider
      * @covers \D3\Webauthn\Application\Controller\d3_account_webauthn::saveAuthn
      */
-    public function canSaveAuthnFailed()
+    public function canSaveAuthnFailed($exception)
     {
         $_POST['credential'] = 'msg';
         $_POST['keyname'] = 'key_name';
+
+        /** @var LoggerInterface|MockObject $loggerMock */
+        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
+        $loggerMock->expects($this->once())->method('error')->willReturn(true);
+        $loggerMock->expects($this->once())->method('debug')->willReturn(true);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
+
+        /** @var User|MockObject $userMock */
+        $userMock = $this->getMockBuilder(User::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId'])
+            ->getMock();
+        $userMock->method('getId')->willReturn('userId');
 
         /** @var Webauthn|MockObject $webauthnMock */
         $webauthnMock = $this->getMockBuilder(Webauthn::class)
             ->onlyMethods(['saveAuthn'])
             ->getMock();
         $webauthnMock->expects($this->once())->method('saveAuthn')
-            ->willThrowException(oxNew(WebauthnException::class));
+            ->willThrowException($exception);
         d3GetOxidDIC()->set(Webauthn::class, $webauthnMock);
 
         /** @var UtilsView|MockObject $utilsViewMock */
@@ -428,8 +452,11 @@ class d3_account_webauthnTest extends WAUnitTestCase
         $utilsViewMock->expects($this->atLeastOnce())->method('addErrorToDisplay');
         d3GetOxidDIC()->set('d3ox.webauthn.'.UtilsView::class, $utilsViewMock);
 
-        /** @var d3_account_webauthn $oControllerMock */
-        $oControllerMock = oxNew(d3_account_webauthn::class);
+        /** @var d3_account_webauthn|MockObject $oControllerMock */
+        $oControllerMock = $this->getMockBuilder(d3_account_webauthn::class)
+            ->onlyMethods(['getUser'])
+            ->getMock();
+        $oControllerMock->method('getUser')->willReturn($userMock);
 
         $this->_oController = $oControllerMock;
 
@@ -437,6 +464,15 @@ class d3_account_webauthnTest extends WAUnitTestCase
             $this->_oController,
             'saveAuthn'
         );
+    }
+
+    /**
+     * @return Generator
+     */
+    public function canSaveAuthnFailedDataProvider(): Generator
+    {
+        yield 'WebauthnException'   => [oxNew(WebauthnException::class)];
+        yield 'AssertionException'  => [oxNew(InvalidArgumentException::class, 'msg', 200)];
     }
 
     /**
@@ -467,14 +503,12 @@ class d3_account_webauthnTest extends WAUnitTestCase
     }
 
     /**
-     * @return array[]
+     * @return Generator
      */
-    public function canDeleteDataProvider(): array
+    public function canDeleteDataProvider(): Generator
     {
-        return [
-            'has delete id' => ['deleteId', $this->once()],
-            'has no delete id' => [null, $this->never()],
-        ];
+        yield 'has delete id' => ['deleteId', $this->once()];
+        yield 'has no delete id' => [null, $this->never()];
     }
 
     /**

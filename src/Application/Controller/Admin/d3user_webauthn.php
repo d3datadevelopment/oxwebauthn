@@ -93,7 +93,6 @@ class d3user_webauthn extends AdminDetailsController
 
     /**
      * @return void
-     * @throws AssertionFailedException
      * @throws Throwable
      */
     public function saveAuthn(): void
@@ -116,7 +115,7 @@ class d3user_webauthn extends AdminDetailsController
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
-        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException $e) {
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface|DoctrineDriverException|AssertionFailedException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e->getMessage());

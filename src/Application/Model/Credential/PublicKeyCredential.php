@@ -15,7 +15,10 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use Assert\Assert;
+use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
+use D3\Webauthn\Setup\Actions;
 use DateTime;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -63,11 +66,20 @@ class PublicKeyCredential extends BaseModel
 
     /**
      * @param string $credentialId
+     * @throws AssertionFailedException
      */
     public function setCredentialId(string $credentialId): void
     {
+        $encodedCID = base64_encode($credentialId);
+
+        Assert::that($encodedCID)
+            ->maxLength(
+                Actions::FIELDLENGTH_CREDID,
+                'the credentialId (%3$d) does not fit into the database field (%2$d)'
+            );
+
         $this->assign([
-            'credentialid' => base64_encode($credentialId),
+            'credentialid' => $encodedCID,
         ]);
     }
 
@@ -99,11 +111,20 @@ class PublicKeyCredential extends BaseModel
 
     /**
      * @param PublicKeyCredentialSource $credential
+     * @throws AssertionFailedException
      */
     public function setCredential(PublicKeyCredentialSource $credential): void
     {
+        $encodedCredential = base64_encode(serialize($credential));
+
+        Assert::that($encodedCredential)
+            ->maxLength(
+                Actions::FIELDLENGTH_CREDENTIAL,
+                'the credential source (%3$d) does not fit into the database field (%2$d)',
+            );
+
         $this->assign([
-            'credential' => base64_encode(serialize($credential)),
+            'credential' => $encodedCredential,
         ]);
     }
 
@@ -131,6 +152,7 @@ class PublicKeyCredential extends BaseModel
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
      * @throws Exception
+     * @throws AssertionFailedException
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, string $keyName = null): void
     {

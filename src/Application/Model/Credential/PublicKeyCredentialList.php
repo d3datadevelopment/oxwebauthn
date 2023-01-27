@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model\Credential;
 
+use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -158,8 +159,10 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
     }
 
     /**
+     * unused, but must fulfil the interface
      * @param PublicKeyCredentialSource $publicKeyCredentialSource
      * @return void
+     * @throws AssertionFailedException
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {

@@ -46,7 +46,8 @@
     "nyholm/psr7-server": "^1.0.2",
     "ext-json": "*",
     "d3/testingtools": "^1.1",
-    "d3/oxid-dic-handler": "^1.0"
+    "d3/oxid-dic-handler": "^1.0",
+    "beberlei/assert": "^3.2"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.19",
