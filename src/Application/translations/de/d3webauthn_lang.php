@@ -40,9 +40,9 @@ $aLang = [
     'D3_WEBAUTHN_NOKEYREGISTERED'          => 'kein Schlüssel registriert',
 
     'D3_WEBAUTHN_ACCOUNT_TYPE0'            => 'nur Passwort',
-    'D3_WEBAUTHN_ACCOUNT_TYPE1'            => 'nur Auth-Stick',
-    'D3_WEBAUTHN_ACCOUNT_TYPE2'            => 'nur Auth-Stick, Passwort als Alternative',
-    'D3_WEBAUTHN_ACCOUNT_TYPE3'            => 'Auth-Stick und Passwort in Kombination',
+    'D3_WEBAUTHN_ACCOUNT_TYPE1'            => 'nur Auth-Schlüssel',
+    'D3_WEBAUTHN_ACCOUNT_TYPE2'            => 'nur Auth-Sschlüssel, Passwort als Alternative',
+    'D3_WEBAUTHN_ACCOUNT_TYPE3'            => 'Auth-Schlüssel und Passwort in Kombination',
 
     'D3_WEBAUTHN_ERR_UNSECURECONNECTION'   => 'Die Verwendung von Sicherheitsschlüsseln ist nur bei lokalen oder gesicherten Verbindungen (https) möglich.',
     'D3_WEBAUTHN_ERR_LOGINPROHIBITED'      => 'Die Anmeldung mit Sicherheitsschlüssel ist aus technischen Gründen derzeit leider nicht möglich. Bitte verwenden Sie statt dessen Ihr Passwort.',
