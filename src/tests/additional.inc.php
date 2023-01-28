@@ -14,7 +14,6 @@
 namespace D3\Webauthn\tests;
 
 use D3\ModCfg\Tests\additional_abstract;
-use OxidEsales\Eshop\Core\Exception\StandardException;
 
 class additional extends additional_abstract
 {

@@ -117,7 +117,9 @@ class WebauthnLogin
             $this->assertAuthn();
 
             // relogin, don't extract from this try block
-            $usrCmp->setUser(d3GetOxidDIC()->get('d3ox.webauthn.'.User::class));
+            /** @var User $user */
+            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
+            $usrCmp->setUser($user);
             $this->setFrontendSession($user);
             $usrCmp->setLoginStatus(USER_LOGIN_SUCCESS);
 
@@ -226,6 +228,7 @@ class WebauthnLogin
      */
     public function setAdminSession($userId): Session
     {
+        /** @var Session $session */
         $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
         $adminProfiles = $session->getVariable("aAdminProfiles");
         $session->initNewSession();
@@ -257,6 +260,7 @@ class WebauthnLogin
      */
     public function assertUser($userId, bool $isBackend = false): User
     {
+        /** @var User $user */
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $user->load($userId);
         if (!$user->isLoaded() ||

@@ -20,8 +20,6 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Core\Config;
-use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use Webauthn\PublicKeyCredentialSource;

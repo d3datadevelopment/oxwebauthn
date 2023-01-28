@@ -21,10 +21,8 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 

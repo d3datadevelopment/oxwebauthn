@@ -20,7 +20,6 @@ use D3\Webauthn\Application\Model\RelyingPartyEntity;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Model\Shop;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 class RelyingPartyEntityTest extends WAUnitTestCase

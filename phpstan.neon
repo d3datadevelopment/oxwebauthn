@@ -10,4 +10,4 @@ parameters:
         - '#Call to an undefined method OxidEsales\\Eshop\\Core\\Controller\\BaseController::getNavigationParams\(\)\.#'
         - '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject::.*#'
         - '#Return type \(array\) of method D3\\Webauthn\\Application\\Controller\\d3webauthnlogin::getBreadCrumb\(\) should be compatible with return type \(null\) of method OxidEsales\\EshopCommunity\\Application\\Controller\\FrontendController::getBreadCrumb\(\)#'
-        - '#Method D3\\Webauthn\\Application\\Model\\RelyingPartyEntity::getActiveShop\(\) should return OxidEsales\\Eshop\\Application\\Model\\Shop but returns oxShop.#'
+        - '#PHPDoc tag @throws with type OxidEsales\\EshopCommunity\\Internal\\Framework\\Module\\Configuration\\Exception\\ModuleConfigurationNotFoundException|Psr\\Container\\ContainerExceptionInterface is not subtype of Throwable#'

@@ -20,6 +20,7 @@ use D3\TestingTools\Production\IsMockable;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Statement;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Model\ListModel;
@@ -68,10 +69,10 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                     )
                 )
             );
-        $credential = $qb->execute()->fetchOne();
-//dumpvar($qb->getSQL());
-//dumpvar($qb->getParameters());
-//dumpvar(unserialize(base64_decode($credential)));
+        /** @var Statement $stmt */
+        $stmt = $qb->execute();
+        $credential = $stmt->fetchOne();
+
         if (!strlen((string) $credential)) {
             return null;
         }
@@ -108,13 +109,16 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                 )
             );
 
+        /** @var Statement $stmt */
+        $stmt = $qb->execute();
+
         // generate decoded credentials list
         return array_map(function (array $fields) {
             /** @var PublicKeyCredential $credential */
             $credential = clone $this->getBaseObject();
             $credential->assign(['credential'   => $fields['credential']]);
             return $credential->getCredential();
-        }, $qb->execute()->fetchAllAssociative());
+        }, $stmt->fetchAllAssociative());
     }
 
     /**
@@ -148,7 +152,9 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
                 )
             );
 
-        foreach ($qb->execute()->fetchAllAssociative() as $fields) {
+        /** @var Statement $stmt */
+        $stmt = $qb->execute();
+        foreach ($stmt->fetchAllAssociative() as $fields) {
             $id = $fields['oxid'];
             $credential = clone $this->getBaseObject();
             $credential->load($id);
@@ -163,6 +169,8 @@ class PublicKeyCredentialList extends ListModel implements PublicKeyCredentialSo
      * @param PublicKeyCredentialSource $publicKeyCredentialSource
      * @return void
      * @throws AssertionFailedException
+     * @throws DoctrineDriverException
+     * @throws DoctrineException
      */
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
     {

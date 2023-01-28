@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace D3\Webauthn\tests\unit\Modules\Application\Component;
 
 use D3\TestingTools\Development\CanAccessRestricted;
+use D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnLoginErrorException;
 use D3\Webauthn\Application\Model\Webauthn;
@@ -27,12 +28,10 @@ use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Application\Component\UserComponent;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Controller\BaseController;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsView;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 

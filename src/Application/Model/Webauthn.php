@@ -80,6 +80,7 @@ class Webauthn
     public function getCreationOptions(User $user): string
     {
         d3GetOxidDIC()->set(UserEntity::class.'.args.user', $user);
+        /** @var UserEntity $userEntity */
         $userEntity = d3GetOxidDIC()->get(UserEntity::class);
 
         $publicKeyCredentialCreationOptions = $this->getServer()->generatePublicKeyCredentialCreationOptions(
@@ -140,6 +141,7 @@ class Webauthn
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $user->load($userId);
         d3GetOxidDIC()->set(UserEntity::class.'.args.user', $user);
+        /** @var UserEntity $userEntity */
         $userEntity = d3GetOxidDIC()->get(UserEntity::class);
 
         // We generate the set of options.
@@ -166,7 +168,9 @@ class Webauthn
     protected function getServer(): Server
     {
         $server = $this->getServerObject();
-        $server->setLogger(d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class));
+        /** @var LoggerInterface $logger */
+        $logger = d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class);
+        $server->setLogger($logger);
         return $server;
     }
 
@@ -248,7 +252,10 @@ class Webauthn
         $user->load($userId);
 
         d3GetOxidDIC()->set(UserEntity::class.'.args.user', $user);
-        return d3GetOxidDIC()->get(UserEntity::class);
+        /** @var UserEntity $userEntity */
+        $userEntity = d3GetOxidDIC()->get(UserEntity::class);
+
+        return $userEntity;
     }
 
     /**

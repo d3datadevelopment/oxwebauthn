@@ -18,9 +18,11 @@ namespace D3\Webauthn\Modules\Application\Model;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
+use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
-use OxidEsales\Eshop\Application\Model\User;
+use Doctrine\DBAL\Statement;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
@@ -144,6 +146,8 @@ class d3_User_Webauthn extends d3_User_Webauthn_parent
                 )
             )->setMaxResults(1);
 
-        return $qb->execute()->fetchOne() ?: null;
+        /** @var Statement $stmt */
+        $stmt = $qb->execute();
+        return $stmt->fetchOne() ?: null;
     }
 }

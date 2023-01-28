@@ -167,7 +167,8 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         /** @var Request $request */
         $request = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class);
 
-        return oxNew(WebauthnLogin::class,
+        return oxNew(
+            WebauthnLogin::class,
             $request->getRequestEscapedParameter('credential'),
             $request->getRequestEscapedParameter('error')
         );

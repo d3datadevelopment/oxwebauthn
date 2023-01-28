@@ -19,8 +19,6 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Model\WebauthnErrors;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
 use OxidEsales\Eshop\Core\Language;
-use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 

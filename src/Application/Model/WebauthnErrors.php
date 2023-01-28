@@ -32,7 +32,7 @@ class WebauthnErrors
     public const UNSECURECONNECTION = 'D3_WEBAUTHN_ERR_UNSECURECONNECTION';
 
     /**
-     * @param $msg
+     * @param string $msg
      * @param null|string $type
      * @return string
      */

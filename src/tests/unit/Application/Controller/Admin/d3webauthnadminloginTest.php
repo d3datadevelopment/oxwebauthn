@@ -25,7 +25,6 @@ use D3\Webauthn\Application\Model\WebauthnConf;
 use D3\Webauthn\Application\Model\WebauthnLogin;
 use D3\Webauthn\tests\unit\Application\Controller\d3webauthnloginTest;
 use Generator;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\Eshop\Core\Utils;

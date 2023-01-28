@@ -20,11 +20,8 @@ use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
 use D3\Webauthn\Application\Model\UserEntity;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
-use Hoa\Iterator\Mock;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Config;
-use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use Webauthn\PublicKeyCredentialSource;
@@ -95,7 +92,7 @@ class PublicKeyCredentialListTest extends WAUnitTestCase
                 'oxshopid'      => 55,
                 'name'  => __METHOD__,
                 // can't get mock of PublicKeyCredentialSource because of cascaded mock object is not serializable
-                'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9'
+                'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9',
             ]);
             $pkc->save();
         }
@@ -174,7 +171,7 @@ class PublicKeyCredentialListTest extends WAUnitTestCase
                     'oxshopid' => 55,
                     'credentialid'  => __METHOD__,
                     // can't get mock of PublicKeyCredentialSource because of cascaded mock object is not serializable
-                    'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9'
+                    'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9',
                 ]);
                 $pkc->save();
             }
@@ -195,9 +192,9 @@ class PublicKeyCredentialListTest extends WAUnitTestCase
             );
 
             if ($expected === 'pkcsource') {
-                $this->assertCount( 2, $list );
-                foreach ( $list as $item ) {
-                    $this->assertInstanceOf( PublicKeyCredentialSource::class, $item );
+                $this->assertCount(2, $list);
+                foreach ($list as $item) {
+                    $this->assertInstanceOf(PublicKeyCredentialSource::class, $item);
                 }
             } else {
                 $this->assertEmpty($list);
@@ -205,7 +202,7 @@ class PublicKeyCredentialListTest extends WAUnitTestCase
         } finally {
             if ($doCreate) {
                 foreach ($oxids as $oxid) {
-                    /** @var PublicKeyCredential $pkc */
+                    /** @var PublicKeyCredential|MockObject $pkc */
                     $pkc = $this->getMockBuilder(PublicKeyCredential::class)
                         ->onlyMethods(['allowDerivedDelete'])
                         ->getMock();
@@ -262,7 +259,7 @@ class PublicKeyCredentialListTest extends WAUnitTestCase
                     'oxshopid' => 55,
                     'credentialid'  => __METHOD__,
                     // can't get mock of PublicKeyCredentialSource because of cascaded mock object is not serializable
-                    'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9'
+                    'credential'    => 'TzozNDoiV2ViYXV0aG5cUHVibGljS2V5Q3JlZGVudGlhbFNvdXJjZSI6MTA6e3M6MjQ6IgAqAHB1YmxpY0tleUNyZWRlbnRpYWxJZCI7czo2NToiAQUtRW3vxImpllhVhp3sUeC0aBae8rFm0hBhHpVSdkdrmqZp+tnfgcuP8xJUbsjMMDyt908zZ2RXAtibmbbilOciO3M6NzoiACoAdHlwZSI7czoxMDoicHVibGljLWtleSI7czoxMzoiACoAdHJhbnNwb3J0cyI7YTowOnt9czoxODoiACoAYXR0ZXN0YXRpb25UeXBlIjtzOjQ6Im5vbmUiO3M6MTI6IgAqAHRydXN0UGF0aCI7TzozMzoiV2ViYXV0aG5cVHJ1c3RQYXRoXEVtcHR5VHJ1c3RQYXRoIjowOnt9czo5OiIAKgBhYWd1aWQiO086MzU6IlJhbXNleVxVdWlkXExhenlcTGF6eVV1aWRGcm9tU3RyaW5nIjoxOntzOjY6InN0cmluZyI7czozNjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIjt9czoyMjoiACoAY3JlZGVudGlhbFB1YmxpY0tleSI7czo3NzoipQECAyYgASFYIKelzI2/b094o/XiJmXWUkVr8cvhAucLplHTxtl0oKtrIlgguKi+0epmmjeemuzzGspNotA7uKnkk4oAmDUOKsJgLykiO3M6MTM6IgAqAHVzZXJIYW5kbGUiO3M6MTQ6Im94ZGVmYXVsdGFkbWluIjtzOjEwOiIAKgBjb3VudGVyIjtpOjA7czoxMDoiACoAb3RoZXJVSSI7Tjt9',
                 ]);
                 $pkc->save();
             }

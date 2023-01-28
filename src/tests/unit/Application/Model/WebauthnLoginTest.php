@@ -35,7 +35,6 @@ use OxidEsales\Eshop\Core\SystemEventHandler;
 use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsServer;
 use OxidEsales\Eshop\Core\UtilsView;
-use OxidEsales\TestingLibrary\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -325,7 +324,7 @@ class WebauthnLoginTest extends WAUnitTestCase
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
-                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights'])
+                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights', ])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -378,7 +377,7 @@ class WebauthnLoginTest extends WAUnitTestCase
         /** @var WebauthnLogin|MockObject $sut */
         $sut = $this->getMockBuilder(WebauthnLogin::class)
             ->onlyMethods(['getUserId', 'handleErrorMessage', 'assertUser', 'assertAuthn',
-                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights'])
+                'setAdminSession', 'handleBackendCookie', 'handleBackendSubshopRights', ])
             ->disableOriginalConstructor()
             ->getMock();
         $sut->method('handleErrorMessage')->willThrowException(oxNew($exceptionClass));

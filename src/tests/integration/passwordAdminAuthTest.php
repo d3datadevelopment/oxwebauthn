@@ -18,7 +18,6 @@ namespace D3\Webauthn\tests\integration;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use OxidEsales\Eshop\Application\Controller\Admin\LoginController;
 use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
-use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 
 class passwordAdminAuthTest extends integrationTestCase

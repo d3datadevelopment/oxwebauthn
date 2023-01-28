@@ -28,7 +28,6 @@ use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsView;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -73,7 +72,7 @@ class d3user_webauthnTest extends WAUnitTestCase
         $sutMock = $this->getMockBuilder(d3user_webauthn::class)
             ->onlyMethods([
                 'd3CallMockableFunction',
-                'getEditObjectId'
+                'getEditObjectId',
             ])
             ->getMock();
         $sutMock->method('d3CallMockableFunction')->willReturn(true);
@@ -132,7 +131,7 @@ class d3user_webauthnTest extends WAUnitTestCase
         $sutMock = $this->getMockBuilder(d3user_webauthn::class)
             ->onlyMethods([
                 'setPageType',
-                'setAuthnRegister'
+                'setAuthnRegister',
             ])
             ->getMock();
         $sutMock->expects($this->atLeastOnce())->method('setPageType');
@@ -169,7 +168,7 @@ class d3user_webauthnTest extends WAUnitTestCase
         $sutMock = $this->getMockBuilder(d3user_webauthn::class)
             ->onlyMethods([
                 'setPageType',
-                'setAuthnRegister'
+                'setAuthnRegister',
             ])
             ->getMock();
         $sutMock->expects($this->atLeastOnce())->method('setPageType');

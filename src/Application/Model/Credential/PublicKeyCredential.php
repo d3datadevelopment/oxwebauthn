@@ -23,6 +23,7 @@ use DateTime;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Statement;
 use Exception;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Model\BaseModel;
@@ -205,7 +206,9 @@ class PublicKeyCredential extends BaseModel
                     )
                 )
             );
-        $oxid = $qb->execute()->fetchOne();
+        /** @var Statement $stmt */
+        $stmt = $qb->execute();
+        $oxid = $stmt->fetchOne();
 
         return strlen((string) $oxid) ? $oxid : null;
     }

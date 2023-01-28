@@ -21,7 +21,6 @@ use Exception;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
-use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\DbMetaDataHandler;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
@@ -39,10 +38,9 @@ use Psr\Log\LoggerInterface;
 
 class Actions
 {
+    use IsMockable;
     public const FIELDLENGTH_CREDID = 512;
     public const FIELDLENGTH_CREDENTIAL = 2000;
-
-    use IsMockable;
 
     public $seo_de = 'sicherheitsschluessel';
     public $seo_en = 'en/key-authentication';

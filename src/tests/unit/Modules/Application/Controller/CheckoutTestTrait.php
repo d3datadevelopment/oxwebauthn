@@ -22,7 +22,6 @@ use OxidEsales\Eshop\Application\Controller\OrderController;
 use OxidEsales\Eshop\Application\Controller\PaymentController;
 use OxidEsales\Eshop\Application\Controller\UserController;
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
