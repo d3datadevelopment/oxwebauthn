@@ -18,8 +18,6 @@ namespace D3\Webauthn\Modules\Application\Model;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\WebauthnConf;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
-use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;

@@ -448,7 +448,7 @@ class WebauthnLoginTest extends WAUnitTestCase
      * @covers \D3\Webauthn\Application\Model\WebauthnLogin::assertAuthn
      * @dataProvider canAssertAuthDataProvider
      */
-    public function canAssertAuthn($credential, $doAssert, $throwException)
+    public function canAssertAuthn($doAssert, $throwException)
     {
         /** @var Webauthn|MockObject $webauthnMock */
         $webauthnMock = $this->getMockBuilder(Webauthn::class)
@@ -485,8 +485,8 @@ class WebauthnLoginTest extends WAUnitTestCase
      */
     public function canAssertAuthDataProvider(): Generator
     {
-        yield 'has credential' => ['credentialFixture', $this->atLeastOnce(), false];
-        yield 'no credential'  => [null, $this->never(), true];
+        yield 'has credential' => [$this->atLeastOnce(), false];
+        yield 'no credential'  => [$this->never(), true];
     }
 
     /**
