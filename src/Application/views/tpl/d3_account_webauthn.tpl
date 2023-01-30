@@ -90,7 +90,7 @@
                         [{/block}]
                     </div>
                 </div>
-                <div class="col-12 col-lg-6 contentbox">
+                <div class="[{*wave*}]col-12[{*/wave*}] [{*flow*}]col-xs-12[{*/flow*}] col-lg-6 contentbox">
                     <div class="[{*wave*}]card[{*/wave*}] [{*flow*}]panel panel-default[{*/flow*}]">
                         [{block name="user_d3user_totp_form2"}]
                             <div class="[{*wave*}]card-header[{*/wave*}] [{*flow*}]panel-heading[{*/flow*}]">
