@@ -117,8 +117,6 @@ class WebauthnLogin
             $this->assertAuthn();
 
             // relogin, don't extract from this try block
-            /** @var User $user */
-            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
             $usrCmp->setUser($user);
             $this->setFrontendSession($user);
             $usrCmp->setLoginStatus(USER_LOGIN_SUCCESS);
