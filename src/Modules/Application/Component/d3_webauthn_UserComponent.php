@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Modules\Application\Component;
 
+use Assert\Assert;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnLoginErrorException;
@@ -153,7 +155,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
                 (bool)d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestParameter('lgn_cook')
             );
             $this->_afterLogin($this->getUser());
-        } catch (WebauthnGetException $e) {
+        } catch (WebauthnGetException|InvalidArgumentException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
         } catch (WebauthnLoginErrorException $e) {
         }
@@ -167,10 +169,12 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         /** @var Request $request */
         $request = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class);
 
-        return oxNew(
-            WebauthnLogin::class,
-            $request->getRequestEscapedParameter('credential'),
-            $request->getRequestEscapedParameter('error')
-        );
+        $credential = $request->getRequestEscapedParameter('credential');
+        $error = $request->getRequestEscapedParameter('error');
+
+        Assert::that($credential)->string('credential value expected to be string');
+        Assert::that($error)->string('error value expected to be string');
+
+        return oxNew(WebauthnLogin::class, $credential, $error);
     }
 }
