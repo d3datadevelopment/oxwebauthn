@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use Assert\Assert;
+use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
@@ -105,12 +108,14 @@ class WebauthnLogin
      */
     public function frontendLogin(UserComponent $usrCmp, bool $setSessionCookie = false)
     {
+        /** @var UtilsView $myUtilsView */
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
-        /** @var d3_User_Webauthn $user */
-        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
-        $userId = $this->getUserId();
 
         try {
+            /** @var d3_User_Webauthn $user */
+            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
+            $userId = $this->getUserId();
+
             $this->handleErrorMessage();
 
             $user = $this->assertUser($userId);
@@ -133,7 +138,7 @@ class WebauthnLogin
         } catch (UserException $oEx) {
             // for login component send exception text to a custom component (if defined)
             $myUtilsView->addErrorToDisplay($oEx, false, true);
-        } catch (CookieException $oEx) {
+        } catch (CookieException|AssertionFailedException $oEx) {
             $myUtilsView->addErrorToDisplay($oEx);
         } catch (WebauthnException $e) {
             $myUtilsView->addErrorToDisplay($e);
@@ -151,12 +156,14 @@ class WebauthnLogin
      */
     public function adminLogin(string $selectedProfile): string
     {
+        /** @var UtilsView $myUtilsView */
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
-        /** @var d3_User_Webauthn $user */
-        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
-        $userId = $this->getUserId();
 
         try {
+            /** @var d3_User_Webauthn $user */
+            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
+            $userId = $this->getUserId();
+
             $this->handleErrorMessage();
             $this->assertUser($userId, true);
             $this->handleBlockedUser($user);
@@ -178,7 +185,7 @@ class WebauthnLogin
             return "admin_start";
         } catch (UserException $oEx) {
             $myUtilsView->addErrorToDisplay('LOGIN_ERROR');
-        } catch (CookieException $oEx) {
+        } catch (CookieException|AssertionFailedException $oEx) {
             $myUtilsView->addErrorToDisplay('LOGIN_NO_COOKIE_SUPPORT');
         } catch (WebauthnException $e) {
             $myUtilsView->addErrorToDisplay($e);
@@ -342,14 +349,19 @@ class WebauthnLogin
 
     /**
      * @return string
+     * @throws InvalidArgumentException
      */
     public function getUserId(): string
     {
-        return $this->isAdmin() ?
+        $userId = $this->isAdmin() ?
             d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->getVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER) :
             d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->getVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER);
+
+        Assert::that($userId)->minLength(1, 'User id missing, please try again.');
+
+        return $userId;
     }
 
     /**
