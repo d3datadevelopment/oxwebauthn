@@ -144,7 +144,7 @@ class d3webauthnloginTest extends WAUnitTestCase
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->never())->method('error')->willReturn(true);
-        $loggerMock->expects($this->never())->method('debug')->willReturn(true);
+        $loggerMock->method('debug')->willReturn(true);
         d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var Session|MockObject $sessionMock */

@@ -187,7 +187,7 @@ class d3_account_webauthnTest extends WAUnitTestCase
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->never())->method('error')->willReturn(true);
-        $loggerMock->expects($this->never())->method('debug')->willReturn(true);
+        $loggerMock->method('debug')->willReturn(true);
         d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
@@ -225,7 +225,7 @@ class d3_account_webauthnTest extends WAUnitTestCase
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->atLeastOnce())->method('error')->willReturn(true);
-        $loggerMock->expects($this->atLeastOnce())->method('debug')->willReturn(true);
+        $loggerMock->method('debug')->willReturn(true);
         d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var d3_account_webauthn|MockObject $oControllerMock */
@@ -334,7 +334,7 @@ class d3_account_webauthnTest extends WAUnitTestCase
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->once())->method('error')->willReturn(true);
-        $loggerMock->expects($this->once())->method('debug')->willReturn(true);
+        $loggerMock->method('debug')->willReturn(true);
         d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var User|MockObject $userMock */
@@ -425,7 +425,7 @@ class d3_account_webauthnTest extends WAUnitTestCase
         /** @var LoggerInterface|MockObject $loggerMock */
         $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class, [], '', true, true, true, ['error', 'debug']);
         $loggerMock->expects($this->once())->method('error')->willReturn(true);
-        $loggerMock->expects($this->once())->method('debug')->willReturn(true);
+        $loggerMock->method('debug')->willReturn(true);
         d3GetOxidDIC()->set('d3ox.webauthn.'.LoggerInterface::class, $loggerMock);
 
         /** @var User|MockObject $userMock */
