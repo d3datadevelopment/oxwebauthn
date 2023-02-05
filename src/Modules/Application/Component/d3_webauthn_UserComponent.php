@@ -17,6 +17,7 @@ namespace D3\Webauthn\Modules\Application\Component;
 
 use Assert\Assert;
 use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnLoginErrorException;
@@ -163,6 +164,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
 
     /**
      * @return WebauthnLogin
+     * @throws InvalidArgumentException
      */
     protected function d3GetWebauthnLogin(): WebauthnLogin
     {
@@ -172,8 +174,7 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $credential = $request->getRequestEscapedParameter('credential');
         $error = $request->getRequestEscapedParameter('error');
 
-        Assert::that($credential)->string('credential value expected to be string')
-            ->notEmpty('credential value expected contained content');
+        Assert::that($credential)->string('credential value expected to be string');
         Assert::that($error)->string('error value expected to be string');
 
         return oxNew(WebauthnLogin::class, $credential, $error);
