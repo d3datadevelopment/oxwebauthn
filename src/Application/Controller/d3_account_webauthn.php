@@ -110,6 +110,8 @@ class d3_account_webauthn extends AccountController
         $publicKeyCredentialCreationOptions = d3GetOxidDIC()->get(Webauthn::class)
             ->getCreationOptions($this->getUser());
 
+        d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug((string) $publicKeyCredentialCreationOptions);
+
         $this->addTplParam('webauthn_publickey_create', $publicKeyCredentialCreationOptions);
         $this->addTplParam('isAdmin', isAdmin());
         $this->addTplParam('keyname', Registry::getRequest()->getRequestEscapedParameter('credenialname'));
@@ -127,8 +129,8 @@ class d3_account_webauthn extends AccountController
             /** @var Request $request */
             $request = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class);
             $error = $request->getRequestEscapedParameter('error');
-
             if (strlen((string) $error)) {
+                d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($error);
                 /** @var WebauthnCreateException $e */
                 $e = oxNew(WebauthnCreateException::class, $error);
                 throw $e;
@@ -136,6 +138,7 @@ class d3_account_webauthn extends AccountController
 
             $credential = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
+                d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($credential);
                 $webauthn = d3GetOxidDIC()->get(Webauthn::class);
                 $webauthn->saveAuthn($credential, d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestEscapedParameter('keyname'));
             }

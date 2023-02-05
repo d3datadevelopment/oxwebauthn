@@ -26,6 +26,7 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
 use OxidEsales\Eshop\Core\Session;
@@ -101,6 +102,7 @@ class d3webauthnadminlogin extends AdminController
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
             d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->setVariable(WebauthnConf::WEBAUTHN_ADMIN_LOGIN_OBJECT, $publicKeyCredentialRequestOptions);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($publicKeyCredentialRequestOptions);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {

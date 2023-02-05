@@ -100,6 +100,7 @@ class d3user_webauthn extends AdminDetailsController
         try {
             $error = Registry::getRequest()->getRequestEscapedParameter('error');
             if (strlen((string) $error)) {
+                d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($error);
                 /** @var WebauthnCreateException $e */
                 $e = oxNew(WebauthnCreateException::class, $error);
                 throw $e;
@@ -107,6 +108,7 @@ class d3user_webauthn extends AdminDetailsController
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
             if (strlen((string) $credential)) {
+                d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($credential);
                 /** @var Webauthn $webauthn */
                 $webauthn = d3GetOxidDIC()->get(Webauthn::class);
                 $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));

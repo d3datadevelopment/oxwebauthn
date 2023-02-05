@@ -93,6 +93,7 @@ class d3webauthnlogin extends FrontendController
             /** @var Webauthn $webauthn */
             $webauthn = d3GetOxidDIC()->get(Webauthn::class);
             $publicKeyCredentialRequestOptions = $webauthn->getRequestOptions($userId);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($publicKeyCredentialRequestOptions);
             $this->addTplParam('webauthn_publickey_login', $publicKeyCredentialRequestOptions);
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
