@@ -17,15 +17,15 @@
 
 namespace D3\Webauthn\tests\integration;
 
-use D3\ModCfg\Application\Model\DependencyInjectionContainer\d3DicHandler;
-use D3\ModCfg\Tests\unit\d3ModCfgUnitTestCase;
+use D3\DIContainerHandler\d3DicHandler;
 use Exception;
 use OxidEsales\Eshop\Application\Model\Article;
 use OxidEsales\Eshop\Application\Model\Rights;
 use OxidEsales\Eshop\Application\Model\User;
 use OxidEsales\Eshop\Core\Model\BaseModel;
+use OxidEsales\TestingLibrary\UnitTestCase;
 
-abstract class integrationTestCase extends d3ModCfgUnitTestCase
+abstract class integrationTestCase extends UnitTestCase
 {
     /**
      * Set up fixture.

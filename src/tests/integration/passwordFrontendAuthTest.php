@@ -76,7 +76,7 @@ class passwordFrontendAuthTest extends integrationTestCase
      * @test
      * @dataProvider loginDataProvider
      */
-    public function testCheckLoginReturn($username, $password, $expected)
+    public function testCheckLoginReturn($username, $password, $expected, $redirect = null)
     {
         $_POST['lgn_usr'] = $username;
         $_POST['lgn_pwd'] = $password;

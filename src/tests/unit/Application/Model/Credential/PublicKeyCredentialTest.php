@@ -141,8 +141,8 @@ class PublicKeyCredentialTest extends WAUnitTestCase
         $this->canGetField(
             'credentialid',
             'getCredentialId',
-            'credentialFixture',
-            base64_decode('credentialFixture')
+            base64_encode('credentialFixture'),
+            'credentialFixture'
         );
     }
 
