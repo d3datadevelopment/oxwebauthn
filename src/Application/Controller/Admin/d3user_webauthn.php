@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller\Admin;
 
+use Assert\Assert;
 use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
@@ -107,12 +108,15 @@ class d3user_webauthn extends AdminDetailsController
             }
 
             $credential = Registry::getRequest()->getRequestEscapedParameter('credential');
-            if (strlen((string) $credential)) {
-                d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($credential);
-                /** @var Webauthn $webauthn */
-                $webauthn = d3GetOxidDIC()->get(Webauthn::class);
-                $webauthn->saveAuthn($credential, Registry::getRequest()->getRequestEscapedParameter('keyname'));
-            }
+            Assert::that($credential)->minLength(1, 'Credential should not be empty.');
+
+            $keyname = Registry::getRequest()->getRequestEscapedParameter('keyname');
+            Assert::that($keyname)->minLength(1, 'Key name should not be empty.');
+
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($credential);
+            /** @var Webauthn $webauthn */
+            $webauthn = d3GetOxidDIC()->get(Webauthn::class);
+            $webauthn->saveAuthn($credential, $keyname);
         } catch (WebauthnException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId' => $this->getEditObjectId()]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());

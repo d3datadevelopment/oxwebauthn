@@ -17,6 +17,7 @@ namespace D3\Webauthn\Application\Model\Credential;
 
 use Assert\Assert;
 use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Setup\Actions;
 use DateTime;
@@ -85,11 +86,16 @@ class PublicKeyCredential extends BaseModel
     }
 
     /**
-     * @return null|string
+     * @return string
+     * @throws InvalidArgumentException
      */
     public function getCredentialId(): ?string
     {
-        return base64_decode($this->__get($this->_getFieldLongName('credentialid'))->rawValue) ?: null;
+        $encodedCID = $this->__get($this->_getFieldLongName('credentialid'))->rawValue;
+
+        Assert::that($encodedCID)->base64('Credential ID "%s" is not a valid base64 string.');
+
+        return base64_decode($encodedCID);
     }
 
     /**

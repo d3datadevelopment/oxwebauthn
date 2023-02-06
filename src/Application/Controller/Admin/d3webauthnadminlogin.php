@@ -125,9 +125,9 @@ class d3webauthnadminlogin extends AdminController
     {
         try {
             $login = $this->getWebAuthnLogin();
-            return $login->adminLogin(
-                d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestEscapedParameter('profile')
-            );
+            $profile = d3GetOxidDIC()->get('d3ox.webauthn.'.Request::class)->getRequestEscapedParameter('profile');
+            Assert::that($profile)->string();
+            return $login->adminLogin($profile);
         } catch (WebauthnGetException|AssertionFailedException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
             return 'login';
