@@ -19,9 +19,9 @@ use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Setup\Actions;
 use D3\Webauthn\tests\unit\WAUnitTestCase;
 use Exception;
+use OxidEsales\DoctrineMigrationWrapper\Migrations;
+use OxidEsales\DoctrineMigrationWrapper\MigrationsBuilder;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
-use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
-use OxidEsales\Eshop\Core\Database\Adapter\Doctrine\Database;
 use OxidEsales\Eshop\Core\DbMetaDataHandler;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SeoEncoder;
@@ -45,141 +45,35 @@ class ActionsTest extends WAUnitTestCase
 
     /**
      * @test
-     * @param $tableExist
-     * @param $expectedInvocation
      * @return void
      * @throws ReflectionException
-     * @covers \D3\Webauthn\Setup\Actions::setupModule
-     * @dataProvider canSetupModuleDataProvider
+     * @covers \D3\Webauthn\Setup\Actions::runModuleMigrations()
      */
-    public function canSetupModule($tableExist, $expectedInvocation)
+    public function canRunModuleMigrations()
     {
-        /** @var Actions|MockObject $sut */
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['tableExists', 'executeSQL'])
-            ->getMock();
-        $sut->method('tableExists')->willReturn($tableExist);
-        $sut->expects($expectedInvocation)->method('executeSQL')->willReturn(true);
-
-        $this->callMethod(
-            $sut,
-            'setupModule'
-        );
-    }
-
-    /**
-     * @return array[]
-     */
-    public function canSetupModuleDataProvider(): array
-    {
-        return [
-            'table exist'       => [true, $this->never()],
-            'table not exist'   => [false, $this->once()],
-        ];
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Setup\Actions::tableExists
-     */
-    public function canCheckTableExists()
-    {
-        $expected = true;
-
-        /** @var DbMetaDataHandler|MockObject $DbMetaDataMock */
-        $DbMetaDataMock = $this->getMockBuilder(DbMetaDataHandler::class)
-            ->onlyMethods(['tableExists'])
-            ->getMock();
-        $DbMetaDataMock->expects($this->once())->method('tableExists')->willReturn($expected);
-        d3GetOxidDIC()->set('d3ox.webauthn.'.DbMetaDataHandler::class, $DbMetaDataMock);
-
-        /** @var Actions $sut */
-        $sut = oxNew(Actions::class);
-
-        $this->assertSame(
-            $expected,
-            $this->callMethod(
-                $sut,
-                'tableExists',
-                ['testTable']
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Setup\Actions::d3GetDb
-     */
-    public function d3GetDbReturnsRightInstance()
-    {
-        $sut = oxNew(Actions::class);
-
-        $this->assertInstanceOf(
-            DatabaseInterface::class,
-            $this->callMethod(
-                $sut,
-                'd3GetDb'
-            )
-        );
-    }
-
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Setup\Actions::executeSQL
-     */
-    public function canExecuteSQL()
-    {
-        /** @var Database|MockObject $dbMock */
-        $dbMock = $this->getMockBuilder(Database::class)
+        /** @var Migrations|MockObject $migrationMock */
+        $migrationMock = $this->getMockBuilder(Migrations::class)
             ->onlyMethods(['execute'])
+            ->disableOriginalConstructor()
             ->getMock();
-        $dbMock->expects($this->once())->method('execute');
-
-        $sut = $this->getMockBuilder(Actions::class)
-            ->onlyMethods(['d3GetDb'])
-            ->getMock();
-        $sut->method('d3GetDb')->willReturn($dbMock);
-
-        $this->callMethod(
-            $sut,
-            'executeSQL',
-            ['query']
+        $migrationMock->expects($this->atLeastOnce())->method('execute')->with(
+            $this->identicalTo('migrations:migrate'),
+            $this->identicalTo('d3webauthn')
         );
-    }
 
-    /**
-     * @test
-     * @return void
-     * @throws ReflectionException
-     * @covers \D3\Webauthn\Setup\Actions::fieldExists
-     */
-    public function canCheckFieldExists()
-    {
-        $expected = true;
-
-        /** @var DbMetaDataHandler|MockObject $DbMetaDataMock */
-        $DbMetaDataMock = $this->getMockBuilder(DbMetaDataHandler::class)
-            ->onlyMethods(['fieldExists'])
+        /** @var MigrationsBuilder|MockObject $migrationsBuilderMock */
+        $migrationsBuilderMock = $this->getMockBuilder(MigrationsBuilder::class)
+            ->onlyMethods(['build'])
             ->getMock();
-        $DbMetaDataMock->expects($this->once())->method('fieldExists')->willReturn($expected);
-        d3GetOxidDIC()->set('d3ox.webauthn.'.DbMetaDataHandler::class, $DbMetaDataMock);
+        $migrationsBuilderMock->method('build')->willReturn($migrationMock);
+        d3GetOxidDIC()->set('d3ox.webauthn.'.MigrationsBuilder::class, $migrationsBuilderMock);
 
         /** @var Actions $sut */
         $sut = oxNew(Actions::class);
 
-        $this->assertSame(
-            $expected,
-            $this->callMethod(
-                $sut,
-                'fieldExists',
-                ['testField', 'testTable']
-            )
+        $this->callMethod(
+            $sut,
+            'runModuleMigrations'
         );
     }
 

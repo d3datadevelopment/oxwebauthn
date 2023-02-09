@@ -15,6 +15,7 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../Application</directory>
+            <directory suffix=".php">../migration</directory>
             <directory suffix=".php">../Modules</directory>
             <directory suffix=".php">../Setup</directory>
             <exclude>

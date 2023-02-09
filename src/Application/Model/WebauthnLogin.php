@@ -110,10 +110,10 @@ class WebauthnLogin
     {
         /** @var UtilsView $myUtilsView */
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
+        /** @var d3_User_Webauthn $user */
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
 
         try {
-            /** @var d3_User_Webauthn $user */
-            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
             $userId = $this->getUserId();
 
             $this->handleErrorMessage();
@@ -158,10 +158,10 @@ class WebauthnLogin
     {
         /** @var UtilsView $myUtilsView */
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
+        /** @var d3_User_Webauthn $user */
+        $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
 
         try {
-            /** @var d3_User_Webauthn $user */
-            $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
             $userId = $this->getUserId();
 
             $this->handleErrorMessage();
@@ -195,8 +195,6 @@ class WebauthnLogin
 
         $user->logout();
         $oStr = Str::getStr();
-        d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getActiveView()
-            ->addTplParam('user', $oStr->htmlspecialchars($userId));
         d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getActiveView()
             ->addTplParam('profile', $oStr->htmlspecialchars($selectedProfile));
 

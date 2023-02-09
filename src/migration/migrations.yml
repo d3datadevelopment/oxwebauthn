@@ -1,0 +1,4 @@
+name: D3 Twofactor Passwordless
+migrations_namespace: D3\Webauthn\Migrations
+table_name: d3wa_migrations
+migrations_directory: data

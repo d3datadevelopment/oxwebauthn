@@ -63,12 +63,14 @@ und dessen Anforderungen.
 
 Im Standard wird das Flow- und Wave-Theme unterstützt. Andere Themes können Anpassungen erfordern.
 
-## Modulinstallation
+## Modulinstallation / -update
 
-Öffnen Sie eine Kommandozeile und navigieren Sie zum Stammverzeichnis des Shops (Elternverzeichnis von source und vendor). Führen Sie den folgenden Befehl aus. Passen Sie die Pfadangaben an Ihre Installationsumgebung an.
+Öffnen Sie eine Kommandozeile und navigieren Sie zum Stammverzeichnis des Shops (Elternverzeichnis von source und vendor). Führen Sie die folgenden Befehle aus. Passen Sie die Pfadangaben an Ihre Installationsumgebung an.
 
 ```bash
-php composer require d3/oxid-twofactor-passwordless:^1.0
+composer require d3/oxid-twofactor-passwordless:^1.0
+
+./vendor/bin/oe-eshop-db_migrate migrations:migrate d3webauthn
 ```
 
 Wird ein Hinweis auf ein unpassendes Paket "symfony/process" gezeigt, muss dieses geändert werden. Fügen Sie dazu in den oben genannten Befehl bitte den Schalter `-W` ein (`... require -W ...`).

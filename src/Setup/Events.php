@@ -34,7 +34,7 @@ class Events
         }
 
         $actions = oxNew(Actions::class);
-        $actions->setupModule();
+        $actions->runModuleMigrations();
         $actions->regenerateViews();
         $actions->clearCache();
         $actions->seoUrl();

@@ -18,12 +18,10 @@ namespace D3\Webauthn\Setup;
 use D3\TestingTools\Production\IsMockable;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Exception;
+use OxidEsales\DoctrineMigrationWrapper\MigrationsBuilder;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Config;
-use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\DbMetaDataHandler;
-use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
-use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\SeoEncoder;
 use OxidEsales\Eshop\Core\Utils;
 use OxidEsales\Eshop\Core\UtilsView;
@@ -39,93 +37,17 @@ use Psr\Log\LoggerInterface;
 class Actions
 {
     use IsMockable;
-    public const FIELDLENGTH_CREDID = 512;
-    public const FIELDLENGTH_CREDENTIAL = 2000;
 
     public $seo_de = 'sicherheitsschluessel';
     public $seo_en = 'en/key-authentication';
     public $stdClassName = 'd3_account_webauthn';
 
-    /**
-     * SQL statement, that will be executed only at the first time of module installation.
-     *
-     * @var string
-     */
-    protected $createCredentialSql =
-        "CREATE TABLE `d3wa_usercredentials` (
-            `OXID` char(32) NOT NULL,
-            `OXUSERID` char(32) NOT NULL,
-            `OXSHOPID` int(11) NOT NULL,
-            `NAME` varchar(100) NOT NULL,
-            `CREDENTIALID` varchar(".self::FIELDLENGTH_CREDID.") NOT NULL,
-            `CREDENTIAL` varchar(".self::FIELDLENGTH_CREDENTIAL.") NOT NULL,
-            `OXTIMESTAMP` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-            PRIMARY KEY (`OXID`),
-            KEY `CREDENTIALID_IDX` (`CREDENTIALID`),
-            KEY `SHOPUSER_IDX` (`OXUSERID`,`OXSHOPID`) USING BTREE
-        ) ENGINE=InnoDB COMMENT='WebAuthn Credentials';";
-
-    /**
-     * Execute the sql at the first time of the module installation.
-     * @return void
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
-    public function setupModule()
+    public function runModuleMigrations()
     {
-        if (!$this->tableExists('d3wa_usercredentials')) {
-            $this->executeSQL($this->createCredentialSql);
-        }
-    }
-
-    /**
-     * Check if table exists
-     *
-     * @param string $sTableName table name
-     *
-     * @return bool
-     */
-    public function tableExists(string $sTableName): bool
-    {
-        $oDbMetaDataHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.DbMetaDataHandler::class);
-        return $oDbMetaDataHandler->tableExists($sTableName);
-    }
-
-    /**
-     * @return DatabaseInterface|null
-     * @throws DatabaseConnectionException
-     */
-    protected function d3GetDb(): ?DatabaseInterface
-    {
-        /** @var DatabaseInterface $db */
-        $db = d3GetOxidDIC()->get('d3ox.webauthn.'.DatabaseInterface::class.'.assoc');
-        return $db;
-    }
-
-    /**
-     * Executes given sql statement.
-     *
-     * @param string $sSQL Sql to execute.
-     * @throws DatabaseConnectionException
-     * @throws DatabaseErrorException
-     */
-    public function executeSQL(string $sSQL)
-    {
-        $this->d3GetDb()->execute($sSQL);
-    }
-
-    /**
-     * Check if field exists in table
-     *
-     * @param string $sFieldName field name
-     * @param string $sTableName table name
-     *
-     * @return bool
-     */
-    public function fieldExists(string $sFieldName, string $sTableName): bool
-    {
-        $oDbMetaDataHandler = d3GetOxidDIC()->get('d3ox.webauthn.'.DbMetaDataHandler::class);
-        return $oDbMetaDataHandler->fieldExists($sFieldName, $sTableName);
+        /** @var MigrationsBuilder $migrationsBuilder */
+        $migrationsBuilder = d3GetOxidDIC()->get('d3ox.webauthn.'.MigrationsBuilder::class);
+        $migrations = $migrationsBuilder->build();
+        $migrations->execute('migrations:migrate', 'd3webauthn');
     }
 
     /**

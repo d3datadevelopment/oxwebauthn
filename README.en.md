@@ -63,12 +63,14 @@ and its requirements.
 
 The Flow and Wave themes are supported by default. Other themes may require customisation.
 
-## Module installation
+## Module installation / update
 
-Open a command line interface and navigate to the shop root directory (parent of source and vendor). Execute the following command. Adapt the paths to your environment.
+Open a command line interface and navigate to the shop root directory (parent of source and vendor). Execute the following commands. Adapt the paths to your environment.
 
 ```bash
-php composer require d3/oxid-twofactor-passwordless:^1.0
+composer require d3/oxid-twofactor-passwordless:^1.0
+
+./vendor/bin/oe-eshop-db_migrate migrations:migrate d3webauthn
 ``` 
 
 If a reference to an unsuitable package `symfony/process` is shown, this must be changed. To do this, please add the switch `-W` to the above command (`... require -W ...`).

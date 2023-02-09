@@ -55,7 +55,8 @@
   },
   "autoload": {
     "psr-4": {
-      "D3\\Webauthn\\": "../../../source/modules/d3/oxwebauthn"
+      "D3\\Webauthn\\": "../../../source/modules/d3/oxwebauthn",
+      "D3\\Webauthn\\Migrations\\": "../../../source/modules/d3/oxwebauthn/migration/data"
     }
   },
   "suggest": {

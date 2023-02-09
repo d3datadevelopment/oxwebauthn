@@ -136,3 +136,10 @@ services:
     arguments:
       - 2
     shared: true
+
+  d3ox.webauthn.OxidEsales\DoctrineMigrationWrapper\MigrationsBuilder:
+    class: 'OxidEsales\DoctrineMigrationWrapper\MigrationsBuilder'
+    factory:    'oxNew'
+    arguments:
+      - 'OxidEsales\DoctrineMigrationWrapper\MigrationsBuilder'
+    shared:     false

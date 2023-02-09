@@ -19,7 +19,7 @@ use Assert\Assert;
 use Assert\AssertionFailedException;
 use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
-use D3\Webauthn\Setup\Actions;
+use D3\Webauthn\Migrations\Version20230209212939;
 use DateTime;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
@@ -76,7 +76,7 @@ class PublicKeyCredential extends BaseModel
 
         Assert::that($encodedCID)
             ->maxLength(
-                Actions::FIELDLENGTH_CREDID,
+                Version20230209212939::FIELDLENGTH_CREDID,
                 'the credentialId (%3$d) does not fit into the database field (%2$d)'
             );
 
@@ -126,7 +126,7 @@ class PublicKeyCredential extends BaseModel
 
         Assert::that($encodedCredential)
             ->maxLength(
-                Actions::FIELDLENGTH_CREDENTIAL,
+                Version20230209212939::FIELDLENGTH_CREDENTIAL,
                 'the credential source (%3$d) does not fit into the database field (%2$d)',
             );
 
