@@ -179,7 +179,7 @@ const requestCredentials = (publicKey) => {
                 response: {
                     authenticatorData: base64ArrayBuffer(authenticateInfo.response.authenticatorData),
                     signature: base64ArrayBuffer(authenticateInfo.response.signature),
-                    userHandle: authenticateInfo.response.userHandle,
+                    userHandle: base64ArrayBuffer(authenticateInfo.response.userHandle),
                     clientDataJSON: base64ArrayBuffer(authenticateInfo.response.clientDataJSON)
                 },
                 type: authenticateInfo.type
