@@ -38,6 +38,10 @@ class WebauthnErrors
      */
     public function translateError(string $msg, string $type = null): string
     {
+        d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug(
+            'error occured: '.$msg
+        );
+
         $lang = d3GetOxidDIC()->get('d3ox.webauthn.'.Language::class);
         $type = $type ? '_'.$type : null;
 

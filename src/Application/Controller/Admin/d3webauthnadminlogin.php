@@ -110,9 +110,16 @@ class d3webauthnadminlogin extends AdminController
             $this->addTplParam('isAdmin', isAdmin());
         } catch (WebauthnException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                 ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+                ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId'   => $userId]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=login');
+        } catch (AssertionFailedException $e) {
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
+                ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId'   => $userId]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=login');
         }

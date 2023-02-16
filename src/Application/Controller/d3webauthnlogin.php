@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Controller;
 
+use Assert\AssertionFailedException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Webauthn;
 use D3\Webauthn\Application\Model\WebauthnConf;
@@ -100,6 +101,13 @@ class d3webauthnlogin extends FrontendController
             d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
                  ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId' => $userId]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
+            Registry::getUtilsView()->addErrorToDisplay($e);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');
+        } catch (AssertionFailedException $e) {
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
+                ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId' => $userId]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             Registry::getUtilsView()->addErrorToDisplay($e);
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');

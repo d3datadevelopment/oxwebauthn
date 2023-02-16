@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\Application\Model;
 
+use Assert\Assert;
 use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
@@ -134,6 +136,7 @@ class Webauthn
      * @return string
      * @throws DoctrineDriverException
      * @throws DoctrineException
+     * @throws InvalidArgumentException
      */
     public function getRequestOptions(string $userId): string
     {
@@ -143,11 +146,16 @@ class Webauthn
         d3GetOxidDIC()->set(UserEntity::class.'.args.user', $user);
         /** @var UserEntity $userEntity */
         $userEntity = d3GetOxidDIC()->get(UserEntity::class);
+        $existingCredentials = $this->getExistingCredentials($userEntity);
+
+        d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug(
+            'found user credentials: '.count($existingCredentials).' for ID '.$userId)
+        );
 
         // We generate the set of options.
         $publicKeyCredentialRequestOptions = $this->getServer()->generatePublicKeyCredentialRequestOptions(
             PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_PREFERRED, // Default value
-            $this->getExistingCredentials($userEntity)
+            $existingCredentials
         );
 
         d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
@@ -155,9 +163,11 @@ class Webauthn
 
         $json = $this->jsonEncode($publicKeyCredentialRequestOptions);
 
-        if ($json === false) {
-            throw oxNew(Exception::class, "can't encode request options");
-        }
+        d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug(
+            'request options: '.$json
+        );
+
+        Assert::that($json)->minLength(1, "can't encode request options");
 
         return $json;
     }
