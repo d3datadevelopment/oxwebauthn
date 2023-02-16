@@ -66,29 +66,27 @@ class d3_webauthn_UserComponent extends d3_webauthn_UserComponent_parent
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $userId = $user->d3GetLoginUserId($lgn_user);
 
-        if ($this->d3CanUseWebauthn($lgn_user, $userId)) {
-            if ($this->d3HasWebauthnButNotLoggedin($userId)) {
-                $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
-                $session->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
-                    $this->getClassKey() != 'd3webauthnlogin' ? $this->getClassKey() : 'start'
-                );
-                $session->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
-                    $userId
-                );
-                $session->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS,
-                    $this->getParent()->getNavigationParams()
-                );
-                $session->setVariable(
-                    WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
-                    $this->getParent()->getViewConfig()->getNavFormParams()
-                );
+        if ($this->d3CanUseWebauthn($lgn_user, $userId) && $this->d3HasWebauthnButNotLoggedin($userId)) {
+            $session = d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class);
+            $session->setVariable(
+                WebauthnConf::WEBAUTHN_SESSION_CURRENTCLASS,
+                $this->getClassKey() != 'd3webauthnlogin' ? $this->getClassKey() : 'start'
+            );
+            $session->setVariable(
+                WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER,
+                $userId
+            );
+            $session->setVariable(
+                WebauthnConf::WEBAUTHN_SESSION_NAVPARAMS,
+                $this->getParent()->getNavigationParams()
+            );
+            $session->setVariable(
+                WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS,
+                $this->getParent()->getViewConfig()->getNavFormParams()
+            );
 
-                $sUrl = d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopHomeUrl() . 'cl=d3webauthnlogin';
-                d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect($sUrl);
-            }
+            $sUrl = d3GetOxidDIC()->get('d3ox.webauthn.'.Config::class)->getShopHomeUrl() . 'cl=d3webauthnlogin';
+            d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect($sUrl);
         }
     }
 

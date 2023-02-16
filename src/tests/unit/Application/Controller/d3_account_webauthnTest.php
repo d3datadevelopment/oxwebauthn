@@ -210,9 +210,10 @@ class d3_account_webauthnTest extends WAUnitTestCase
      * @test
      * @return void
      * @throws ReflectionException
+     * @dataProvider canRequestNewCredentialCantGetCreationOptionsDataProvider
      * @covers \D3\Webauthn\Application\Controller\d3_account_webauthn::requestNewCredential()
      */
-    public function canRequestNewCredentialCantGetCreationOptions()
+    public function canRequestNewCredentialCantGetCreationOptions($exception)
     {
         $oUser = oxNew(User::class);
         $oUser->setId('foo');
@@ -233,7 +234,7 @@ class d3_account_webauthnTest extends WAUnitTestCase
             ->onlyMethods(['setAuthnRegister', 'setPageType', 'getUser'])
             ->getMock();
         $oControllerMock->expects($this->atLeastOnce())->method('setAuthnRegister')
-            ->willThrowException(oxNew(WebauthnException::class));
+            ->willThrowException($exception);
         $oControllerMock->expects($this->never())->method('setPageType');
         $oControllerMock->method('getUser')->willReturn($oUser);
 
@@ -244,6 +245,16 @@ class d3_account_webauthnTest extends WAUnitTestCase
             'requestNewCredential'
         );
     }
+
+    /**
+     * @return Generator
+     */
+    public function canRequestNewCredentialCantGetCreationOptionsDataProvider(): Generator
+    {
+        yield 'WebauthnException' => [oxNew(WebauthnException::class)];
+        yield 'InvalidArgumentException' => [oxNew(InvalidArgumentException::class, 'msg', 20)];
+    }
+
 
     /**
      * @test

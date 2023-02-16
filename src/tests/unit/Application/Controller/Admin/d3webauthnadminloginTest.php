@@ -144,11 +144,15 @@ class d3webauthnadminloginTest extends d3webauthnloginTest
      * @test
      * @return void
      * @throws ReflectionException
+     * @dataProvider \D3\Webauthn\tests\unit\Application\Controller\d3webauthnloginTest::generateCredentialRequestFailedDataProvider()
      * @covers \D3\Webauthn\Application\Controller\Admin\d3webauthnadminlogin::generateCredentialRequest
      */
-    public function generateCredentialRequestFailed($redirectClass = 'login', $userVarName = WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
-    {
-        parent::generateCredentialRequestFailed($redirectClass, $userVarName);
+    public function generateCredentialRequestFailed(
+        $exception,
+        $redirectClass = 'login',
+        $userVarName = WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER
+    ) {
+        parent::generateCredentialRequestFailed($exception, $redirectClass, $userVarName);
     }
 
     /**

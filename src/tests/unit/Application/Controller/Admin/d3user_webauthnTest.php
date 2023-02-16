@@ -13,6 +13,7 @@
 
 namespace D3\Webauthn\tests\unit\Application\Controller\Admin;
 
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Admin\d3user_webauthn;
@@ -172,7 +173,7 @@ class d3user_webauthnTest extends WAUnitTestCase
             ])
             ->getMock();
         $sutMock->expects($this->atLeastOnce())->method('setPageType');
-        $sutMock->expects($this->atLeastOnce())->method('setAuthnRegister')->willThrowException(oxNew(WebauthnException::class));
+        $sutMock->expects($this->atLeastOnce())->method('setAuthnRegister')->willThrowException(new InvalidArgumentException('msg', 20));
 
         $this->callMethod(
             $sutMock,

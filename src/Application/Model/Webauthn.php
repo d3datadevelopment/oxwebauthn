@@ -26,7 +26,6 @@ use D3\Webauthn\Application\Model\Exceptions\WebauthnGetException;
 use D3\Webauthn\Modules\Application\Model\d3_User_Webauthn;
 use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
-use Exception;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OxidEsales\Eshop\Application\Model\User;
@@ -78,6 +77,7 @@ class Webauthn
      * @throws DoctrineDriverException
      * @throws DoctrineException
      * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getCreationOptions(User $user): string
     {
@@ -96,9 +96,7 @@ class Webauthn
 
         $json = $this->jsonEncode($publicKeyCredentialCreationOptions);
 
-        if ($json === false) {
-            throw oxNew(Exception::class, "can't encode creation options");
-        }
+        Assert::that($json)->isJsonString("can't encode request options");
 
         return $json;
     }
@@ -149,7 +147,7 @@ class Webauthn
         $existingCredentials = $this->getExistingCredentials($userEntity);
 
         d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug(
-            'found user credentials: '.count($existingCredentials).' for ID '.$userId)
+            'found user credentials: '.count($existingCredentials).' for ID '.$userId
         );
 
         // We generate the set of options.
@@ -167,7 +165,7 @@ class Webauthn
             'request options: '.$json
         );
 
-        Assert::that($json)->minLength(1, "can't encode request options");
+        Assert::that($json)->isJsonString("can't encode request options");
 
         return $json;
     }

@@ -17,6 +17,7 @@ namespace D3\Webauthn\Application\Controller\Admin;
 
 use Assert\Assert;
 use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredentialList;
@@ -84,7 +85,7 @@ class d3user_webauthn extends AdminDetailsController
         try {
             $this->setPageType('requestnew');
             $this->setAuthnRegister();
-        } catch (Exception|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
+        } catch (AssertionFailedException|ContainerExceptionInterface|NotFoundExceptionInterface|DoctrineDriverException $e) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e->getMessage());
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId' => $this->getEditObjectId()]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
@@ -140,11 +141,14 @@ class d3user_webauthn extends AdminDetailsController
     /**
      * @throws DoctrineDriverException
      * @throws DoctrineException
+     * @throws InvalidArgumentException
      */
     public function setAuthnRegister(): void
     {
+        /** @var Webauthn $authn */
         $authn = d3GetOxidDIC()->get(Webauthn::class);
 
+        /** @var User $user */
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $user->load($this->getEditObjectId());
         $publicKeyCredentialCreationOptions = $authn->getCreationOptions($user);
@@ -169,6 +173,7 @@ class d3user_webauthn extends AdminDetailsController
      */
     public function getCredentialList($userId): array
     {
+        /** @var User $oUser */
         $oUser = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
         $oUser->load($userId);
 

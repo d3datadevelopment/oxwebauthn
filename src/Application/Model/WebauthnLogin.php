@@ -112,6 +112,7 @@ class WebauthnLogin
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
         /** @var d3_User_Webauthn $user */
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
+        $userId = null;
 
         try {
             $userId = $this->getUserId();
@@ -160,6 +161,7 @@ class WebauthnLogin
         $myUtilsView = d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class);
         /** @var d3_User_Webauthn $user */
         $user = d3GetOxidDIC()->get('d3ox.webauthn.'.User::class);
+        $userId = null;
 
         try {
             $userId = $this->getUserId();

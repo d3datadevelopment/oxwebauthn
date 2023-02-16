@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Webauthn\tests\unit\Application\Controller;
 
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Development\CanAccessRestricted;
 use D3\Webauthn\Application\Controller\d3webauthnlogin;
 use D3\Webauthn\Application\Model\Exceptions\WebauthnException;
@@ -181,9 +182,14 @@ class d3webauthnloginTest extends WAUnitTestCase
      * @test
      * @return void
      * @throws ReflectionException
+     * @dataProvider generateCredentialRequestFailedDataProvider
      * @covers \D3\Webauthn\Application\Controller\d3webauthnlogin::generateCredentialRequest
      */
-    public function generateCredentialRequestFailed($redirectClass = 'start', $userVarName = WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+    public function generateCredentialRequestFailed(
+        $exception,
+        $redirectClass = 'start',
+        $userVarName = WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER
+    )
     {
         $currUserFixture = 'currentUserFixture';
 
@@ -209,7 +215,7 @@ class d3webauthnloginTest extends WAUnitTestCase
             ->onlyMethods(['getRequestOptions'])
             ->getMock();
         $webAuthnMock->expects($this->once())->method('getRequestOptions')->with($currUserFixture)
-            ->willThrowException(oxNew(WebauthnException::class, 'foobar0'));
+            ->willThrowException($exception);
         d3GetOxidDIC()->set(Webauthn::class, $webAuthnMock);
 
         /** @var Utils|MockObject $utilsMock */
@@ -231,6 +237,15 @@ class d3webauthnloginTest extends WAUnitTestCase
             $sut,
             'generateCredentialRequest'
         );
+    }
+
+    /**
+     * @return Generator
+     */
+    public function generateCredentialRequestFailedDataProvider(): Generator
+    {
+        yield 'WebauthnException'           => [oxNew(WebauthnException::class, 'foobar0')];
+        yield 'InvalidArgumentException'    => [oxNew(InvalidArgumentException::class, 'foobar0', 20)];
     }
 
     /**

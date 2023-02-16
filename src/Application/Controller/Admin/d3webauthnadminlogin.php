@@ -29,7 +29,6 @@ use Doctrine\DBAL\Driver\Exception as DoctrineDriverException;
 use Doctrine\DBAL\Exception as DoctrineException;
 use OxidEsales\Eshop\Application\Controller\Admin\AdminController;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
-use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Routing\ControllerClassNameResolver;
 use OxidEsales\Eshop\Core\Session;
@@ -63,11 +62,11 @@ class d3webauthnadminlogin extends AdminController
     public function render(): string
     {
         if (d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                 ->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH)
+            ->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_AUTH)
         ) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=admin_start');
         } elseif (!d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                        ->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
+            ->hasVariable(WebauthnConf::WEBAUTHN_ADMIN_SESSION_CURRENTUSER)
         ) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=login');
         }

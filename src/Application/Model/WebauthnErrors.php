@@ -17,6 +17,7 @@ namespace D3\Webauthn\Application\Model;
 
 use D3\TestingTools\Production\IsMockable;
 use OxidEsales\Eshop\Core\Language;
+use Psr\Log\LoggerInterface;
 
 class WebauthnErrors
 {

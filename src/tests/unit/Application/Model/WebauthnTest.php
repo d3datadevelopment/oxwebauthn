@@ -182,7 +182,7 @@ class WebauthnTest extends WAUnitTestCase
      */
     public function canGetOptionsDataProvider(): Generator
     {
-        yield 'json encoded'  => ['jsonstring'];
+        yield 'json encoded'  => [json_encode(['jsonstring'])];
         yield 'json failed'   => [false];
     }
 

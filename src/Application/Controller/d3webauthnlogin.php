@@ -63,9 +63,9 @@ class d3webauthnlogin extends FrontendController
     public function render(): string
     {
         if (d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                 ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
+            ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_AUTH) ||
             !d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                  ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
+            ->hasVariable(WebauthnConf::WEBAUTHN_SESSION_CURRENTUSER)
         ) {
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');
         }
@@ -73,7 +73,7 @@ class d3webauthnlogin extends FrontendController
         $this->generateCredentialRequest();
 
         $this->addTplParam('navFormParams', d3GetOxidDIC()->get('d3ox.webauthn.'.Session::class)
-                                                 ->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
+            ->getVariable(WebauthnConf::WEBAUTHN_SESSION_NAVFORMPARAMS));
 
         return $this->d3CallMockableFunction([FrontendController::class, 'render']);
     }
@@ -109,7 +109,7 @@ class d3webauthnlogin extends FrontendController
                 ->setVariable(WebauthnConf::GLOBAL_SWITCH, true);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId' => $userId]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
-            Registry::getUtilsView()->addErrorToDisplay($e);
+            Registry::getUtilsView()->addErrorToDisplay($e->getMessage());
             d3GetOxidDIC()->get('d3ox.webauthn.'.Utils::class)->redirect('index.php?cl=start');
         }
     }

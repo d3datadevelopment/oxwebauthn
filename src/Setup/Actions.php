@@ -42,6 +42,9 @@ class Actions
     public $seo_en = 'en/key-authentication';
     public $stdClassName = 'd3_account_webauthn';
 
+    /**
+     * @throws Exception
+     */
     public function runModuleMigrations()
     {
         /** @var MigrationsBuilder $migrationsBuilder */
@@ -52,6 +55,7 @@ class Actions
 
     /**
      * Regenerate views for changed tables
+     * @throws Exception
      */
     public function regenerateViews()
     {
@@ -61,6 +65,7 @@ class Actions
 
     /**
      * clear cache
+     * @throws Exception
      */
     public function clearCache()
     {
@@ -126,6 +131,7 @@ class Actions
 
     /**
      * @return void
+     * @throws Exception
      */
     public function seoUrl()
     {
@@ -142,9 +148,11 @@ class Actions
 
     /**
      * @return bool
+     * @throws Exception
      */
     public function hasSeoUrl(): bool
     {
+        /** @var SeoEncoder $seoEncoder */
         $seoEncoder = d3GetOxidDIC()->get('d3ox.webauthn.'.SeoEncoder::class);
         $seoUrl = $seoEncoder->getStaticUrl(
             d3GetOxidDIC()->get('d3ox.webauthn.'.FrontendController::class)->getViewConfig()->getSelfLink() .
@@ -156,6 +164,7 @@ class Actions
 
     /**
      * @return void
+     * @throws Exception
      */
     public function createSeoUrl()
     {

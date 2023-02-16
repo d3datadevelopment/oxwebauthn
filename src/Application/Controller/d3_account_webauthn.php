@@ -17,6 +17,7 @@ namespace D3\Webauthn\Application\Controller;
 
 use Assert\Assert;
 use Assert\AssertionFailedException;
+use Assert\InvalidArgumentException;
 use D3\TestingTools\Production\IsMockable;
 use D3\Webauthn\Application\Controller\Traits\accountTrait;
 use D3\Webauthn\Application\Model\Credential\PublicKeyCredential;
@@ -87,6 +88,10 @@ class d3_account_webauthn extends AccountController
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getDetailedErrorMessage(), ['UserId: ' => $this->getUser()->getId()]);
             d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
             d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
+        } catch (AssertionFailedException $e) {
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->error($e->getMessage(), ['UserId: ' => $this->getUser()->getId()]);
+            d3GetOxidDIC()->get('d3ox.webauthn.'.LoggerInterface::class)->debug($e->getTraceAsString());
+            d3GetOxidDIC()->get('d3ox.webauthn.'.UtilsView::class)->addErrorToDisplay($e);
         }
     }
 
@@ -104,6 +109,7 @@ class d3_account_webauthn extends AccountController
      * @throws DoctrineException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
      * @return void
      */
     public function setAuthnRegister(): void
