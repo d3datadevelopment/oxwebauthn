@@ -3,11 +3,11 @@
 
 # D³ Passwordless login for OXID eShop
 
-With this module, the login in the OXID shop can be carried out with a hardware token instead of a password (WebAuthn / FIDO2 based). 
+With this module, the login in the OXID shop can be carried out with a hardware based login key instead of a password (WebAuthn / FIDO2 based). 
 
 This secures the login in the frontend and (if allowed for the user) also in the backend.
 
-Security keys are devices that contain cryptographic keys. These can be used for two-factor authentication. The security key must support the standard "[WebAuthn](https://w3c.github.io/webauthn/#webauthn-authenticator)".
+Login keys are from devices that contain cryptographic keys. These can be used for two-factor authentication. The login key device must support the standard "[WebAuthn](https://w3c.github.io/webauthn/#webauthn-authenticator)".
 
 The key management is done in the admin area and in the user's "My Account".
 

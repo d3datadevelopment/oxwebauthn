@@ -18,7 +18,8 @@
     "token",
     "yubikey",
     "solokey",
-    "credential"
+    "credential",
+    "login"
   ],
   "authors": [
     {

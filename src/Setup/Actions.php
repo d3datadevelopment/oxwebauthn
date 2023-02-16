@@ -38,8 +38,8 @@ class Actions
 {
     use IsMockable;
 
-    public $seo_de = 'sicherheitsschluessel';
-    public $seo_en = 'en/key-authentication';
+    public $seo_de = 'anmeldeschluessel';
+    public $seo_en = 'en/login-keys';
     public $stdClassName = 'd3_account_webauthn';
 
     /**

@@ -3,11 +3,11 @@
 
 # D³ Passwortloses Anmelden für OXID eShop
 
-Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem Hardwaretoken anstelle eines Passworts durchgeführt werden (WebAuthn / FIDO2 basiert). 
+Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem hardwarebasierten Anmeldeschlüssel anstelle eines Passworts durchgeführt werden (WebAuthn / FIDO2 basiert). 
 
 Hierbei wird die Anmeldung im Frontend und (sofern für den Benutzer erlaubt) auch im Backend gesichert.
 
-Sicherheitsschlüssel sind Geräte, die kryptografische Schlüssel beeinhalten. Diese können für die Zwei-Faktor-Authentifizierung verwendet werden. Der Sicherheitsschlüssel muss den Standard "[WebAuthn](https://w3c.github.io/webauthn/#webauthn-authenticator)" unterstützen.
+Anmeldeschlüssel stammen von Geräten, die kryptografische Schlüssel beeinhalten. Diese können für die Zwei-Faktor-Authentifizierung verwendet werden. Das Anmeldeschlüsselgerät muss den Standard "[WebAuthn](https://w3c.github.io/webauthn/#webauthn-authenticator)" unterstützen.
 
 Die Schlüsselverwaltung erfolgt im Adminbereich sowie im "Mein Konto" des Benutzers.
 
