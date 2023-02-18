@@ -73,7 +73,7 @@ $aModule = [
         'de'      => 'Passwortlose Anmeldung f&uuml;r OXID eSales Shop (WebAuthn / FIDO2 basiert)',
         'en'      => 'Passwordless login for OXID eSales shop (WebAuthn / FIDO2 based)',
     ],
-    'version'     => '1.0.0.0',
+    'version'     => '0.1.0.0',
     'author'      => 'D&sup3; Data Development (Inh.: Thomas Dartsch)',
     'email'       => 'support@shopmodule.com',
     'url'         => 'https://www.oxidmodule.com/',
