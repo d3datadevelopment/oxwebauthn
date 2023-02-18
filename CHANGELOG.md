@@ -10,4 +10,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Key management in front and back end
 - FIDO2 as password alternative for login in front- and backend - password as fallback
-- compatible with our 2FA one-time password module
+- compatible with our 2FA one-time password module (https://packagist.org/packages/d3/oxid-twofactor-onetimepassword from version 2.1.0.0)
