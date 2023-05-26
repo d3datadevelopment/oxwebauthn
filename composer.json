@@ -19,7 +19,8 @@
     "yubikey",
     "solokey",
     "credential",
-    "login"
+    "login",
+    "passkey"
   ],
   "authors": [
     {
@@ -41,7 +42,7 @@
   },
   "require": {
     "php": ">=7.4",
-    "oxid-esales/oxideshop-ce": "6.8 - 6.13",
+    "oxid-esales/oxideshop-ce": "6.8 - 6.14",
     "web-auth/webauthn-lib": "^3.3",
     "nyholm/psr7": "^1.5.1",
     "nyholm/psr7-server": "^1.0.2",
