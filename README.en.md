@@ -1,9 +1,11 @@
 [![deutsche Version](https://logos.oxidmodule.com/de2_xs.svg)](README.md)
 [![english version](https://logos.oxidmodule.com/en2_xs.svg)](README.en.md)
 
-# D³ Passwordless login for OXID eShop
+# Passwordless login for OXID eShop
 
-With this module, the login in the OXID shop can be carried out with a hardware based login key instead of a password (WebAuthn / FIDO2 based). 
+![Passwordless login for OXID eShop](src/logo.png)
+
+With this module, the login in the OXID shop can be carried out with a hardware based login key (WebAuthn / FIDO2 based passkey) instead of a password. 
 
 This secures the login in the frontend and (if allowed for the user) also in the backend.
 

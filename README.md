@@ -1,9 +1,11 @@
 [![deutsche Version](https://logos.oxidmodule.com/de2_xs.svg)](README.md)
 [![english version](https://logos.oxidmodule.com/en2_xs.svg)](README.en.md)
 
-# D³ Passwortloses Anmelden für OXID eShop
+# Passwortloses Anmelden für OXID eShop
 
-Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem hardwarebasierten Anmeldeschlüssel anstelle eines Passworts durchgeführt werden (WebAuthn / FIDO2 basiert). 
+![Passwortloses Anmelden für OXID eShop](src/logo.png)
+
+Mit diesem Modul kann die Anmeldung im OXID-Shop mit einem hardwarebasierten Anmeldeschlüssel (WebAuthn / FIDO2 basierter passkey) anstelle eines Passworts durchgeführt werden. 
 
 Hierbei wird die Anmeldung im Frontend und (sofern für den Benutzer erlaubt) auch im Backend gesichert.
 
