@@ -74,7 +74,7 @@ $aModule = [
         'en'      => 'Passwordless login for OXID eSales shop (with WebAuthn / FIDO2 based passkeys)',
     ],
     'version'     => '1.0.0.0',
-    'thumbnail'   => 'logo.png',
+    'thumbnail'   => 'picture.svg',
     'author'      => 'D&sup3; Data Development (Inh.: Thomas Dartsch)',
     'email'       => 'support@shopmodule.com',
     'url'         => 'https://www.oxidmodule.com/',
